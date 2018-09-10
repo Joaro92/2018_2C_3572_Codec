@@ -23,7 +23,7 @@ bld/
 [Oo]bj/
 *.exe
 *.exe.*
-*.dll
+# *.dll
 *.vshost.*
 
 # Visual Studo 2015 cache/options directory
