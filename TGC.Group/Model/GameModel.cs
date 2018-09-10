@@ -190,7 +190,8 @@ namespace TGC.Group.Model
         private TGCVertex3fModifier gravedadModifier;
         private TGCFloatModifier slideFactorModifier;
         */
-
+        private bool showBoundingBox = true;
+        
         private readonly List<TgcMesh> objectsBehind = new List<TgcMesh>();
         private readonly List<TgcMesh> objectsInFront = new List<TgcMesh>();
         private readonly List<TgcBoundingAxisAlignBox> objetosColisionables = new List<TgcBoundingAxisAlignBox>();
@@ -209,15 +210,14 @@ namespace TGC.Group.Model
         {
             Category = "Collision";
             Name = "Movimientos Esfera 3ra Persona";
-            Description =
-                "Estrategia integral de colisión: BoundingSphere + Gravedad + Sliding + Jump. Movimiento con W, A, S, D, Space. No ha sido implementado en su totalidad y aún existen muchos puntos por mejorar y algunos bugs.";
+            Description = "Movimientos Esfera 3ra Persona";
         }
 
         public override void Init()
         {
             //Cargar escenario específico para este ejemplo
             var loader = new TgcSceneLoader();
-            escenario = loader.loadSceneFromFile(MediaDir + "Escenarios\\escenario-base-attached-TgcScene.xml");
+            escenario = loader.loadSceneFromFile(MediaDir + "Escenarios\\escenario-base-TgcScene.xml");
 
             //Cargar personaje con animaciones
             //var skeletalLoader = new TgcSkeletalLoader();
@@ -242,11 +242,11 @@ namespace TGC.Group.Model
             //perdiendo el control de las transformaciones del personaje.
             autito.AutoTransform = true;
             //Escalarlo porque es muy grande
-            autito.Position = new TGCVector3(0, 500, -100);
+            autito.Position = new TGCVector3(0, 60, -100);
             //Rotarlo 180° porque esta mirando para el otro lado
             autito.RotateY(Geometry.DegreeToRadian(180f));
             //Escalamos el personaje ya que sino la escalera es demaciado grande.
-            //personaje.Scale = new TGCVector3(0.12f, 0.12f, 0.12f);
+            autito.Scale = new TGCVector3(0.75f, 0.75f, 0.75f);
             //BoundingSphere que va a usar el personaje
             //personaje.AutoUpdateBoundingBox = false;
             characterSphere = new TgcBoundingSphere(autito.BoundingBox.calculateBoxCenter(), autito.BoundingBox.calculateBoxRadius());
@@ -335,17 +335,21 @@ namespace TGC.Group.Model
             }
 
             //Jump
-            if (Input.keyUp(Key.Space) && jumping < 30)
+            if (Input.keyUp(Key.Space) && jumping <= 0)
             {
-                jumping = 30;
+                jumping = 2;
             }
             if (Input.keyUp(Key.Space) || jumping > 0)
             {
-                jumping -= 30 * ElapsedTime;
+                jumping -= 2 * ElapsedTime;
                 jump = jumping;
                 moving = true;
             }
 
+            if (Input.keyUp(Key.F1))
+            {
+                showBoundingBox = !showBoundingBox;
+            }
             //Si hubo rotacion
             if (rotating)
             {
@@ -379,7 +383,7 @@ namespace TGC.Group.Model
 
             //Actualizar valores de gravedad
             collisionManager.GravityEnabled = true;
-            collisionManager.GravityForce = new TGCVector3(0, -10, 0);
+            collisionManager.GravityForce = new TGCVector3(0, -1, 0);
             collisionManager.SlideFactor = 1.3f;
 
             //Mover personaje con detección de colisiones, sliding y gravedad
@@ -421,7 +425,7 @@ namespace TGC.Group.Model
             PreRender();
 
             //Obtener boolean para saber si hay que mostrar Bounding Box
-            var showBB = false;
+            var showBB = showBoundingBox;
 
             //Render mallas que no se interponen
             foreach (var mesh in objectsInFront)
