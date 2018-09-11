@@ -48,7 +48,7 @@ namespace TGC.Group.Model
         {
             //Cargar escenario específico para este ejemplo
             var loader = new TgcSceneLoader();
-            escenario = loader.loadSceneFromFile(MediaDir + "Escenarios\\escenario-objetos-TgcScene.xml");
+            escenario = loader.loadSceneFromFile(MediaDir + "Escenarios\\escenario-objetos2-TgcScene.xml");
 
             //Cargar autito
             autito = loader.loadSceneFromFile(MediaDir + "Vehicles\\car-minibus-blue-TgcScene.xml").Meshes[0];
@@ -66,7 +66,7 @@ namespace TGC.Group.Model
             //BoundingSphere que va a usar el personaje
             autito.AutoUpdateBoundingBox = false;
             characterSphere = new TgcBoundingSphere(autito.BoundingBox.calculateBoxCenter(), autito.BoundingBox.calculateBoxRadius());
-
+            
             //Almacenar volumenes de colision del escenario
             objetosColisionables.Clear();
             foreach (var mesh in escenario.Meshes)
@@ -80,7 +80,7 @@ namespace TGC.Group.Model
             collisionManager.GravityEnabled = true;
 
             //Configurar camara en Tercer Persona
-            camaraInterna = new TgcThirdPersonCamera(autito.Position, new TGCVector3(0, 5, 0), 10, -24);
+            camaraInterna = new TgcThirdPersonCamera(autito.Position, new TGCVector3(0, 2, 0), 3, -15);
             Camara = camaraInterna;
 
             //Crear SkyBox
