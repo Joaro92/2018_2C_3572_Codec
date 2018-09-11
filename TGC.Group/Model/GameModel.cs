@@ -244,6 +244,10 @@ namespace TGC.Group.Model
             //Obtener boolean para saber si hay que mostrar Bounding Box
             var showBB = showBoundingBox;
 
+            DrawText.drawText("Con la tecla F1 se dibuja el bounding box.", 0, 20, Color.OrangeRed);
+            DrawText.drawText("W A S D para el movimiento básico", 0, 35, Color.OrangeRed);
+            DrawText.drawText("Tecla SPACE para saltar", 0, 50, Color.OrangeRed);
+
             //Render mallas que no se interponen
             foreach (var mesh in objectsInFront)
             {
