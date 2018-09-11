@@ -48,7 +48,7 @@ namespace TGC.Group.Model
         {
             //Cargar escenario específico para este ejemplo
             var loader = new TgcSceneLoader();
-            escenario = loader.loadSceneFromFile(MediaDir + "Escenarios\\escenario-base2-TgcScene.xml");
+            escenario = loader.loadSceneFromFile(MediaDir + "Escenarios\\escenario-objetos-TgcScene.xml");
 
             //Cargar autito
             autito = loader.loadSceneFromFile(MediaDir + "Vehicles\\car-minibus-blue-TgcScene.xml").Meshes[0];
