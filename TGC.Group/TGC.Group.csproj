@@ -98,9 +98,11 @@
       <DependentUpon>Game.settings</DependentUpon>
     </Compile>
     <Compile Include="Model\Bullet_TGC.cs" />
+    <Compile Include="Model\Escenario.cs" />
     <Compile Include="Model\Nivel1.cs" />
     <Compile Include="Model\PhysicsGame.cs" />
     <Compile Include="Model\GameModel.cs" />
+    <Compile Include="Model\Player1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form\GameForm.resx">

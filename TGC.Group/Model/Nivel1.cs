@@ -5,14 +5,19 @@ using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Group.Bullet.Physics;
 using TGC.Group.Bullet_TGC_Object;
+using TGC.Group.PlayerOne;
 
 namespace TGC.Group.Nivel1
 {
     public class NivelUno : PhysicsGame
     {
-        private Bullet_TGC player1, floor;
+        private Bullet_TGC floor;
+        private Bullet_TGC obj;
+        private Player1 player1;
+        private bool jumped = false;
+        private bool flag = false;
 
-        public override Bullet_TGC Init()
+        public override Player1 Init()
         {
             base.Init();
 
@@ -20,15 +25,25 @@ namespace TGC.Group.Nivel1
             floor = new Bullet_TGC("Texturas\\granito.jpg", new TGCVector3(-2000, 0, -2000), new TGCVector3(4000, 0, 4000), TgcPlane.Orientations.XZplane);
             world.AddRigidBody(floor.rigidBody);
 
+            obj = new Bullet_TGC("Escenarios\\columna-TgcScene.xml", new TGCVector3(-5, 19.23f, -40));
+            obj.tgcMesh.AutoTransform = false;
+            world.AddRigidBody(obj.rigidBody);
+
+            var radio = obj.tgcMesh.BoundingBox.calculateAxisRadius();
+            var pmin = obj.tgcMesh.BoundingBox.PMin;
+
+            obj.tgcMesh.Transform = new TGCMatrix(obj.rigidBody.InterpolationWorldTransform);
+            obj.tgcMesh.Transform = obj.tgcMesh.Transform * TGCMatrix.Translation(-(radio + pmin));
+
             // Agregamos a nuestro jugador
-            player1 = new Bullet_TGC("Vehicles\\centered car-minibus-TgcScene.xml", new TGCVector3(0, 30, 0), 0.2f, 0.5f);
+            player1 = new Player1("Vehicles\\centered car-minibus-TgcScene.xml", new TGCVector3(0, 30, 0), 0.2f, 0.5f);
             player1.tgcMesh.AutoTransform = false;
             world.AddRigidBody(player1.rigidBody);
 
             return player1;
         }
 
-        public override Bullet_TGC Update(TgcD3dInput Input)
+        public override Player1 Update(TgcD3dInput Input)
         {
             world.StepSimulation(1 / 60f, 10);
             player1.rigidBody.Activate();
@@ -92,11 +107,23 @@ namespace TGC.Group.Nivel1
                 player1.rigidBody.ApplyTorque(new Vector3(0, rotate, 0));
             }
 
-            if (jump && FastMath.Abs(player1.rigidBody.LinearVelocity.Y) < 0.4f)
+            if (jump && !jumped && !flag)
             {
                 player1.rigidBody.ApplyCentralForce(new Vector3(0, 250, 0));
+                jumped = true;
             }
-            
+
+            if (jumped && player1.rigidBody.LinearVelocity.Y < -0.1f)
+            {
+                flag = true;
+                jumped = false;
+            }
+
+            if (player1.rigidBody.LinearVelocity.Y > -0.05f)
+            {
+                flag = false;
+            }
+
             return player1;
         }
 
@@ -104,6 +131,7 @@ namespace TGC.Group.Nivel1
         {
             player1.tgcMesh.Transform = new TGCMatrix(player1.rigidBody.InterpolationWorldTransform);
             player1.tgcMesh.Render();
+            obj.tgcMesh.Render();
             floor.tgcMesh.Render();
         }
 

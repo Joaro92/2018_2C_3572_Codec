@@ -6,13 +6,14 @@ using TGC.Examples.Camara;
 using TGC.Group.Bullet.Physics;
 using TGC.Group.Bullet_TGC_Object;
 using TGC.Group.Nivel1;
+using TGC.Group.PlayerOne;
 
 namespace TGC.Group.Model
 {
     public class GameModel : TgcExample
     {
         private PhysicsGame physicsEngine;
-        private Bullet_TGC player1;
+        private Player1 player1;
         private TgcThirdPersonCamera camaraInterna;
         private TgcArrow directionArrow;
 
@@ -48,10 +49,10 @@ namespace TGC.Group.Model
             camaraInterna.Target = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
             camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y;
 
-            directionArrow.PStart = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
-            directionArrow.PEnd = directionArrow.PStart + Quat.rotate_vector_by_quaternion(new TGCVector3(0, 0, -1), player1.rigidBody.Orientation) * 20;
-            directionArrow.updateValues();
- 
+            //directionArrow.PStart = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
+            //directionArrow.PEnd = directionArrow.PStart + Quat.rotate_vector_by_quaternion(new TGCVector3(0, 0, -1), player1.rigidBody.Orientation) * 20;
+            //directionArrow.updateValues();
+
             PostUpdate();
         }
 
@@ -59,7 +60,7 @@ namespace TGC.Group.Model
         {
             PreRender();
             physicsEngine.Render();
-            directionArrow.Render();
+            //directionArrow.Render();
             PostRender();
         }
 

@@ -5,6 +5,7 @@ using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Group.Bullet_TGC_Object;
+using TGC.Group.PlayerOne;
 
 namespace TGC.Group.Bullet.Physics
 {
@@ -134,6 +135,21 @@ namespace TGC.Group.Bullet.Physics
             return floorBody;
         }
 
+        public static RigidBody CreateRigidBodyFromTgcMesh(TgcMesh mesh, TGCVector3 position)
+        {
+            var meshAxisRadius = mesh.BoundingBox.calculateAxisRadius().ToBsVector;
+            var boxShape = new BoxShape(meshAxisRadius);
+
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(0, 0, 0).ToBsMatrix;
+            transformationMatrix.Origin = position.ToBsVector;
+            DefaultMotionState motionState = new DefaultMotionState(transformationMatrix);
+
+            var boxLocalInertia = boxShape.CalculateLocalInertia(0);
+            var bodyInfo = new RigidBodyConstructionInfo(0, motionState, boxShape, boxLocalInertia);
+            var rigidBody = new RigidBody(bodyInfo);
+       
+            return rigidBody;
+        }
 
         public static RigidBody CreateRigidBodyFromTgcMesh(TgcMesh mesh, TGCVector3 position, float mass, float friction)
         {
@@ -151,7 +167,9 @@ namespace TGC.Group.Bullet.Physics
             var rigidBody = new RigidBody(bodyInfo);
             rigidBody.LinearFactor = TGCVector3.One.ToBsVector;
             rigidBody.Friction = friction;
-            rigidBody.RollingFriction = friction;
+            rigidBody.RollingFriction = 1f;
+            rigidBody.AngularFactor = new Vector3(1f, 0.2f, 1f);
+            rigidBody.SpinningFriction = 0.7f;
 
             return rigidBody;
         }
@@ -325,7 +343,7 @@ namespace TGC.Group.Bullet.Physics
         protected SequentialImpulseConstraintSolver constraintSolver;
         protected BroadphaseInterface broadphase;
 
-        public virtual Bullet_TGC Init()
+        public virtual Player1 Init()
         {
             //Creamos el mundo fisico por defecto.
             collisionConfiguration = new DefaultCollisionConfiguration();
@@ -339,7 +357,7 @@ namespace TGC.Group.Bullet.Physics
             return null;
         }
 
-        public abstract Bullet_TGC Update(TgcD3dInput Input);
+        public abstract Player1 Update(TgcD3dInput Input);
 
         public abstract void Render();
 

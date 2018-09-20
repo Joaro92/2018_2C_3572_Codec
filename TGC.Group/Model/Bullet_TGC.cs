@@ -25,6 +25,13 @@ namespace TGC.Group.Bullet_TGC_Object
             this._rigidBody = BulletRigidBodyConstructor.CreateRigidBodyFromTgcMesh(_tgcMesh, position, mass, friction);
         }
 
+        public Bullet_TGC(String xmlPath, TGCVector3 position)
+        {
+            var loader = new TgcSceneLoader();
+            this._tgcMesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + xmlPath).Meshes[0];
+            this._rigidBody = BulletRigidBodyConstructor.CreateRigidBodyFromTgcMesh(_tgcMesh, position);
+        }
+
         /// <summary>
         ///  Se crea un plano estático de masa 0, con propiedades de Bullet y TgcMesh
         /// </summary>
