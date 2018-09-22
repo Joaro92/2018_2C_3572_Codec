@@ -1,4 +1,5 @@
-﻿using BulletSharp.Math;
+﻿using BulletSharp;
+using BulletSharp.Math;
 using Microsoft.DirectX.DirectInput;
 using TGC.Core.Geometry;
 using TGC.Core.Input;
@@ -6,13 +7,15 @@ using TGC.Core.Mathematica;
 using TGC.Group.Bullet.Physics;
 using TGC.Group.Bullet_TGC_Object;
 using TGC.Group.PlayerOne;
+using TGC.Group.TGCEscenario;
 
 namespace TGC.Group.Nivel1
 {
     public class NivelUno : PhysicsGame
     {
-        private Bullet_TGC floor;
-        private Bullet_TGC obj;
+        //private Bullet_TGC floor;
+        //private Bullet_TGC obj;
+        private Escenario escenario;
         private Player1 player1;
         private bool jumped = false;
         private bool flag = false;
@@ -22,21 +25,28 @@ namespace TGC.Group.Nivel1
             base.Init();
 
             // Agregamos un piso
-            floor = new Bullet_TGC("Texturas\\granito.jpg", new TGCVector3(-2000, 0, -2000), new TGCVector3(4000, 0, 4000), TgcPlane.Orientations.XZplane);
-            world.AddRigidBody(floor.rigidBody);
+            //floor = new Bullet_TGC("Texturas\\granito.jpg", new TGCVector3(-2000, 0, -2000), new TGCVector3(4000, 0, 4000), TgcPlane.Orientations.XZplane);
+            //world.AddRigidBody(floor.rigidBody);
 
-            obj = new Bullet_TGC("Escenarios\\columna-TgcScene.xml", new TGCVector3(-5, 19.23f, -40));
-            obj.tgcMesh.AutoTransform = false;
-            world.AddRigidBody(obj.rigidBody);
+            //obj = new Bullet_TGC("Escenarios\\columna-TgcScene.xml", new TGCVector3(-5, 19.23f, -40));
+            //obj.tgcMesh.AutoTransform = false;
+            //world.AddRigidBody(obj.rigidBody);
 
-            var radio = obj.tgcMesh.BoundingBox.calculateAxisRadius();
-            var pmin = obj.tgcMesh.BoundingBox.PMin;
+            //var radio = obj.tgcMesh.BoundingBox.calculateAxisRadius();
+            //var pmin = obj.tgcMesh.BoundingBox.PMin;
 
-            obj.tgcMesh.Transform = new TGCMatrix(obj.rigidBody.InterpolationWorldTransform);
-            obj.tgcMesh.Transform = obj.tgcMesh.Transform * TGCMatrix.Translation(-(radio + pmin));
+            //obj.tgcMesh.Transform = new TGCMatrix(obj.rigidBody.InterpolationWorldTransform);
+            //obj.tgcMesh.Transform = obj.tgcMesh.Transform * TGCMatrix.Translation(-(radio + pmin));
+
+            // Agregamos el escenario
+            escenario = new Escenario("Escenarios\\escenario-objetos2-TgcScene.xml");
+            foreach(RigidBody rigid in escenario.rigidBodys)
+            {
+                world.AddRigidBody(rigid);
+            }
 
             // Agregamos a nuestro jugador
-            player1 = new Player1("Vehicles\\centered car-minibus-TgcScene.xml", new TGCVector3(0, 30, 0), 0.2f, 0.5f);
+            player1 = new Player1("Vehicles\\centered car-minibus-TgcScene.xml", new TGCVector3(0, 30, 0), 0.2f, 0.6f);
             player1.tgcMesh.AutoTransform = false;
             world.AddRigidBody(player1.rigidBody);
 
@@ -50,7 +60,7 @@ namespace TGC.Group.Nivel1
 
             // Atributos Player 1
             var moveSpeed = 1f;
-            var rotationSpeed = 1f;
+            var rotationSpeed = 1.25f;
 
             // Detectar según el Input, si va a Rotar, Avanzar y/o Saltar
             var moveForward = 0f;
@@ -99,7 +109,7 @@ namespace TGC.Group.Nivel1
             // Aplicar las fuerzas necesarias al Cuerpo Rigido del Player 1 para lograr el movimiento
             if (moving)
             {
-                player1.rigidBody.ApplyCentralForce(moveVector);
+                player1.rigidBody.ApplyCentralForce(moveVector * 4);
             }
 
             if (rotating)
@@ -109,7 +119,7 @@ namespace TGC.Group.Nivel1
 
             if (jump && !jumped && !flag)
             {
-                player1.rigidBody.ApplyCentralForce(new Vector3(0, 250, 0));
+                player1.rigidBody.ApplyCentralForce(new Vector3(0, 220, 0));
                 jumped = true;
             }
 
@@ -131,8 +141,14 @@ namespace TGC.Group.Nivel1
         {
             player1.tgcMesh.Transform = new TGCMatrix(player1.rigidBody.InterpolationWorldTransform);
             player1.tgcMesh.Render();
-            obj.tgcMesh.Render();
-            floor.tgcMesh.Render();
+            escenario.tgcScene.RenderAll();
+
+            foreach (var mesh in escenario.tgcScene.Meshes)
+            {
+                    mesh.BoundingBox.Render();
+            }
+            //obj.tgcMesh.Render();
+            //floor.tgcMesh.Render();
         }
 
         public override void Dispose()
@@ -144,8 +160,9 @@ namespace TGC.Group.Nivel1
             broadphase.Dispose();
             player1.tgcMesh.Dispose();
             player1.rigidBody.Dispose();
-            floor.rigidBody.Dispose();
-            floor.tgcMesh.Dispose();
+            escenario.Dispose();
+            //floor.rigidBody.Dispose();
+            //floor.tgcMesh.Dispose();
         }
     }
 }

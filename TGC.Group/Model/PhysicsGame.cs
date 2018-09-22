@@ -126,7 +126,7 @@ namespace TGC.Group.Bullet.Physics
             var floorMotionState = new DefaultMotionState();
             var floorInfo = new RigidBodyConstructionInfo(0, floorMotionState, floorShape);
             var floorBody = new RigidBody(floorInfo);
-            floorBody.Friction = 0.5f;
+            floorBody.Friction = 0.9f;
             floorBody.RollingFriction = 1;
             // ballBody.SetDamping(0.1f, 0.9f);
             floorBody.Restitution = 1f;
@@ -147,7 +147,11 @@ namespace TGC.Group.Bullet.Physics
             var boxLocalInertia = boxShape.CalculateLocalInertia(0);
             var bodyInfo = new RigidBodyConstructionInfo(0, motionState, boxShape, boxLocalInertia);
             var rigidBody = new RigidBody(bodyInfo);
-       
+            rigidBody.Friction = 0.4f;
+            rigidBody.RollingFriction = 1;
+            // ballBody.SetDamping(0.1f, 0.9f);
+            rigidBody.Restitution = 1f;
+
             return rigidBody;
         }
 
