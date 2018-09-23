@@ -39,14 +39,14 @@ namespace TGC.Group.Nivel1
             //obj.tgcMesh.Transform = obj.tgcMesh.Transform * TGCMatrix.Translation(-(radio + pmin));
 
             // Agregamos el escenario
-            escenario = new Escenario("Escenarios\\escenario-objetos2-TgcScene.xml");
+            escenario = new Escenario("Escenarios\\escenario-objetos-TgcScene.xml");
             foreach(RigidBody rigid in escenario.rigidBodys)
             {
                 world.AddRigidBody(rigid);
             }
 
             // Agregamos a nuestro jugador
-            player1 = new Player1("Vehicles\\centered car-minibus-TgcScene.xml", new TGCVector3(0, 30, 0), 0.2f, 0.6f);
+            player1 = new Player1("Vehicles\\centered car-minibus-TgcScene.xml", new TGCVector3(144, 30, 0), 0.2f, 0.6f);
             player1.tgcMesh.AutoTransform = false;
             world.AddRigidBody(player1.rigidBody);
 
