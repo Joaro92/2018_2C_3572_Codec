@@ -141,22 +141,22 @@ namespace TGC.Group.Nivel1
                 player1.Vehicle.SetBrake(27, 3);
             }
 
-            //if (jump && !jumped && !flag)
-            //{
-            //    player1.rigidBody.ApplyCentralForce(new Vector3(0, 220, 0));
-            //    jumped = true;
-            //}
+            if (jump && !jumped && !flag)
+            {
+                player1.rigidBody.ApplyCentralImpulse(new Vector3(0, 2500, 0));
+                jumped = true;
+            }
 
-            //if (jumped && player1.rigidBody.LinearVelocity.Y < -0.1f)
-            //{
-            //    flag = true;
-            //    jumped = false;
-            //}
+            if (jumped && player1.rigidBody.LinearVelocity.Y < -0.1f)
+            {
+                flag = true;
+                jumped = false;
+            }
 
-            //if (player1.rigidBody.LinearVelocity.Y > -0.05f)
-            //{
-            //    flag = false;
-            //}
+            if (player1.rigidBody.LinearVelocity.Y > -0.05f)
+            {
+                flag = false;
+            }
 
             // Ver cual de las mallas se interponen en la visión de la cámara en 3ra persona.
             objectsBehind.Clear();

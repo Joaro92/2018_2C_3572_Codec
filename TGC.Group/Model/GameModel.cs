@@ -9,6 +9,8 @@ using TGC.Group.Nivel1;
 using TGC.Group.PlayerOne;
 using Microsoft.DirectX.DirectInput;
 using TGC.Core.Direct3D;
+using BulletSharp.Math;
+using BulletSharp;
 
 namespace TGC.Group.Model
 {
@@ -17,9 +19,12 @@ namespace TGC.Group.Model
         private PhysicsGame physicsEngine;
         private Player1 player1;
         private TgcThirdPersonCamera camaraInterna;
+        private bool drawUpVector = false;
         private float anguloCamara;
         public int ScreenHeight, ScreenWidth;
         private TgcArrow directionArrow;
+        private Vector3 yawPitchRoll;
+        private float flippedTime;
 
         public GameModel(string mediaDir, string shadersDir) : base(mediaDir, shadersDir)
         {
@@ -37,15 +42,15 @@ namespace TGC.Group.Model
             player1 = physicsEngine.Init();
 
             // Configuramos la Cámara en tercera persona para que siga a nuestro Player 1
-            camaraInterna = new TgcThirdPersonCamera(new TGCVector3(player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), 0, 20);
+            camaraInterna = new TgcThirdPersonCamera(new TGCVector3(player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), 1, 20);
             Camara = camaraInterna;
 
-            // Creamos una flecha que representa el vector dirección
-            //directionArrow = new TgcArrow();
-            //directionArrow.BodyColor = Color.Red;
-            //directionArrow.HeadColor = Color.Green;
-            //directionArrow.Thickness = 0.1f;
-            //directionArrow.HeadSize = new TGCVector2(1, 2);
+            // Creamos una flecha que representara el vector UP del auto
+            directionArrow = new TgcArrow();
+            directionArrow.BodyColor = Color.Red;
+            directionArrow.HeadColor = Color.Green;
+            directionArrow.Thickness = 0.1f;
+            directionArrow.HeadSize = new TGCVector2(1, 2);
         }
 
         public override void Update()
@@ -66,11 +71,20 @@ namespace TGC.Group.Model
                     anguloCamara += 0.33f;
                 }
             }
+
+            if (Input.keyPressed(Key.F3))
+            {
+                drawUpVector = !drawUpVector;
+            }
+
             camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + anguloCamara;
 
-            //directionArrow.PStart = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
-            //directionArrow.PEnd = directionArrow.PStart + Quat.rotate_vector_by_quaternion(new TGCVector3(0, 0, -1), player1.rigidBody.Orientation) * 20;
-            //directionArrow.updateValues();
+            if (drawUpVector)
+            {
+                directionArrow.PStart = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
+                directionArrow.PEnd = directionArrow.PStart + new TGCVector3(Vector3.TransformNormal(Vector3.UnitY, player1.rigidBody.InterpolationWorldTransform)) * 3.5f;
+                directionArrow.updateValues();
+            }
 
             PostUpdate();
         }
@@ -80,22 +94,58 @@ namespace TGC.Group.Model
             PreRender();
 
             var aux = DrawText.Size;
-            DrawText.drawText("Con la tecla F1 se dibuja el bounding box", 3, 20, Color.Yellow);
-            DrawText.drawText("Con la tecla F2 se rota el ángulo de la cámara", 3, 35, Color.Yellow);
-            DrawText.drawText("W A S D para el movimiento básico", 3, 50, Color.Yellow);
+            DrawText.drawText("Con la tecla F1 se dibuja el bounding box", 3, 20, Color.YellowGreen);
+            DrawText.drawText("Con la tecla F2 se rota el ángulo de la cámara", 3, 35, Color.YellowGreen);
+            DrawText.drawText("Con la tecla F3 se dibuja el Vector UP del vehículo", 3, 50, Color.YellowGreen);
+            DrawText.drawText("W A S D para el movimiento básico", 3, 65, Color.YellowGreen);
+            DrawText.drawText("Control Izquierdo para frenar", 3, 80, Color.YellowGreen);
 
             string carSpeed = player1.rigidBody.InterpolationLinearVelocity.Length.ToString();
-            DrawText.drawText("Velocidad: " + carSpeed.Substring(0,4), 15, ScreenHeight - 50, Color.White);
+            if (carSpeed.Length > 4)
+            {
+                DrawText.drawText("Velocidad: " + carSpeed.Substring(0, 4), 15, ScreenHeight - 50, Color.White);
+            }
+            else
+            {
+                DrawText.drawText("Velocidad: " + carSpeed, 15, ScreenHeight - 50, Color.White);
+            }
+
+            yawPitchRoll = Quat.ToEulerAngles(player1.rigidBody.Orientation);
+
+            if (FastMath.Abs(yawPitchRoll.X) > 1.4f || FastMath.Abs(yawPitchRoll.Z) > 1.4f)
+            {
+                flippedTime += ElapsedTime;
+                DrawText.drawText("Tiempo dado vuelta: " + flippedTime, 15, ScreenHeight - 35, Color.White);
+
+                if (flippedTime > 3)
+                {
+                    var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
+                    transformationMatrix.Origin = player1.rigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
+
+                    player1.rigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+                    player1.rigidBody.LinearVelocity = Vector3.Zero;
+                    player1.rigidBody.AngularVelocity = Vector3.Zero;
+                    flippedTime = 0;
+                }
+            }
+            else
+            {
+                flippedTime = 0;
+            }
 
             physicsEngine.Render();
-            //directionArrow.Render();
+            if (drawUpVector)
+            {
+                directionArrow.Render();
+            }
+
             PostRender();
         }
 
         public override void Dispose()
         {
             physicsEngine.Dispose();
-            //directionArrow.Dispose();
+            directionArrow.Dispose();
             player1.rigidBody.Dispose();
         }
     }
