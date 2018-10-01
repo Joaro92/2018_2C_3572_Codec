@@ -30,7 +30,7 @@ namespace TGC.Group.Model
             player1 = physicsEngine.Init();
 
             // Configuramos la Cámara en tercera persona para que siga a nuestro Player 1
-            camaraInterna = new TgcThirdPersonCamera(new TGCVector3(player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), 3, 15);
+            camaraInterna = new TgcThirdPersonCamera(new TGCVector3(player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), 0, 20);
             Camara = camaraInterna;
 
             // Creamos una flecha que representa 
@@ -47,7 +47,7 @@ namespace TGC.Group.Model
             player1 = physicsEngine.Update(Input);
 
             camaraInterna.Target = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
-            camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y;
+            camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + 0.4f;
 
             //directionArrow.PStart = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
             //directionArrow.PEnd = directionArrow.PStart + Quat.rotate_vector_by_quaternion(new TGCVector3(0, 0, -1), player1.rigidBody.Orientation) * 20;
