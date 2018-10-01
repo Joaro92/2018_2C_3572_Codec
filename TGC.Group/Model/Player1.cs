@@ -47,7 +47,7 @@ namespace TGC.Group.PlayerOne
 		    CompoundShape compound = new CompoundShape();
 
             //Matrix localTransform = TGCMatrix.Translation(0, 1.1f, 0).ToBsMatrix;
-            var localTransform = Matrix.Translation(Vector3.UnitY);
+            var localTransform = Matrix.Translation(new Vector3(0,-0.2f,0));
 
             //The center of gravity of the compound shape is the origin. When we add a rigidbody to the compound shape
             //it's center of gravity does not change. This way we can add the chassis rigidbody one unit above our center of gravity
@@ -81,7 +81,7 @@ namespace TGC.Group.PlayerOne
         private RigidBody createChassisRigidBodyFromShape(CollisionShape chassisShape, TGCVector3 position)
         {
             //chassis mass 
-            var mass = 5f;
+            var mass = 380f;
 
             //since it is dynamic, we calculate its local inertia
             var localInertia = chassisShape.CalculateLocalInertia(mass);
@@ -135,12 +135,12 @@ namespace TGC.Group.PlayerOne
             {
                 WheelInfo wheel = vehicle.GetWheelInfo(i);
                 
-                wheel.SuspensionStiffness = 80;
+                wheel.SuspensionStiffness = 40;
                 wheel.WheelsDampingCompression = 0.3f * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);//btScalar(0.8);
                 wheel.WheelsDampingRelaxation = 0.5f * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);//1;
                                                                                                           //Larger friction slips will result in better handling
-                wheel.FrictionSlip = 1.2f;
-                wheel.RollInfluence = 1;
+                wheel.FrictionSlip = 0.6f;
+                wheel.RollInfluence = 1.5f;
             }
         }
 

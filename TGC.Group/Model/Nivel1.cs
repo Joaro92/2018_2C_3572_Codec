@@ -52,8 +52,8 @@ namespace TGC.Group.Nivel1
             // Atributos Player 1
             var moveSpeed = 1f;
             var rotationSpeed = 1.25f;
-            var engineForce = -80f;
-            var steeringAngle = -0.3f;
+            var engineForce = -300f;
+            var steeringAngle = -0.27f;
 
             // Detectar según el Input, si va a Rotar, Avanzar y/o Saltar
             var moveForward = 0f;
@@ -74,7 +74,7 @@ namespace TGC.Group.Nivel1
             {
                 moveForward = -moveSpeed;
                 moving = true;
-                engineForce = -(engineForce * 0.6f);
+                engineForce = -(engineForce * 0.75f);
             }
 
             //Derecha
