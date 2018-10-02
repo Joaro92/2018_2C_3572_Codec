@@ -128,10 +128,10 @@ namespace TGC.Group.Nivel1
                 player1.Vehicle.ApplyEngineForce(0, 3);
 
                 //Default braking force, always added otherwise there is no friction on the wheels
-                player1.Vehicle.SetBrake(0.2f, 0);
-                player1.Vehicle.SetBrake(0.2f, 1);
-                player1.Vehicle.SetBrake(0.2f, 2);
-                player1.Vehicle.SetBrake(0.2f, 3);
+                player1.Vehicle.SetBrake(1.5f, 0);
+                player1.Vehicle.SetBrake(1.5f, 1);
+                player1.Vehicle.SetBrake(1.5f, 2);
+                player1.Vehicle.SetBrake(1.5f, 3);
             }
 
             // Frenar
