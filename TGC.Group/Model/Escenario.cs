@@ -28,10 +28,10 @@ namespace TGC.Group.TGCEscenario
             foreach (TgcMesh mesh in this._tgcScene.Meshes)
             {
                 if (!(mesh.Name.Equals("Arbusto") || mesh.Name.Equals("Pasto")))
-                { 
+                {
                     radio = mesh.BoundingBox.calculateAxisRadius();
                     pmin = mesh.BoundingBox.PMin;
-                    newRigid = BulletRigidBodyConstructor.CreateRigidBodyFromTgcMesh(mesh, radio + pmin);
+                    newRigid = BulletRigidBodyConstructor.CreateRigidBodyFromTgcMesh(mesh);
                     this._rigidBodys.Add(newRigid);
                 }
             }

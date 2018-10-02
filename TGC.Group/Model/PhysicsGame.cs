@@ -136,6 +136,32 @@ namespace TGC.Group.Bullet.Physics
             return floorBody;
         }
 
+        public static RigidBody CreateRigidBodyFromTgcMesh(TgcMesh mesh)
+        {
+            var vertexCoords = mesh.getVertexPositions();
+            TriangleMesh triangleMesh = new TriangleMesh();
+            for (int i = 0; i < vertexCoords.Length; i = i + 3)
+            {
+                triangleMesh.AddTriangle(vertexCoords[i].ToBsVector, vertexCoords[i + 1].ToBsVector, vertexCoords[i + 2].ToBsVector);
+            }
+
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(0, 0, 0).ToBsMatrix;
+            //transformationMatrix.Origin = position.ToBsVector;
+            DefaultMotionState motionState = new DefaultMotionState(transformationMatrix);
+
+            var bulletShape = new BvhTriangleMeshShape(triangleMesh, false);
+            var boxLocalInertia = bulletShape.CalculateLocalInertia(0);
+
+            var bodyInfo = new RigidBodyConstructionInfo(0, motionState, bulletShape, boxLocalInertia);
+            var rigidBody = new RigidBody(bodyInfo);
+            rigidBody.Friction = 0.4f;
+            rigidBody.RollingFriction = 1;
+            // ballBody.SetDamping(0.1f, 0.9f);
+            rigidBody.Restitution = 1f;
+
+            return rigidBody;
+        }
+
         public static RigidBody CreateRigidBodyFromTgcMesh(TgcMesh mesh, TGCVector3 position)
         {
             var meshAxisRadius = mesh.BoundingBox.calculateAxisRadius().ToBsVector;
@@ -146,7 +172,10 @@ namespace TGC.Group.Bullet.Physics
             DefaultMotionState motionState = new DefaultMotionState(transformationMatrix);
 
             var boxLocalInertia = boxShape.CalculateLocalInertia(0);
-            var bodyInfo = new RigidBodyConstructionInfo(0, motionState, boxShape, boxLocalInertia);
+
+            var qwe = new TriangleMesh();
+            var asd = new BvhTriangleMeshShape(qwe, false);
+            var bodyInfo = new RigidBodyConstructionInfo(0, motionState, asd, boxLocalInertia);
             var rigidBody = new RigidBody(bodyInfo);
             rigidBody.Friction = 0.4f;
             rigidBody.RollingFriction = 1;
