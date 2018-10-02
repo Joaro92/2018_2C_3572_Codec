@@ -143,7 +143,7 @@ namespace TGC.Group.Nivel1
 
             if (jump && !jumped && !flag)
             {
-                player1.rigidBody.ApplyCentralImpulse(new Vector3(0, 2500, 0));
+                player1.rigidBody.ApplyCentralImpulse(new Vector3(0, 4000, 0));
                 jumped = true;
             }
 
