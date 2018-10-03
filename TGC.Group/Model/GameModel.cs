@@ -7,6 +7,7 @@ using TGC.Group.Bullet.Physics;
 using TGC.Group.Bullet_TGC_Object;
 using TGC.Group.Nivel1;
 using TGC.Group.PlayerOne;
+using TGC.Group.Utils;
 using Microsoft.DirectX.DirectInput;
 using TGC.Core.Direct3D;
 using BulletSharp.Math;
@@ -20,11 +21,12 @@ namespace TGC.Group.Model
         private Player1 player1;
         private TgcThirdPersonCamera camaraInterna;
         private bool drawUpVector = false;
-        private float anguloCamara;
         public int ScreenHeight, ScreenWidth;
         private TgcArrow directionArrow;
         private Vector3 yawPitchRoll;
         private float flippedTime;
+        private float anguloCamara;
+        private ModoCamara modoCamara = ModoCamara.NORMAL;
 
         public GameModel(string mediaDir, string shadersDir) : base(mediaDir, shadersDir)
         {
@@ -42,7 +44,7 @@ namespace TGC.Group.Model
             player1 = physicsEngine.Init();
 
             // Configuramos la Cámara en tercera persona para que siga a nuestro Player 1
-            camaraInterna = new TgcThirdPersonCamera(new TGCVector3(player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), 1, 20);
+            camaraInterna = new TgcThirdPersonCamera(new TGCVector3(player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), modoCamara.AlturaCamara() , modoCamara.ProfundidadCamara());
             Camara = camaraInterna;
 
             // Creamos una flecha que representara el vector UP del auto
@@ -72,10 +74,30 @@ namespace TGC.Group.Model
                 }
             }
 
+            if (Input.keyPressed(Key.V))
+            {
+                if(modoCamara == ModoCamara.NORMAL)
+                {
+                    modoCamara = ModoCamara.LEJOS;        
+                }
+                else if (modoCamara == ModoCamara.LEJOS)
+                {
+                    modoCamara = ModoCamara.CERCA;
+                }
+                else
+                {
+                    modoCamara = ModoCamara.NORMAL;
+                }
+                camaraInterna.OffsetHeight = modoCamara.AlturaCamara();
+                camaraInterna.OffsetForward = modoCamara.ProfundidadCamara();
+            }
+
             if (Input.keyPressed(Key.F3))
             {
                 drawUpVector = !drawUpVector;
             }
+
+          
 
             camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + anguloCamara;
 
@@ -97,8 +119,9 @@ namespace TGC.Group.Model
             DrawText.drawText("Con la tecla F1 se dibuja el bounding box", 3, 20, Color.YellowGreen);
             DrawText.drawText("Con la tecla F2 se rota el ángulo de la cámara", 3, 35, Color.YellowGreen);
             DrawText.drawText("Con la tecla F3 se dibuja el Vector UP del vehículo", 3, 50, Color.YellowGreen);
-            DrawText.drawText("W A S D para el movimiento básico", 3, 65, Color.YellowGreen);
-            DrawText.drawText("Control Izquierdo para frenar", 3, 80, Color.YellowGreen);
+            DrawText.drawText("Con la tecla V se cambia el modo de cámara (NORMAL, LEJOS, CERCA)", 3, 65, Color.YellowGreen);
+            DrawText.drawText("W A S D para el movimiento básico", 3, 80, Color.YellowGreen);
+            DrawText.drawText("Control Izquierdo para frenar", 3, 95, Color.YellowGreen);
 
             string carSpeed = player1.rigidBody.InterpolationLinearVelocity.Length.ToString();
             if (carSpeed.Length > 4)
