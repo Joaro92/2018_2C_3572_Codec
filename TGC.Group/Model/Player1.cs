@@ -111,22 +111,19 @@ namespace TGC.Group.PlayerOne
             float wheelRadius = 0.54f;
 
             //The height where the wheels are connected to the chassis
-            float connectionHeight = -0.974f + 1.1f - wheelRadius;
+            float connectionHeight = -0.974f + 1.05f - wheelRadius;
 
             //All the wheel configuration assumes the vehicle is centered at the origin and a right handed coordinate system is used
             Vector3 wheelConnectionPoint = new Vector3(1.215f, connectionHeight, 2.294f);
 
             //Adds the front wheels
             vehicle.AddWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-
             vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-
        
-            wheelConnectionPoint = new Vector3(1.215f, connectionHeight, 2.08f);
+            wheelConnectionPoint = new Vector3(1.215f, connectionHeight - 0.05f, 2.08f);
 
             //Adds the rear wheels
             vehicle.AddWheel(wheelConnectionPoint * new Vector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
-
             vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
 
             //Configures each wheel of our vehicle, setting its friction, damping compression, etc.
@@ -136,14 +133,12 @@ namespace TGC.Group.PlayerOne
                 WheelInfo wheel = vehicle.GetWheelInfo(i);
                 
                 wheel.SuspensionStiffness = 40;
-                wheel.WheelsDampingCompression = 0.3f * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);//btScalar(0.8);
-                wheel.WheelsDampingRelaxation = 0.5f * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);//1;
-                                                                                                          //Larger friction slips will result in better handling
+                wheel.WheelsDampingCompression = 0.3f * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);
+                wheel.WheelsDampingRelaxation = 0.5f * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);
                 wheel.FrictionSlip = 0.6f;
                 wheel.RollInfluence = 1.5f;
             }
         }
-
 
 
         // -----------------------------------------------------

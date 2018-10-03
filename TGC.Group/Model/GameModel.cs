@@ -116,12 +116,13 @@ namespace TGC.Group.Model
             PreRender();
 
             var aux = DrawText.Size;
-            DrawText.drawText("Con la tecla F1 se dibuja el bounding box", 3, 20, Color.YellowGreen);
+            DrawText.drawText("Con la tecla F1 se dibuja el bounding box (Deprecado, las colisiones las maneja Bullet)", 3, 20, Color.YellowGreen);
             DrawText.drawText("Con la tecla F2 se rota el ángulo de la cámara", 3, 35, Color.YellowGreen);
             DrawText.drawText("Con la tecla F3 se dibuja el Vector UP del vehículo", 3, 50, Color.YellowGreen);
             DrawText.drawText("Con la tecla V se cambia el modo de cámara (NORMAL, LEJOS, CERCA)", 3, 65, Color.YellowGreen);
             DrawText.drawText("W A S D para el movimiento básico", 3, 80, Color.YellowGreen);
             DrawText.drawText("Control Izquierdo para frenar", 3, 95, Color.YellowGreen);
+            DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
 
             string carSpeed = player1.rigidBody.InterpolationLinearVelocity.Length.ToString();
             if (carSpeed.Length > 4)
