@@ -28,8 +28,6 @@ namespace TGC.Group.Nivel1
         private bool flag = false;
         private TGCMatrix wheelTransform;
 
-
-
         public override Player1 Init()
         {
             base.Init();
@@ -42,7 +40,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, "vehicles\\chassis-minibus-TgcScene.xml", "vehicles\\tires-minibus-TgcScene.xml", new TGCVector3(144, 20, 0));
+            player1 = new Player1(world, "vehicles\\chassis-coupe-TgcScene.xml", "vehicles\\tires-minibus-TgcScene.xml", new TGCVector3(144, 20, 0));
 
             return player1;
         }
