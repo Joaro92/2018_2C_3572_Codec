@@ -4,7 +4,6 @@ using TGC.Core.Geometry;
 using TGC.Core.Mathematica;
 using TGC.Examples.Camara;
 using TGC.Group.Bullet.Physics;
-using TGC.Group.Bullet_TGC_Object;
 using TGC.Group.Nivel1;
 using TGC.Group.PlayerOne;
 using TGC.Group.Utils;
@@ -12,6 +11,8 @@ using Microsoft.DirectX.DirectInput;
 using TGC.Core.Direct3D;
 using BulletSharp.Math;
 using BulletSharp;
+using TGC.Core.Textures;
+using Microsoft.DirectX.Direct3D;
 
 namespace TGC.Group.Model
 {
@@ -21,10 +22,9 @@ namespace TGC.Group.Model
         private Player1 player1;
         private TgcThirdPersonCamera camaraInterna;
         private bool drawUpVector = false;
+        private bool showBoundingBox = false;
         public int ScreenHeight, ScreenWidth;
         private TgcArrow directionArrow;
-        private Vector3 yawPitchRoll;
-        private float flippedTime;
         private float anguloCamara;
         private ModoCamara modoCamara = ModoCamara.NORMAL;
 
@@ -37,9 +37,11 @@ namespace TGC.Group.Model
 
         public override void Init()
         {
+            // Obtener las dimensiones de la ventana
             ScreenWidth = D3DDevice.Instance.Device.Viewport.Width;
             ScreenHeight = D3DDevice.Instance.Device.Viewport.Height;
-
+            
+            // Preparamos el mundo físico con todos los elementos que pertenecen a el
             physicsEngine = new NivelUno();
             player1 = physicsEngine.Init();
 
@@ -58,10 +60,17 @@ namespace TGC.Group.Model
         public override void Update()
         {
             PreUpdate();
-            player1 = physicsEngine.Update(Input, camaraInterna);
 
-            camaraInterna.Target = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
-            
+            // Actualizar el mundo físico
+            player1 = physicsEngine.Update(Input, camaraInterna, ElapsedTime);
+
+            // Mostrar bounding box del TgcMesh
+            if (Input.keyPressed(Key.F1))
+            {
+                showBoundingBox = !showBoundingBox;
+            }
+
+            // Girar la cámara unos grados
             if (Input.keyPressed(Key.F2))
             {
                 if (anguloCamara == 0.33f)
@@ -74,6 +83,63 @@ namespace TGC.Group.Model
                 }
             }
 
+            // Dibujar el Vector UP
+            if (Input.keyPressed(Key.F3))
+            {
+                drawUpVector = !drawUpVector;
+            }
+
+            if (Input.keyPressed(Key.F4))
+            {
+                TgcTexture[] diffuseMaps = player1.tgcMesh.DiffuseMaps;
+
+                string newTextureName = "";
+                int index = 0;
+                foreach (TgcTexture texture in diffuseMaps)
+                {
+                    if (texture.FileName.Contains("Car Material"))
+                    {
+                        newTextureName = texture.FilePath;
+                        break;
+                    }
+                    index++;
+                }
+
+                if (newTextureName.Contains("Blue"))
+                {
+                    newTextureName = newTextureName.Replace("Blue", "Citrus");
+                }
+                else if (newTextureName.Contains("Citrus"))
+                {
+                    newTextureName = newTextureName.Replace("Citrus", "Green");
+                }
+                else if (newTextureName.Contains("Green"))
+                {
+                    newTextureName = newTextureName.Replace("Green", "Orange");
+                }
+                else if (newTextureName.Contains("Orange"))
+                {
+                    newTextureName = newTextureName.Replace("Orange", "Red");
+                }
+                else if (newTextureName.Contains("Red"))
+                {
+                    newTextureName = newTextureName.Replace("Red", "Silver");
+                }
+                else if (newTextureName.Contains("Silver"))
+                {
+                    newTextureName = newTextureName.Replace("Silver", "Violet");
+                }
+                else if (newTextureName.Contains("Violet"))
+                {
+                    newTextureName = newTextureName.Replace("Violet", "Blue");
+                }
+
+                var textureAux = TgcTexture.createTexture(D3DDevice.Instance.Device, newTextureName.Split('\\')[5], newTextureName);
+                player1.tgcMesh.addDiffuseMap(textureAux);
+                player1.tgcMesh.deleteDiffuseMap(index, 4);
+            }
+
+            // Modo cámara
             if (Input.keyPressed(Key.V))
             {
                 if(modoCamara == ModoCamara.NORMAL)
@@ -92,15 +158,11 @@ namespace TGC.Group.Model
                 camaraInterna.OffsetForward = modoCamara.ProfundidadCamara();
             }
 
-            if (Input.keyPressed(Key.F3))
-            {
-                drawUpVector = !drawUpVector;
-            }
-
-          
-
+            // Hacer que la cámara apunte a nuestro Player 1
+            camaraInterna.Target = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
             camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + anguloCamara;
 
+            // Actualizar el Vector UP si se dibuja
             if (drawUpVector)
             {
                 directionArrow.PStart = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
@@ -115,7 +177,7 @@ namespace TGC.Group.Model
         {
             PreRender();
 
-            var aux = DrawText.Size;
+            // Texto en pantalla sobre los comandos disponibles
             DrawText.drawText("Con la tecla F1 se dibuja el bounding box (Deprecado, las colisiones las maneja Bullet)", 3, 20, Color.YellowGreen);
             DrawText.drawText("Con la tecla F2 se rota el ángulo de la cámara", 3, 35, Color.YellowGreen);
             DrawText.drawText("Con la tecla F3 se dibuja el Vector UP del vehículo", 3, 50, Color.YellowGreen);
@@ -124,40 +186,18 @@ namespace TGC.Group.Model
             DrawText.drawText("Control Izquierdo para frenar", 3, 95, Color.YellowGreen);
             DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
 
-            string carSpeed = player1.rigidBody.InterpolationLinearVelocity.Length.ToString();
-            if (carSpeed.Length > 4)
+            // Texto en pantalla sobre el juego
+            DrawText.drawText("Velocidad: " + player1.linealVelocity, 15, ScreenHeight - 50, Color.White);
+
+            if (player1.flippedTime > 0)
             {
-                DrawText.drawText("Velocidad: " + carSpeed.Substring(0, 4), 15, ScreenHeight - 50, Color.White);
-            }
-            else
-            {
-                DrawText.drawText("Velocidad: " + carSpeed, 15, ScreenHeight - 50, Color.White);
+                DrawText.drawText("Tiempo dado vuelta: " + player1.flippedTime, 15, ScreenHeight - 35, Color.White);
             }
 
-            yawPitchRoll = Quat.ToEulerAngles(player1.rigidBody.Orientation);
-
-            if (FastMath.Abs(yawPitchRoll.X) > 1.4f || FastMath.Abs(yawPitchRoll.Z) > 1.4f)
-            {
-                flippedTime += ElapsedTime;
-                DrawText.drawText("Tiempo dado vuelta: " + flippedTime, 15, ScreenHeight - 35, Color.White);
-
-                if (flippedTime > 3)
-                {
-                    var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-                    transformationMatrix.Origin = player1.rigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
-
-                    player1.rigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-                    player1.rigidBody.LinearVelocity = Vector3.Zero;
-                    player1.rigidBody.AngularVelocity = Vector3.Zero;
-                    flippedTime = 0;
-                }
-            }
-            else
-            {
-                flippedTime = 0;
-            }
-
+            // Renderiza todo lo perteneciente al mundo físico
             physicsEngine.Render();
+
+            // Renderizar el Vector UP
             if (drawUpVector)
             {
                 directionArrow.Render();

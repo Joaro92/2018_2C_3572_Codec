@@ -13,7 +13,7 @@ namespace TGC.Group.TGCEscenario
         private List<RigidBody> _rigidBodys;
 
         /// <summary>
-        ///  asd
+        ///  Se crea el escenario a partir del TgcScene y se crean todos los cuerpos rigidos estáticos por cada mesh
         /// </summary>
         public Escenario(String xmlPath)
         {

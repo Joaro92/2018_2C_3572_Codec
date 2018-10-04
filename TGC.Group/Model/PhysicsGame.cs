@@ -4,7 +4,6 @@ using Microsoft.DirectX.Direct3D;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using TGC.Group.Bullet_TGC_Object;
 using TGC.Group.PlayerOne;
 using TGC.Examples.Camara;
 
@@ -391,7 +390,7 @@ namespace TGC.Group.Bullet.Physics
             return null;
         }
 
-        public abstract Player1 Update(TgcD3dInput Input, TgcThirdPersonCamera Camera);
+        public abstract Player1 Update(TgcD3dInput Input, TgcThirdPersonCamera Camera, float ElapsedTime);
 
         public abstract void Render();
 

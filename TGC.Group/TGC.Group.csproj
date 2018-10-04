@@ -97,7 +97,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Game.settings</DependentUpon>
     </Compile>
-    <Compile Include="Model\Bullet_TGC.cs" />
     <Compile Include="Model\Utils.cs" />
     <Compile Include="Model\Escenario.cs" />
     <Compile Include="Model\Nivel1.cs" />
