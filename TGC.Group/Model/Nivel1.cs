@@ -19,8 +19,6 @@ namespace TGC.Group.Nivel1
     {
         private Escenario escenario;
         private Player1 player1;
-        private List<TgcMesh> objectsBehind = new List<TgcMesh>();
-        private List<TgcMesh> objectsInFront = new List<TgcMesh>();
         private bool moving = false;
         private bool rotating = false;
         private bool jump = false;
@@ -40,7 +38,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, "vehicles\\chassis-coupe-TgcScene.xml", "vehicles\\tires-minibus-TgcScene.xml", new TGCVector3(144, 20, 0));
+            player1 = new Player1(world, "vehicles\\chassis-pickup-TgcScene.xml", "vehicles\\tires-minibus-TgcScene.xml", new TGCVector3(144, 20, 0));
 
             return player1;
         }

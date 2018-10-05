@@ -25,6 +25,7 @@ namespace TGC.Group.PlayerOne
         public readonly float steeringAngle = -0.25f;
         public readonly float mass = 90f;
         protected float wheelDistance = 0.05f;
+        protected float rearWheelsHeight = 0;
         protected float suspensionRestLength = 0.7f;
         protected float SuspensionStiffness = 60;
         protected float DampingCompression = 0.21f;
@@ -117,15 +118,15 @@ namespace TGC.Group.PlayerOne
             //All the wheel configuration assumes the vehicle is centered at the origin and a right handed coordinate system is used
             Vector3 wheelConnectionPoint = new Vector3(points.X, points.Y + 1f + wheelDistance - wheelRadius / 2, points.Z);
 
-            //Adds the front wheels
-            vehicle.AddWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-            vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-
             //Adds the rear wheels
-            wheelConnectionPoint.Y -= 0.05f;
+            vehicle.AddWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+            vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+
+            //Adds the front wheels
+            wheelConnectionPoint.Y -= 0.05f - rearWheelsHeight;
             wheelConnectionPoint.Z = points.W;
-            vehicle.AddWheel(wheelConnectionPoint * new Vector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
-            vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+            vehicle.AddWheel(wheelConnectionPoint * new Vector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
+            vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
 
             //Configures each wheel of our vehicle, setting its friction, damping compression, etc.
             //For more details on what each parameter does, refer to the docs

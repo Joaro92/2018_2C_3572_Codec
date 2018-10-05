@@ -26,6 +26,7 @@ namespace TGC.Group.Model
         public int ScreenHeight, ScreenWidth;
         private TgcArrow directionArrow;
         private float anguloCamara;
+        private float halfsPI;
         private ModoCamara modoCamara = ModoCamara.NORMAL;
 
         public GameModel(string mediaDir, string shadersDir) : base(mediaDir, shadersDir)
@@ -139,6 +140,12 @@ namespace TGC.Group.Model
                 player1.tgcMesh.deleteDiffuseMap(index, 4);
             }
 
+            // Rotar 90° la cámara
+            if (Input.keyPressed(Key.F5))
+            {
+                halfsPI = (halfsPI + FastMath.PI_HALF) % FastMath.TWO_PI;
+            }
+
             // Modo cámara
             if (Input.keyPressed(Key.V))
             {
@@ -160,7 +167,7 @@ namespace TGC.Group.Model
 
             // Hacer que la cámara apunte a nuestro Player 1
             camaraInterna.Target = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
-            camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + anguloCamara;
+            camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + anguloCamara + halfsPI;
 
             // Actualizar el Vector UP si se dibuja
             if (drawUpVector)

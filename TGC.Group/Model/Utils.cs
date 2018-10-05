@@ -10,7 +10,6 @@ namespace TGC.Group.Utils
 {
 
     public enum ModoCamara { NORMAL, CERCA, LEJOS };
-    //public enum TipoChasis { COUPE, HATCHBACK, MICRO, MICROCARGO, MICROTRANSPORT, MINIBUS, MPV, NORMAL, PICKUP, SMALLPICKUP, STATION, VAN }
 
     static class WheelContactInfo
     {
@@ -18,10 +17,23 @@ namespace TGC.Group.Utils
         {
             switch (meshName)
             {
+                //                    ( eje X,  eje Y ,  back ,  front)
                 case "car-minibus":
-                    return new Vector4(1.215f, -1.148f, 2.08f, 2.294f);
+                    return new Vector4(1.215f, -1.148f, 2.080f, 2.294f);
                 case "car-coupe":
                     return new Vector4(1.065f, -0.614f, 1.828f, 1.847f);
+                case "car-hatchback":
+                    return new Vector4(1.113f, -0.947f, 1.526f, 1.715f);
+                case "car-micro":
+                    return new Vector4(1.035f, -0.925f, 1.424f, 1.351f);
+                case "car-microcargo":
+                    return new Vector4(1.118f, -1.144f, 1.717f, 1.732f);
+                case "car-mpv":
+                    return new Vector4(1.065f, -1.078f, 1.868f, 2.047f);
+                case "car-normal":
+                    return new Vector4(1.065f, -1.016f, 1.593f, 1.782f);
+                case "car-pickup":
+                    return new Vector4(1.113f, -1.122f, 1.723f, 2.011f);
                 default:
                     return Vector4.Zero;
             }
