@@ -76,4 +76,15 @@ namespace TGC.Group.Utils
         }
     }
 
+    static class UtilMethods
+    {
+        public static T getNextOption <T> (this T[] options, T previousOption)
+        {
+            return options[(System.Array.FindIndex(options, c => c.Equals(previousOption)) + 1) % options.Length];
+        }
+
+    }
+
+    
+
 }

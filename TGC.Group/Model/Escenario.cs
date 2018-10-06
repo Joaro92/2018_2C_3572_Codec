@@ -29,8 +29,8 @@ namespace TGC.Group.TGCEscenario
             {
                 if (!(mesh.Name.Equals("Arbusto") || mesh.Name.Equals("Pasto")))
                 {
-                    radio = mesh.BoundingBox.calculateAxisRadius();
-                    pmin = mesh.BoundingBox.PMin;
+                    radio = mesh.BoundingBox.calculateAxisRadius(); // para que sirve esto?
+                    pmin = mesh.BoundingBox.PMin; // para que sirve esto?
                     newRigid = BulletRigidBodyConstructor.CreateRigidBodyFromTgcMesh(mesh);
                     this._rigidBodys.Add(newRigid);
                 }
@@ -49,10 +49,17 @@ namespace TGC.Group.TGCEscenario
             set { _tgcScene = value; }
         }
 
+        public void Render()
+        {
+            tgcScene.RenderAll();
+        }
+
         public void Dispose()
         {
             this._tgcScene.DisposeAll();
             _rigidBodys.ForEach(rigid => rigid.Dispose());
         }
+
+      
     }
 }

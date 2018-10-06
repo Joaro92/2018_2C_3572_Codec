@@ -18,6 +18,9 @@ namespace TGC.Group.Model
 {
     public class GameModel : TgcExample
     {
+        private readonly string[] vehicleColors = new string[] { "Blue", "Citrus", "Green", "Orange", "Red", "Silver", "Violet" };
+        private readonly ModoCamara[] modosCamara = new ModoCamara[] { ModoCamara.NORMAL, ModoCamara.LEJOS, ModoCamara.CERCA };
+
         private PhysicsGame physicsEngine;
         private Player1 player1;
         private TgcThirdPersonCamera camaraInterna;
@@ -106,38 +109,13 @@ namespace TGC.Group.Model
                     index++;
                 }
 
-                if (newTextureName.Contains("Blue"))
-                {
-                    newTextureName = newTextureName.Replace("Blue", "Citrus");
-                }
-                else if (newTextureName.Contains("Citrus"))
-                {
-                    newTextureName = newTextureName.Replace("Citrus", "Green");
-                }
-                else if (newTextureName.Contains("Green"))
-                {
-                    newTextureName = newTextureName.Replace("Green", "Orange");
-                }
-                else if (newTextureName.Contains("Orange"))
-                {
-                    newTextureName = newTextureName.Replace("Orange", "Red");
-                }
-                else if (newTextureName.Contains("Red"))
-                {
-                    newTextureName = newTextureName.Replace("Red", "Silver");
-                }
-                else if (newTextureName.Contains("Silver"))
-                {
-                    newTextureName = newTextureName.Replace("Silver", "Violet");
-                }
-                else if (newTextureName.Contains("Violet"))
-                {
-                    newTextureName = newTextureName.Replace("Violet", "Blue");
-                }
+                string oldColor = newTextureName.Split('\\')[5].Split(' ')[2].Split('.')[0];
+                string newColor = vehicleColors.getNextOption(oldColor);
+                newTextureName = newTextureName.Replace(oldColor, newColor);
 
                 var textureAux = TgcTexture.createTexture(D3DDevice.Instance.Device, newTextureName.Split('\\')[5], newTextureName);
                 player1.tgcMesh.addDiffuseMap(textureAux);
-                player1.tgcMesh.deleteDiffuseMap(index, 4);
+                player1.tgcMesh.deleteDiffuseMap(index, 4); //de donde sale el 4?
             }
 
             // Rotar 90° la cámara
@@ -149,18 +127,8 @@ namespace TGC.Group.Model
             // Modo cámara
             if (Input.keyPressed(Key.V))
             {
-                if(modoCamara == ModoCamara.NORMAL)
-                {
-                    modoCamara = ModoCamara.LEJOS;        
-                }
-                else if (modoCamara == ModoCamara.LEJOS)
-                {
-                    modoCamara = ModoCamara.CERCA;
-                }
-                else
-                {
-                    modoCamara = ModoCamara.NORMAL;
-                }
+                modoCamara = modosCamara.getNextOption(modoCamara);
+
                 camaraInterna.OffsetHeight = modoCamara.AlturaCamara();
                 camaraInterna.OffsetForward = modoCamara.ProfundidadCamara();
             }

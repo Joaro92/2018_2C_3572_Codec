@@ -19,6 +19,7 @@ namespace TGC.Group.Nivel1
     {
         private Escenario escenario;
         private Player1 player1;
+        private readonly TGCVector3 initialPos = new TGCVector3(144f, 20f, 0f);
         private bool moving = false;
         private bool rotating = false;
         private bool jump = false;
@@ -38,7 +39,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, "vehicles\\chassis-station-TgcScene.xml", "vehicles\\tires-minibus-TgcScene.xml", new TGCVector3(144, 20, 0));
+            player1 = new Player1(world, "vehicles\\chassis-station-TgcScene.xml", "vehicles\\tires-minibus-TgcScene.xml", initialPos);
 
             return player1;
         }
@@ -65,7 +66,7 @@ namespace TGC.Group.Nivel1
             if (player1.rigidBody.CenterOfMassPosition.Y < -100)
             {
                 var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-                transformationMatrix.Origin = new Vector3(144, 20, 0);
+                transformationMatrix.Origin = initialPos.ToBsVector; 
 
                 player1.rigidBody.MotionState = new DefaultMotionState(transformationMatrix);
                 player1.rigidBody.LinearVelocity = Vector3.Zero;
@@ -74,7 +75,7 @@ namespace TGC.Group.Nivel1
 
             // Detectar según el Input, si va a Rotar, Avanzar y/o Saltar
             // Adelante
-            if (Input.keyDown(Key.W))
+            if (Input.keyDown(Key.W) || Input.keyDown(Key.UpArrow))
             {
                 player1.Vehicle.ApplyEngineForce(player1.engineForce, 2);
                 player1.Vehicle.ApplyEngineForce(player1.engineForce, 3);
@@ -82,7 +83,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Atras
-            if (Input.keyDown(Key.S))
+            if (Input.keyDown(Key.S) || Input.keyDown(Key.DownArrow))
             {
                 //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 0);
                 //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 1);
@@ -92,7 +93,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Derecha
-            if (Input.keyDown(Key.D))
+            if (Input.keyDown(Key.D) || Input.keyDown(Key.RightArrow))
             {
                 player1.Vehicle.SetSteeringValue(player1.steeringAngle, 2);
                 player1.Vehicle.SetSteeringValue(player1.steeringAngle, 3);
@@ -100,7 +101,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Izquierda
-            if (Input.keyDown(Key.A))
+            if (Input.keyDown(Key.A) || Input.keyDown(Key.LeftArrow))
             {
                 player1.Vehicle.SetSteeringValue(-player1.steeringAngle, 2);
                 player1.Vehicle.SetSteeringValue(-player1.steeringAngle, 3);
@@ -224,7 +225,7 @@ namespace TGC.Group.Nivel1
             player1.Wheel.Render();
 
             // Renderizar el escenario
-            escenario.tgcScene.RenderAll();
+            escenario.Render(); 
         }
 
         public override void Dispose()
