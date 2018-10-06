@@ -78,7 +78,7 @@ namespace TGC.Group.PlayerOne
             this._rigidBody.ActivationState = ActivationState.DisableDeactivation;
 
             //Reduce even further the Center of Mass for more stability
-            this._rigidBody.CenterOfMassTransform = TGCMatrix.Translation(new TGCVector3(0, -1.8f, 0)).ToBsMatrix * this._rigidBody.CenterOfMassTransform;
+            this._rigidBody.CenterOfMassTransform = TGCMatrix.Translation(new TGCVector3(0, -(meshAxisRadius.Y * 0.95f) , 0)).ToBsMatrix * this._rigidBody.CenterOfMassTransform;
 
             //Adds the vehicle to the world
             world.AddAction(vehicle);

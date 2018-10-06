@@ -34,6 +34,10 @@ namespace TGC.Group.Utils
                     return new Vector4(1.065f, -1.016f, 1.593f, 1.782f);
                 case "car-pickup":
                     return new Vector4(1.113f, -1.122f, 1.723f, 2.011f);
+                case "car-pickup-small":
+                    return new Vector4(1.065f, -1.017f, 1.440f, 1.935f);
+                case "car-station":
+                    return new Vector4(1.065f, -1.014f, 1.741f, 2.194f);
                 default:
                     return Vector4.Zero;
             }

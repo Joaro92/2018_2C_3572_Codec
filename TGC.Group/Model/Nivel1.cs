@@ -38,7 +38,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, "vehicles\\chassis-pickup-TgcScene.xml", "vehicles\\tires-minibus-TgcScene.xml", new TGCVector3(144, 20, 0));
+            player1 = new Player1(world, "vehicles\\chassis-station-TgcScene.xml", "vehicles\\tires-minibus-TgcScene.xml", new TGCVector3(144, 20, 0));
 
             return player1;
         }
