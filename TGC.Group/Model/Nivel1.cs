@@ -32,14 +32,14 @@ namespace TGC.Group.Nivel1
             base.Init();
 
             // Cargamos el escenario y lo agregamos al mundo
-            escenario = new Escenario("Escenarios\\escenario-objetos-TgcScene.xml");
+            escenario = new Escenario("Scenarios\\scene-level1-TgcScene.xml");
             foreach(RigidBody rigid in escenario.rigidBodys)
             {
                 world.AddRigidBody(rigid);
             }
 
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, "vehicles\\chassis-station-TgcScene.xml", "vehicles\\tires-minibus-TgcScene.xml", initialPos);
+            player1 = new Player1(world, "vehicles\\chassis-station-TgcScene.xml", "vehicles\\tires-common-TgcScene.xml", initialPos);
 
             return player1;
         }
