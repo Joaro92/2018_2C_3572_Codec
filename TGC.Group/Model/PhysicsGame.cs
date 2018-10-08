@@ -6,6 +6,7 @@ using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Group.PlayerOne;
 using TGC.Examples.Camara;
+using TGC.Group.Utils;
 
 namespace TGC.Group.Bullet.Physics
 {
@@ -390,7 +391,7 @@ namespace TGC.Group.Bullet.Physics
             return null;
         }
 
-        public abstract Player1 Update(TgcD3dInput Input, TgcThirdPersonCamera Camera, float ElapsedTime);
+        public abstract Player1 Update(TgcD3dInput Input, TgcThirdPersonCamera Camera, float ElapsedTime, ModoCamara modoCamara);
 
         public abstract void Render();
 

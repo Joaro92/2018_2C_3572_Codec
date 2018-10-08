@@ -53,9 +53,9 @@ namespace TGC.Group.Utils
                 case ModoCamara.NORMAL:
                     return 1f;
                 case ModoCamara.CERCA:
-                    return 0.1f;
+                    return 0.2f;
                 case ModoCamara.LEJOS:
-                    return 5f;
+                    return 4.5f;
                 default:  return 0f;
             }
         }
@@ -65,11 +65,11 @@ namespace TGC.Group.Utils
             switch (m)
             {
                 case ModoCamara.NORMAL:
-                    return 20f;
+                    return 18f;
                 case ModoCamara.CERCA:
-                    return 10f;
+                    return 12f;
                 case ModoCamara.LEJOS:
-                    return 30f;
+                    return 28f;
                 default: return 0f;
 
             }

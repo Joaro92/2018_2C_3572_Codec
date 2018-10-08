@@ -19,6 +19,7 @@ namespace TGC.Group.PlayerOne
         public Vector3 yawPitchRoll;
         public float flippedTime = 0;
         public string linealVelocity;
+        public bool collision = false;
 
         // Atributos constantes
         public readonly float engineForce = -500f;

@@ -13,6 +13,7 @@ using TGC.Examples.Camara;
 using TGC.Core.Textures;
 using Microsoft.DirectX.Direct3D;
 using TGC.Examples.Engine2D.Spaceship.Core;
+using TGC.Group.Utils;
 
 namespace TGC.Group.Nivel1
 {
@@ -27,6 +28,7 @@ namespace TGC.Group.Nivel1
         private bool jumped = false;
         private bool flag = false;
         private TGCMatrix wheelTransform;
+        private TGCVector3 currentCameraPosition;
 
         public override Player1 Init()
         {
@@ -45,7 +47,7 @@ namespace TGC.Group.Nivel1
             return player1;
         }
 
-        public override Player1 Update(TgcD3dInput Input, TgcThirdPersonCamera camaraInterna, float ElapsedTime)
+        public override Player1 Update(TgcD3dInput Input, TgcThirdPersonCamera camaraInterna, float ElapsedTime, ModoCamara modoCamara)
         {
             // Determinar que la simulación del mundo físico se va a procesar 60 veces por segundo
             world.StepSimulation(1 / 60f, 10);
@@ -199,8 +201,72 @@ namespace TGC.Group.Nivel1
                 player1.flippedTime = 0;
             }
 
+            if (!player1.collision)
+            {
+                currentCameraPosition = camaraInterna.Position;
+            }
+
+            //Ajustar la posicion de la camara segun la colision con los objetos del escenario
+            ajustarPosicionDeCamara(camaraInterna, modoCamara);
+
             return player1;
         }
+
+        private void ajustarPosicionDeCamara(TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
+        {
+            if (camaraInterna.OffsetHeight == 0.1f) return;
+
+            camaraInterna.OffsetHeight = 0.1f;
+            camaraInterna.OffsetForward = 30;
+
+            //Pedirle a la camara cual va a ser su proxima posicion
+            TGCVector3 position;
+            TGCVector3 target;
+            camaraInterna.CalculatePositionTarget(out position, out target);
+
+            //Detectar colisiones entre el segmento de recta camara-personaje y todos los objetos del escenario
+            TGCVector3 q;
+            var minDistSq = FastMath.Pow2(camaraInterna.OffsetForward);
+            foreach (var obstaculo in escenario.tgcScene.Meshes)
+            {
+                //Hay colision del segmento camara-personaje y el objeto
+                if (TgcCollisionUtils.intersectSegmentAABB(target, position, obstaculo.BoundingBox, out q))
+                {
+                    //Si hay colision, guardar la que tenga menor distancia
+                    var distSq = TGCVector3.Subtract(q, target).LengthSq();
+                    //Hay dos casos singulares, puede que tengamos mas de una colision hay que quedarse con el menor offset.
+                    //Si no dividimos la distancia por 2 se acerca mucho al target.
+                    minDistSq = FastMath.Min(distSq / 2, minDistSq);
+                }
+            }
+
+            //Acercar la camara hasta la minima distancia de colision encontrada (pero ponemos un umbral maximo de cercania)
+            var newOffsetForward = FastMath.Sqrt(minDistSq);
+
+            if (FastMath.Abs(newOffsetForward) < 10f)
+            {
+                newOffsetForward = 10f;
+            }
+            if (newOffsetForward > modoCamara.ProfundidadCamara())
+            {
+                newOffsetForward = modoCamara.ProfundidadCamara();
+            }
+            if (modoCamara.AlturaCamara() > 1)
+            {
+                camaraInterna.OffsetHeight = 1.1f;
+            }
+            else
+            {
+                camaraInterna.OffsetHeight = modoCamara.AlturaCamara();
+            }
+            
+            camaraInterna.OffsetForward = newOffsetForward;
+
+            //Asignar la ViewMatrix haciendo un LookAt desde la posicion final anterior al centro de la camara
+            camaraInterna.CalculatePositionTarget(out position, out target);
+            camaraInterna.SetCamera(position, target);
+        }
+
 
         public override void Render()
         { 

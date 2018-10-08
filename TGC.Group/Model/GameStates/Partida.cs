@@ -37,7 +37,6 @@ namespace TGC.Group.Model.GameStates
         private int screenHeight, screenWidth;
         private CustomSprite healthBar;
 
-
         public Partida(GameModel gameModel)
         {
             this.gameModel = gameModel;
@@ -63,7 +62,6 @@ namespace TGC.Group.Model.GameStates
             camaraInterna = new TgcThirdPersonCamera(new TGCVector3(player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), modoCamara.AlturaCamara(), modoCamara.ProfundidadCamara());
             this.gameModel.Camara = camaraInterna;
 
-
             // Creamos una flecha que representara el vector UP del auto
             directionArrow = new TgcArrow();
             directionArrow.BodyColor = Color.Red;
@@ -72,12 +70,8 @@ namespace TGC.Group.Model.GameStates
             directionArrow.HeadSize = new TGCVector2(1, 2);
         }
 
-
         public void Update()
         {
-            // Actualizar el mundo físico
-            player1 = physicsEngine.Update(gameModel.Input, camaraInterna, gameModel.ElapsedTime);
-
             // Mostrar bounding box del TgcMesh
             if (gameModel.Input.keyPressed(Key.F1))
             {
@@ -154,11 +148,13 @@ namespace TGC.Group.Model.GameStates
                 directionArrow.PEnd = directionArrow.PStart + new TGCVector3(Vector3.TransformNormal(Vector3.UnitY, player1.rigidBody.InterpolationWorldTransform)) * 3.5f;
                 directionArrow.updateValues();
             }
+
+            // Actualizar el mundo físico
+            player1 = physicsEngine.Update(gameModel.Input, camaraInterna, gameModel.ElapsedTime, modoCamara);
         }
 
         public void Render()
         {
-            
             drawer2D.BeginDrawSprite();
             drawer2D.DrawSprite(healthBar);
             drawer2D.EndDrawSprite();
