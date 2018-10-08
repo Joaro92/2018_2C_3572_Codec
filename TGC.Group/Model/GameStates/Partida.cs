@@ -47,13 +47,13 @@ namespace TGC.Group.Model.GameStates
             
             drawer2D = new Drawer2D();
             healthBar = new CustomSprite();
-            healthBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\healthBar.png", D3DDevice.Instance.Device);
-            healthBar.Position = new TGCVector2(screenWidth * 0.82f, screenHeight * 0.86f);
+            healthBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\Stats.png", D3DDevice.Instance.Device);
+            healthBar.Position = new TGCVector2(screenWidth * 0.81f, screenHeight * 0.715f);
 
             var scalingFactorX = (float)screenWidth / (float)healthBar.Bitmap.Width;
             var scalingFactorY = (float)screenHeight / (float)healthBar.Bitmap.Height;
 
-            healthBar.Scaling = new TGCVector2(0.45f, 0.28f) * (scalingFactorY / scalingFactorX);
+            healthBar.Scaling = new TGCVector2(0.25f, 0.40f) * (scalingFactorY / scalingFactorX);
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
             physicsEngine = new NivelUno();
@@ -174,7 +174,7 @@ namespace TGC.Group.Model.GameStates
             DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
 
             // Texto en pantalla sobre el juego
-            DrawText.drawText("Velocidad: " + player1.linealVelocity, 15, screenHeight - 50, Color.White);
+            DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.892f), (int)(screenHeight * 0.94f), Color.Black);
 
             if (player1.flippedTime > 0)
             {
