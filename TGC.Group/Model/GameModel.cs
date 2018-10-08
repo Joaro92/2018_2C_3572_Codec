@@ -15,14 +15,13 @@ using TGC.Core.Textures;
 using Microsoft.DirectX.Direct3D;
 
 using TGC.Group.Model.GameStates;
+using TGC.Group.Form;
+using  System.Windows.Forms.VisualStyles;
 
 namespace TGC.Group.Model
 {
     public class GameModel : TgcExample
     {
-        private IGameState gameState;
-        public int ScreenHeight, ScreenWidth;
-
         public IGameState GameState { get ; set ; }
 
         public GameModel(string mediaDir, string shadersDir) : base(mediaDir, shadersDir)
@@ -34,10 +33,6 @@ namespace TGC.Group.Model
 
         public override void Init()
         {
-            // Obtener las dimensiones de la ventana
-            ScreenWidth = D3DDevice.Instance.Device.Viewport.Width;
-            ScreenHeight = D3DDevice.Instance.Device.Viewport.Height;
-
             GameState = new MenuInicial(this);
         }
 

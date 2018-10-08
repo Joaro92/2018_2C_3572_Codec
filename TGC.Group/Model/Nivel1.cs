@@ -12,6 +12,7 @@ using TGC.Group.TGCEscenario;
 using TGC.Examples.Camara;
 using TGC.Core.Textures;
 using Microsoft.DirectX.Direct3D;
+using TGC.Examples.Engine2D.Spaceship.Core;
 
 namespace TGC.Group.Nivel1
 {

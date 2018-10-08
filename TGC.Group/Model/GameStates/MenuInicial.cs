@@ -27,22 +27,27 @@ namespace TGC.Group.Model.GameStates
         public MenuInicial(GameModel gameModel)
         {
             this.gameModel = gameModel;
-
             drawer2D = new Drawer2D();
 
-            //Cargo la imagen de fondo
+            // Cargo la imagen de fondo
             background = new CustomSprite();
             background.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\start-screen.png", D3DDevice.Instance.Device);
-            //La ubico ocupando toda la pantalla
-            background.Scaling = new TGCVector2(1.9f, 1f);
 
-            //Cargo el mensaje de start
+            // La ubico ocupando toda la pantalla
+            var screenHeight = D3DDevice.Instance.Device.Viewport.Height;
+            var screenWidth = D3DDevice.Instance.Device.Viewport.Width;
+            var scalingFactorX = (float)screenWidth / (float)background.Bitmap.Width;
+            var scalingFactorY = (float)screenHeight / (float)background.Bitmap.Height;
+
+            background.Scaling = new TGCVector2(scalingFactorX, scalingFactorY);
+
+            // Cargo el mensaje de start
             start = new CustomSprite();
             start.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\press-start.png", D3DDevice.Instance.Device);
-            //La ubico en la pantalla
-            var startSize = background.Bitmap.Size;
-            start.Scaling = TGCVector2.One * 0.75f;
-            start.Position = new TGCVector2(gameModel.ScreenWidth / 2 - startSize.Width * 0.75f , gameModel.ScreenHeight / 2 + startSize.Height * 0.15f);
+            // La ubico en la pantalla
+            // var startSize = background.Bitmap.Size;
+            start.Scaling = TGCVector2.One * (scalingFactorY / scalingFactorX);
+            start.Position = new TGCVector2(screenWidth * 0.083f , screenHeight * 0.67f);
 
             this.gameModel.Camara = new TgcThirdPersonCamera();
         }
@@ -78,19 +83,16 @@ namespace TGC.Group.Model.GameStates
 
         public void Render()
         {
-
-            //iniciar dibujado de sprites
+            // Iniciar dibujado de sprites
             drawer2D.BeginDrawSprite();
 
-            //dibujar sprites
+            // Dibujar sprites
             drawer2D.DrawSprite(background);
             if(showStart)
                 drawer2D.DrawSprite(start);
 
-            //finalizar el dibujado de Sprites
+            // Finalizar el dibujado de Sprites
             drawer2D.EndDrawSprite();
-
-
         }
 
         public void Dispose()

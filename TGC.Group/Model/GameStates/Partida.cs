@@ -13,6 +13,7 @@ using BulletSharp.Math;
 using BulletSharp;
 using TGC.Core.Textures;
 using Microsoft.DirectX.Direct3D;
+using TGC.Examples.Engine2D.Spaceship.Core;
 
 namespace TGC.Group.Model.GameStates
 {
@@ -32,11 +33,27 @@ namespace TGC.Group.Model.GameStates
         private float anguloCamara;
         private float halfsPI;
         private ModoCamara modoCamara = ModoCamara.NORMAL;
+        private Drawer2D drawer2D;
+        private int screenHeight, screenWidth;
+        private CustomSprite healthBar;
 
 
         public Partida(GameModel gameModel)
         {
             this.gameModel = gameModel;
+
+            screenHeight = D3DDevice.Instance.Device.Viewport.Height;
+            screenWidth = D3DDevice.Instance.Device.Viewport.Width;
+            
+            drawer2D = new Drawer2D();
+            healthBar = new CustomSprite();
+            healthBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\healthBar.png", D3DDevice.Instance.Device);
+            healthBar.Position = new TGCVector2(screenWidth * 0.82f, screenHeight * 0.86f);
+
+            var scalingFactorX = (float)screenWidth / (float)healthBar.Bitmap.Width;
+            var scalingFactorY = (float)screenHeight / (float)healthBar.Bitmap.Height;
+
+            healthBar.Scaling = new TGCVector2(0.45f, 0.28f) * (scalingFactorY / scalingFactorX);
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
             physicsEngine = new NivelUno();
@@ -44,7 +61,8 @@ namespace TGC.Group.Model.GameStates
 
             // Configuramos la Cámara en tercera persona para que siga a nuestro Player 1
             camaraInterna = new TgcThirdPersonCamera(new TGCVector3(player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), modoCamara.AlturaCamara(), modoCamara.ProfundidadCamara());
-            gameModel.Camara = camaraInterna;
+            this.gameModel.Camara = camaraInterna;
+
 
             // Creamos una flecha que representara el vector UP del auto
             directionArrow = new TgcArrow();
@@ -140,6 +158,11 @@ namespace TGC.Group.Model.GameStates
 
         public void Render()
         {
+            
+            drawer2D.BeginDrawSprite();
+            drawer2D.DrawSprite(healthBar);
+            drawer2D.EndDrawSprite();
+
             // Texto en pantalla sobre los comandos disponibles
             var DrawText = gameModel.DrawText;
             DrawText.drawText("Con la tecla F1 se dibuja el bounding box (Deprecado, las colisiones las maneja Bullet)", 3, 20, Color.YellowGreen);
@@ -151,11 +174,11 @@ namespace TGC.Group.Model.GameStates
             DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
 
             // Texto en pantalla sobre el juego
-            DrawText.drawText("Velocidad: " + player1.linealVelocity, 15, gameModel.ScreenHeight - 50, Color.White);
+            DrawText.drawText("Velocidad: " + player1.linealVelocity, 15, screenHeight - 50, Color.White);
 
             if (player1.flippedTime > 0)
             {
-                DrawText.drawText("Tiempo dado vuelta: " + player1.flippedTime, 15, gameModel.ScreenHeight - 35, Color.White);
+                DrawText.drawText("Tiempo dado vuelta: " + player1.flippedTime, 15, screenHeight - 35, Color.White);
             }
 
             // Renderiza todo lo perteneciente al mundo físico
@@ -166,6 +189,9 @@ namespace TGC.Group.Model.GameStates
             {
                 directionArrow.Render();
             }
+
+            // Finalizar el dibujado de Sprites
+            //
         }
 
         public void Dispose()
