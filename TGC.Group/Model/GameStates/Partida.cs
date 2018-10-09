@@ -63,7 +63,9 @@ namespace TGC.Group.Model.GameStates
             // Sprite que representa la vida
             healthBar = new CustomSprite();
             healthBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\healthBar.png", D3DDevice.Instance.Device);
-            healthBar.Position = new TGCVector2(screenWidth * 0.8605f, screenHeight * 0.728f);
+            healthBar.Position = new TGCVector2(screenWidth * 0.8605f, screenHeight * 0.728f); //para 125 % escalado
+            //healthBar.Position = new TGCVector2(screenWidth * 0.8515f, screenHeight * 0.7215f); //para 100% escalado
+
 
             scalingFactorX = (float)screenWidth / (float)healthBar.Bitmap.Width;
             scalingFactorY = (float)screenHeight / (float)healthBar.Bitmap.Height;
@@ -73,7 +75,8 @@ namespace TGC.Group.Model.GameStates
             // Sprite de la barra de especiales
             specialBar = new CustomSprite();
             specialBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\specialBar.png", D3DDevice.Instance.Device);
-            specialBar.Position = new TGCVector2(screenWidth * 0.861f, screenHeight * 0.83f);
+            specialBar.Position = new TGCVector2(screenWidth * 0.861f, screenHeight * 0.83f); //para 125 % escalado
+            //specialBar.Position = new TGCVector2(screenWidth * 0.8515f, screenHeight * 0.8025f); //para 100 % escalado
 
             scalingFactorX = (float)screenWidth / (float)specialBar.Bitmap.Width;
             scalingFactorY = (float)screenHeight / (float)specialBar.Bitmap.Height;
