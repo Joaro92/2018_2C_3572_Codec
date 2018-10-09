@@ -14,6 +14,7 @@ using TGC.Core.Textures;
 using Microsoft.DirectX.Direct3D;
 using TGC.Examples.Engine2D.Spaceship.Core;
 using TGC.Group.Utils;
+using TGC.Core.Terrain;
 
 namespace TGC.Group.Nivel1
 {
@@ -21,6 +22,8 @@ namespace TGC.Group.Nivel1
     {
         private Escenario escenario;
         private Player1 player1;
+        private TgcSkyBox skyBox;
+
         private readonly TGCVector3 initialPos = new TGCVector3(144f, 20f, 0f);
         private bool moving = false;
         private bool rotating = false;
@@ -42,7 +45,20 @@ namespace TGC.Group.Nivel1
             }
 
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, "vehicles\\chassis-station-TgcScene.xml", "vehicles\\tires-common-TgcScene.xml", initialPos);
+            player1 = new Player1(world, "Vehicles\\chassis-station-TgcScene.xml", "Vehicles\\tires-common-TgcScene.xml", initialPos);
+
+            //Crear SkyBox
+            skyBox = new TgcSkyBox();
+            skyBox.Center = new TGCVector3(0, 600, 0);
+            skyBox.Size = new TGCVector3(13000, 12000, 13000);
+            var texturesPath = Game.Default.MediaDirectory + "Images\\";
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Up, texturesPath + "skybox.png");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Down, texturesPath + "skybox.png");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Left, texturesPath + "skybox left.png");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Right, texturesPath + "skybox right.png");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Front, texturesPath + "skybox front.png");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Back, texturesPath + "skybox back.png");
+            skyBox.Init();
 
             return player1;
         }
@@ -292,7 +308,10 @@ namespace TGC.Group.Nivel1
             player1.Wheel.Render();
 
             // Renderizar el escenario
-            escenario.Render(); 
+            escenario.Render();
+
+            //Render SkyBox
+            skyBox.Render();
         }
 
         public override void Dispose()

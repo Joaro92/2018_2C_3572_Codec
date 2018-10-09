@@ -35,7 +35,7 @@ namespace TGC.Group.Model.GameStates
         private ModoCamara modoCamara = ModoCamara.NORMAL;
         private Drawer2D drawer2D;
         private int screenHeight, screenWidth;
-        private CustomSprite healthBar;
+        private CustomSprite statsBar;
 
         public Partida(GameModel gameModel)
         {
@@ -45,14 +45,14 @@ namespace TGC.Group.Model.GameStates
             screenWidth = D3DDevice.Instance.Device.Viewport.Width;
             
             drawer2D = new Drawer2D();
-            healthBar = new CustomSprite();
-            healthBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\Stats.png", D3DDevice.Instance.Device);
-            healthBar.Position = new TGCVector2(screenWidth * 0.81f, screenHeight * 0.715f);
+            statsBar = new CustomSprite();
+            statsBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\Stats.png", D3DDevice.Instance.Device);
+            statsBar.Position = new TGCVector2(screenWidth * 0.81f, screenHeight * 0.695f);
 
-            var scalingFactorX = (float)screenWidth / (float)healthBar.Bitmap.Width;
-            var scalingFactorY = (float)screenHeight / (float)healthBar.Bitmap.Height;
+            var scalingFactorX = (float)screenWidth / (float)statsBar.Bitmap.Width;
+            var scalingFactorY = (float)screenHeight / (float)statsBar.Bitmap.Height;
 
-            healthBar.Scaling = new TGCVector2(0.25f, 0.40f) * (scalingFactorY / scalingFactorX);
+            statsBar.Scaling = new TGCVector2(0.25f, 0.42f) * (scalingFactorY / scalingFactorX);
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
             physicsEngine = new NivelUno();
@@ -156,7 +156,7 @@ namespace TGC.Group.Model.GameStates
         public void Render()
         {
             drawer2D.BeginDrawSprite();
-            drawer2D.DrawSprite(healthBar);
+            drawer2D.DrawSprite(statsBar);
             drawer2D.EndDrawSprite();
 
             // Texto en pantalla sobre los comandos disponibles
@@ -170,7 +170,7 @@ namespace TGC.Group.Model.GameStates
             DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
 
             // Texto en pantalla sobre el juego
-            DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.892f), (int)(screenHeight * 0.94f), Color.Black);
+            DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.893f), (int)(screenHeight * 0.931f), Color.Black);
 
             if (player1.flippedTime > 0)
             {

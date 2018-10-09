@@ -20,6 +20,8 @@ namespace TGC.Group.PlayerOne
         public float flippedTime = 0;
         public string linealVelocity;
         public bool collision = false;
+        public float hitPoints = 100f;
+        public float specialPoints = 100f;
 
         // Atributos constantes
         public readonly float engineForce = -500f;
