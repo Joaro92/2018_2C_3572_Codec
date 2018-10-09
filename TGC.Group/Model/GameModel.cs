@@ -1,22 +1,8 @@
-using System.Drawing;
 using TGC.Core.Example;
-using TGC.Core.Geometry;
-using TGC.Core.Mathematica;
-using TGC.Examples.Camara;
-using TGC.Group.Bullet.Physics;
-using TGC.Group.Nivel1;
-using TGC.Group.PlayerOne;
-using TGC.Group.Utils;
-using Microsoft.DirectX.DirectInput;
-using TGC.Core.Direct3D;
-using BulletSharp.Math;
-using BulletSharp;
-using TGC.Core.Textures;
-using Microsoft.DirectX.Direct3D;
 
 using TGC.Group.Model.GameStates;
 using TGC.Group.Form;
-using  System.Windows.Forms.VisualStyles;
+using System.Windows.Forms;
 
 namespace TGC.Group.Model
 {
@@ -57,6 +43,15 @@ namespace TGC.Group.Model
         public override void Dispose()
         {
             GameState.Dispose();
+        }
+
+        public void Exit()
+        {
+            var formEnumerator = Application.OpenForms.GetEnumerator();
+            formEnumerator.MoveNext();
+            var gameForm = (GameForm) formEnumerator.Current;
+            gameForm.ShutDown();
+            gameForm.Close();
         }
     }
 }

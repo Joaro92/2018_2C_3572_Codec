@@ -1,13 +1,9 @@
 ﻿using BulletSharp.Math;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TGC.Core.Mathematica;
 
 namespace TGC.Group.Utils
 {
+
+    public enum MenuOption { PLAY, CONTROLS, EXIT };
 
     public enum ModoCamara { NORMAL, CERCA, LEJOS };
 
@@ -78,11 +74,10 @@ namespace TGC.Group.Utils
 
     static class UtilMethods
     {
-        public static T getNextOption <T> (this T[] options, T previousOption)
+        public static T getNextOption <T> (this T[] options, T selectedOption, int direction = 1)
         {
-            return options[(System.Array.FindIndex(options, c => c.Equals(previousOption)) + 1) % options.Length];
+            return options[(System.Array.FindIndex(options, c => c.Equals(selectedOption)) + direction) % options.Length];
         }
-
     }
 
     
