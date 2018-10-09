@@ -35,24 +35,51 @@ namespace TGC.Group.Model.GameStates
         private ModoCamara modoCamara = ModoCamara.NORMAL;
         private Drawer2D drawer2D;
         private int screenHeight, screenWidth;
-        private CustomSprite statsBar;
+        private CustomSprite statsBar, healthBar, specialBar;
+        private TGCVector2 specialScale;
+
 
         public Partida(GameModel gameModel)
         {
             this.gameModel = gameModel;
 
+            // Tamaño de la pantalla
             screenHeight = D3DDevice.Instance.Device.Viewport.Height;
             screenWidth = D3DDevice.Instance.Device.Viewport.Width;
             
+            // Inicializamos la interface para dibujar sprites 2D
             drawer2D = new Drawer2D();
+
+            // Sprite para mostrar los stats
             statsBar = new CustomSprite();
-            statsBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\Stats.png", D3DDevice.Instance.Device);
+            statsBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\stats.png", D3DDevice.Instance.Device);
             statsBar.Position = new TGCVector2(screenWidth * 0.81f, screenHeight * 0.695f);
 
             var scalingFactorX = (float)screenWidth / (float)statsBar.Bitmap.Width;
             var scalingFactorY = (float)screenHeight / (float)statsBar.Bitmap.Height;
 
             statsBar.Scaling = new TGCVector2(0.25f, 0.42f) * (scalingFactorY / scalingFactorX);
+
+            // Sprite que representa la vida
+            healthBar = new CustomSprite();
+            healthBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\healthBar.png", D3DDevice.Instance.Device);
+            healthBar.Position = new TGCVector2(screenWidth * 0.8605f, screenHeight * 0.728f);
+
+            scalingFactorX = (float)screenWidth / (float)healthBar.Bitmap.Width;
+            scalingFactorY = (float)screenHeight / (float)healthBar.Bitmap.Height;
+
+            healthBar.Scaling = new TGCVector2(0.079f, 0.08f) * (scalingFactorY / scalingFactorX);
+
+            // Sprite de la barra de especiales
+            specialBar = new CustomSprite();
+            specialBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\specialBar.png", D3DDevice.Instance.Device);
+            specialBar.Position = new TGCVector2(screenWidth * 0.861f, screenHeight * 0.83f);
+
+            scalingFactorX = (float)screenWidth / (float)specialBar.Bitmap.Width;
+            scalingFactorY = (float)screenHeight / (float)specialBar.Bitmap.Height;
+
+            specialBar.Scaling = new TGCVector2(0.079f, 0.08f) * (scalingFactorY / scalingFactorX);
+            specialScale = specialBar.Scaling;
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
             physicsEngine = new NivelUno();
@@ -151,12 +178,26 @@ namespace TGC.Group.Model.GameStates
 
             // Actualizar el mundo físico
             player1 = physicsEngine.Update(gameModel.Input, camaraInterna, gameModel.ElapsedTime, modoCamara);
+
+            specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / 100f), specialScale.Y);
+
+            // Actualizar los stats
+            if (player1.specialPoints < 100)
+            {
+                player1.specialPoints += gameModel.ElapsedTime;
+            }
+            else
+            {
+                player1.specialPoints = 100;
+            }
         }
 
         public void Render()
         {
             drawer2D.BeginDrawSprite();
             drawer2D.DrawSprite(statsBar);
+            drawer2D.DrawSprite(healthBar);
+            drawer2D.DrawSprite(specialBar);
             drawer2D.EndDrawSprite();
 
             // Texto en pantalla sobre los comandos disponibles
@@ -170,7 +211,7 @@ namespace TGC.Group.Model.GameStates
             DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
 
             // Texto en pantalla sobre el juego
-            DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.893f), (int)(screenHeight * 0.931f), Color.Black);
+            DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.898f), (int)(screenHeight * 0.931f), Color.Black);
 
             if (player1.flippedTime > 0)
             {
@@ -195,6 +236,9 @@ namespace TGC.Group.Model.GameStates
             physicsEngine.Dispose();
             directionArrow.Dispose();
             player1.rigidBody.Dispose();
+            statsBar.Dispose();
+            healthBar.Dispose();
+            specialBar.Dispose();
         }
     }
 }

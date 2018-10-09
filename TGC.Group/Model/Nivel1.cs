@@ -74,12 +74,25 @@ namespace TGC.Group.Nivel1
             jump = false;
 
             // Actualizar la velocidad lineal instantanea del vehiculo
-            player1.linealVelocity = (player1.rigidBody.InterpolationLinearVelocity.Length * 2).ToString();
+            //player1.linealVelocity = (player1.rigidBody.InterpolationLinearVelocity.Length * 2).ToString();
 
-            if (player1.linealVelocity.Length > 4)
+            var vectorForward = new TGCVector3(Vector3.TransformNormal(-Vector3.UnitZ, player1.rigidBody.InterpolationWorldTransform));
+            var linealVelocity = new TGCVector3(vectorForward.X * player1.rigidBody.InterpolationLinearVelocity.X * 2, 0, vectorForward.Z * player1.rigidBody.InterpolationLinearVelocity.Z * 2);
+
+            if (linealVelocity.X < 0 || linealVelocity.Z < 0)
             {
-                player1.linealVelocity = player1.linealVelocity.Substring(0, 4);
+                player1.linealVelocity = "-" + ((int)linealVelocity.Length()).ToString();
             }
+            else
+            {
+                player1.linealVelocity = ((int)linealVelocity.Length()).ToString();
+            }
+
+            if (linealVelocity.Length() < 0.33f)
+            {
+                player1.linealVelocity = "0";
+            }
+
 
             // Si el jugador cayó a más de 100 unidades en Y, se lo hace respawnear
             if (player1.rigidBody.CenterOfMassPosition.Y < -100)
@@ -178,8 +191,12 @@ namespace TGC.Group.Nivel1
             // Realizar el salto
             if (jump && !jumped && !flag)
             {
-                player1.rigidBody.ApplyCentralImpulse(new Vector3(0, 900, 0)); //Puede ser una propiedad
-                jumped = true;
+                if (player1.specialPoints > 12)
+                {
+                    player1.rigidBody.ApplyCentralImpulse(new Vector3(0, 900, 0)); //Puede ser una propiedad
+                    player1.specialPoints -= 12;
+                    jumped = true;
+                }
             }
 
             if (jumped && player1.rigidBody.LinearVelocity.Y < -0.1f)
@@ -224,6 +241,7 @@ namespace TGC.Group.Nivel1
 
             //Ajustar la posicion de la camara segun la colision con los objetos del escenario
             ajustarPosicionDeCamara(camaraInterna, modoCamara);
+
 
             return player1;
         }
