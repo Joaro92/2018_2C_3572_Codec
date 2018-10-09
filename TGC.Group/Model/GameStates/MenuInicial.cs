@@ -23,10 +23,9 @@ namespace TGC.Group.Model.GameStates
         private bool showStart = true;
         private float timerStart1 = 0f;
         private float timerStart2 = 0f;
-        private bool timerStart1flag = true;
-        private bool timerStart2flag = false;
-        private float frecStart = 5f; //frecuencia de parpadeo del start
-        private float timeAfterStart = 0.75f; //tiempo en segundos de parpadeo final despues de presionar start
+        private bool timerStartFlag = false;
+        private float frecStart = 5f; //frecuencia de parpadeo inicial del start (en el parpadeo final es el doble)
+        private readonly float timeAfterStart = 0.75f; //tiempo en segundos de parpadeo final despues de presionar start
 
         private TgcText2D play;
         private TgcText2D controls;
@@ -98,57 +97,63 @@ namespace TGC.Group.Model.GameStates
 
         public void Update()
         {
-            if(timerStart1flag)
-            timerStart1 += gameModel.ElapsedTime;
-            if (timerStart2flag)
-                timerStart2 += gameModel.ElapsedTime;
-
-            if(timerStart1 >= (1/frecStart) )
+            if (!showMenu)
             {
-                if (showStart)
+                timerStart1 += gameModel.ElapsedTime;
+                if (timerStartFlag)
+                    timerStart2 += gameModel.ElapsedTime;
+
+
+                if (timerStart1 >= (1 / frecStart))
+                {
+                    if (showStart)
+                        showStart = false;
+                    else
+                        showStart = true;
+                    timerStart1 = 0f;
+                }
+                if (timerStart2 >= timeAfterStart)
+                {
                     showStart = false;
-                else
-                    showStart = true;
-                timerStart1 = 0f;
-            }
-            if(timerStart2 >= timeAfterStart)
-            {
-                showStart = false;
-                showMenu = true;
+                    showMenu = true;
+                }
             }
 
-            if (gameModel.Input.keyPressed(Key.DownArrow) && showMenu)
+            else
             {
-                if (selectedOption.Equals(options.Last()) == false)
-                    selectedOption = options.getNextOption(selectedOption);
-            }
+                if (gameModel.Input.keyPressed(Key.DownArrow) && showMenu)
+                {
+                    if (selectedOption.Equals(options.Last()) == false)
+                        selectedOption = options.getNextOption(selectedOption);
+                }
 
-            if (gameModel.Input.keyPressed(Key.UpArrow) && showMenu)
-            {
-                if (selectedOption.Equals(options.First()) == false)
-                    selectedOption = options.getNextOption(selectedOption,-1);
+                if (gameModel.Input.keyPressed(Key.UpArrow) && showMenu)
+                {
+                    if (selectedOption.Equals(options.First()) == false)
+                        selectedOption = options.getNextOption(selectedOption, -1);
 
-            }
+                }
 
-            switch (selectedOption)
-            {
-                case MenuOption.PLAY:
-                    play.Color = Color.Yellow;
-                    controls.Color = Color.Silver;
-                    exit.Color = Color.Silver;
-                    break;
-                case MenuOption.CONTROLS:
-                    play.Color = Color.Silver;
-                    controls.Color = Color.Yellow;
-                    exit.Color = Color.Silver;
-                    break;
-                case MenuOption.EXIT:
-                    play.Color = Color.Silver;
-                    controls.Color = Color.Silver;
-                    exit.Color = Color.Yellow;
-                    break;
-                default:
-                    break;
+                switch (selectedOption)
+                {
+                    case MenuOption.PLAY:
+                        play.Color = Color.Yellow;
+                        controls.Color = Color.Silver;
+                        exit.Color = Color.Silver;
+                        break;
+                    case MenuOption.CONTROLS:
+                        play.Color = Color.Silver;
+                        controls.Color = Color.Yellow;
+                        exit.Color = Color.Silver;
+                        break;
+                    case MenuOption.EXIT:
+                        play.Color = Color.Silver;
+                        controls.Color = Color.Silver;
+                        exit.Color = Color.Yellow;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             if (gameModel.Input.keyPressed(Key.Return))
@@ -156,7 +161,7 @@ namespace TGC.Group.Model.GameStates
                 if (showStart)
                 {
                     frecStart *= 2;
-                    timerStart2flag = true;
+                    timerStartFlag = true;
                 }
                 else if (showMenu)
                 {
