@@ -38,7 +38,7 @@ namespace TGC.Group.Nivel1
             base.Init();
 
             // Cargamos el escenario y lo agregamos al mundo
-            escenario = new Escenario("Scenarios\\scene-level1-TgcScene.xml");
+            escenario = new Escenario("Scenarios\\scene-level1a-TgcScene.xml");
             foreach(RigidBody rigid in escenario.rigidBodys)
             {
                 world.AddRigidBody(rigid);
