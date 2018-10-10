@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using TGC.Examples.Engine2D.Spaceship.Core;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
 using TGC.Examples.Camara;
@@ -8,6 +7,8 @@ using TGC.Core.Text;
 using System.Drawing;
 using System.Drawing.Text;
 using TGC.Group.Utils;
+using TGC.Group.Model.TGCUtils;
+
 
 namespace TGC.Group.Model.GameStates
 {
