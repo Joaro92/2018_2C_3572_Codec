@@ -7,13 +7,13 @@ using TGC.Group.Bullet.Physics;
 using TGC.Group.Nivel1;
 using TGC.Group.PlayerOne;
 using TGC.Group.Utils;
-using Microsoft.DirectX.DirectInput;
 using TGC.Core.Direct3D;
 using BulletSharp.Math;
-using BulletSharp;
 using TGC.Core.Textures;
-using Microsoft.DirectX.Direct3D;
 using TGC.Examples.Engine2D.Spaceship.Core;
+using DeviceType = SharpDX.DirectInput.DeviceType;
+using Key = Microsoft.DirectX.DirectInput.Key;
+
 
 namespace TGC.Group.Model.GameStates
 {
@@ -37,7 +37,6 @@ namespace TGC.Group.Model.GameStates
         private int screenHeight, screenWidth;
         private CustomSprite statsBar, healthBar, specialBar;
         private TGCVector2 specialScale;
-
 
         public Partida(GameModel gameModel)
         {
@@ -98,10 +97,15 @@ namespace TGC.Group.Model.GameStates
             directionArrow.HeadColor = Color.Green;
             directionArrow.Thickness = 0.1f;
             directionArrow.HeadSize = new TGCVector2(1, 2);
+
+            // ----------- PRUEBA DE JOYSTICK --------------
+
+            
         }
 
         public void Update()
         {
+
             // Mostrar bounding box del TgcMesh
             if (gameModel.Input.keyPressed(Key.F1))
             {
@@ -122,7 +126,7 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Dibujar el Vector UP
-            if (gameModel.Input.keyPressed(Key.F3))
+            if (gameModel.Input.keyPressed(Key.F3) || gameModel.JoystickButtonPressed(3))
             {
                 drawUpVector = !drawUpVector;
             }
