@@ -74,25 +74,25 @@ namespace TGC.Group.Nivel1
             jump = false;
 
             // Actualizar la velocidad lineal instantanea del vehiculo
-            //player1.linealVelocity = (player1.rigidBody.InterpolationLinearVelocity.Length * 2).ToString();
+            var frontVector = new TGCVector3(Vector3.TransformNormal(-Vector3.UnitZ, player1.rigidBody.InterpolationWorldTransform));
+            var velocityVector = new TGCVector3(player1.rigidBody.InterpolationLinearVelocity.X, 0, player1.rigidBody.InterpolationLinearVelocity.Z);
 
-            var vectorForward = new TGCVector3(Vector3.TransformNormal(-Vector3.UnitZ, player1.rigidBody.InterpolationWorldTransform));
-            var linealVelocity = new TGCVector3(vectorForward.X * player1.rigidBody.InterpolationLinearVelocity.X * 2, 0, vectorForward.Z * player1.rigidBody.InterpolationLinearVelocity.Z * 2);
-
-            if (linealVelocity.Length() < 0.33f)
+            if (velocityVector.Length() < 0.111f)
             {
-                player1.linealVelocity = "0";
+                velocityVector = TGCVector3.Empty;
+            }
+            var speedAngle = FastMath.Acos(TGCVector3.Dot(frontVector, velocityVector) / (frontVector.Length() * velocityVector.Length()));
+
+            velocityVector.Multiply(2.5f);
+
+            player1.linealVelocity = speedAngle.ToString();
+            if (speedAngle > FastMath.PI_HALF)
+            {
+                player1.linealVelocity = "-" + ((int)velocityVector.Length()).ToString();
             }
             else
             {
-                if (linealVelocity.Z < 0)
-                {
-                    player1.linealVelocity = "-" + ((int)linealVelocity.Length()).ToString();
-                }
-                else
-                {
-                    player1.linealVelocity = ((int)linealVelocity.Length()).ToString();
-                }
+                player1.linealVelocity = ((int)velocityVector.Length()).ToString();
             }
 
             // Si el jugador cayó a más de 100 unidades en Y, se lo hace respawnear
@@ -104,6 +104,8 @@ namespace TGC.Group.Nivel1
                 player1.rigidBody.MotionState = new DefaultMotionState(transformationMatrix);
                 player1.rigidBody.LinearVelocity = Vector3.Zero;
                 player1.rigidBody.AngularVelocity = Vector3.Zero;
+
+                player1.hitPoints -= 30;
             }
 
             // Detectar según el Input, si va a Rotar, Avanzar y/o Saltar

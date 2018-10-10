@@ -36,7 +36,7 @@ namespace TGC.Group.Model.GameStates
         private Drawer2D drawer2D;
         private int screenHeight, screenWidth;
         private CustomSprite statsBar, healthBar, specialBar;
-        private TGCVector2 specialScale;
+        private TGCVector2 specialScale, hpScale;
 
         public Partida(GameModel gameModel)
         {
@@ -65,11 +65,11 @@ namespace TGC.Group.Model.GameStates
             healthBar.Position = new TGCVector2(screenWidth * 0.8605f, screenHeight * 0.728f); //para 125 % escalado
             //healthBar.Position = new TGCVector2(screenWidth * 0.8515f, screenHeight * 0.7215f); //para 100% escalado
 
-
             scalingFactorX = (float)screenWidth / (float)healthBar.Bitmap.Width;
             scalingFactorY = (float)screenHeight / (float)healthBar.Bitmap.Height;
 
             healthBar.Scaling = new TGCVector2(0.079f, 0.08f) * (scalingFactorY / scalingFactorX);
+            hpScale = healthBar.Scaling;
 
             // Sprite de la barra de especiales
             specialBar = new CustomSprite();
@@ -96,16 +96,11 @@ namespace TGC.Group.Model.GameStates
             directionArrow.BodyColor = Color.Red;
             directionArrow.HeadColor = Color.Green;
             directionArrow.Thickness = 0.1f;
-            directionArrow.HeadSize = new TGCVector2(1, 2);
-
-            // ----------- PRUEBA DE JOYSTICK --------------
-
-            
+            directionArrow.HeadSize = new TGCVector2(1, 2); 
         }
 
         public void Update()
         {
-
             // Mostrar bounding box del TgcMesh
             if (gameModel.Input.keyPressed(Key.F1))
             {
@@ -186,7 +181,9 @@ namespace TGC.Group.Model.GameStates
             // Actualizar el mundo físico
             player1 = physicsEngine.Update(gameModel.Input, camaraInterna, gameModel.ElapsedTime, modoCamara);
 
+            // Actualizamos la barra de especial
             specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / 100f), specialScale.Y);
+            healthBar.Scaling = new TGCVector2(hpScale.X * (player1.hitPoints / 100f), hpScale.Y);
 
             // Actualizar los stats
             if (player1.specialPoints < 100)
@@ -201,6 +198,12 @@ namespace TGC.Group.Model.GameStates
 
         public void Render()
         {
+            if (player1.hitPoints < 0)
+            {
+                gameModel.Exit();
+                return;
+            }
+
             drawer2D.BeginDrawSprite();
             drawer2D.DrawSprite(statsBar);
             drawer2D.DrawSprite(healthBar);
