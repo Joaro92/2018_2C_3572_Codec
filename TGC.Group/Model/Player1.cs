@@ -24,17 +24,17 @@ namespace TGC.Group.PlayerOne
         public float specialPoints = 100f;
 
         // Atributos constantes
-        public readonly float engineForce = -500f;
-        public readonly float steeringAngle = -0.25f;
-        public readonly float mass = 90f;
-        protected float wheelDistance = 0.05f;
-        protected float rearWheelsHeight = 0;
-        protected float suspensionRestLength = 0.7f;
-        protected float SuspensionStiffness = 60;
-        protected float DampingCompression = 0.21f;
-        protected float DampingRelaxation = 0.57f;
-        protected float FrictionSlip = 0.62f;
-        protected float RollInfluence = 1.86f;
+        public readonly float engineForce = -1100;
+        public readonly float steeringAngle = -0.27f;
+        public readonly float mass = 480f;
+        protected float wheelDistance = 0;
+        protected float rearWheelsHeight = 0f;
+        protected float suspensionRestLength = 2.4f;
+        protected float SuspensionStiffness = 21f;
+        protected float DampingCompression = 0.18f * 0.7f;
+        protected float DampingRelaxation = 0.93f * 0.9f;
+        protected float FrictionSlip = 0.66f;
+        protected float RollInfluence = 0.7f;
 
         /// <summary>
         ///  Crea un Vehiculo con propiedades de Bullet y TgcMesh y lo agrega al mundo a partir de un archivo 'TgcScene.xml'
@@ -116,17 +116,18 @@ namespace TGC.Group.PlayerOne
             Vector4 points = contactInfoByChassis(tgcMesh.Name);
 
             //The height where the wheels are connected to the chassis
-            float connectionHeight = -1.148f + 1f + wheelDistance - wheelRadius / 2;
+            //float connectionHeight = -1.148f + 1f - wheelDistance - wheelRadius / 2;
+            //connectionHeight += rearWheelsHeight;
 
             //All the wheel configuration assumes the vehicle is centered at the origin and a right handed coordinate system is used
-            Vector3 wheelConnectionPoint = new Vector3(points.X, points.Y + 1f + wheelDistance - wheelRadius / 2, points.Z);
+            Vector3 wheelConnectionPoint = new Vector3(points.X, points.Y + suspensionRestLength - 0.08f, points.Z);
 
             //Adds the rear wheels
             vehicle.AddWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
             vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
 
             //Adds the front wheels
-            wheelConnectionPoint.Y -= 0.05f - rearWheelsHeight;
+            wheelConnectionPoint.Y -= 0.02f;
             wheelConnectionPoint.Z = points.W;
             vehicle.AddWheel(wheelConnectionPoint * new Vector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
             vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);

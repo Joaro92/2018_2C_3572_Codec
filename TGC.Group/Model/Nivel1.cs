@@ -24,7 +24,7 @@ namespace TGC.Group.Nivel1
         private Player1 player1;
         private TgcSkyBox skyBox;
 
-        private readonly TGCVector3 initialPos = new TGCVector3(144f, 20f, 0f);
+        private readonly TGCVector3 initialPos = new TGCVector3(144f, 7.5f, 0f);
         private bool moving = false;
         private bool rotating = false;
         private bool jump = false;
@@ -45,7 +45,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, "Vehicles\\chassis-station-TgcScene.xml", "Vehicles\\tires-common-TgcScene.xml", initialPos);
+            player1 = new Player1(world, "Vehicles\\chassis-coupe-TgcScene.xml", "Vehicles\\tires-common-TgcScene.xml", initialPos);
 
             //Crear SkyBox
             skyBox = new TgcSkyBox();
@@ -79,20 +79,21 @@ namespace TGC.Group.Nivel1
             var vectorForward = new TGCVector3(Vector3.TransformNormal(-Vector3.UnitZ, player1.rigidBody.InterpolationWorldTransform));
             var linealVelocity = new TGCVector3(vectorForward.X * player1.rigidBody.InterpolationLinearVelocity.X * 2, 0, vectorForward.Z * player1.rigidBody.InterpolationLinearVelocity.Z * 2);
 
-            if (linealVelocity.X < 0 || linealVelocity.Z < 0)
-            {
-                player1.linealVelocity = "-" + ((int)linealVelocity.Length()).ToString();
-            }
-            else
-            {
-                player1.linealVelocity = ((int)linealVelocity.Length()).ToString();
-            }
-
             if (linealVelocity.Length() < 0.33f)
             {
                 player1.linealVelocity = "0";
             }
-
+            else
+            {
+                if (linealVelocity.Z < 0)
+                {
+                    player1.linealVelocity = "-" + ((int)linealVelocity.Length()).ToString();
+                }
+                else
+                {
+                    player1.linealVelocity = ((int)linealVelocity.Length()).ToString();
+                }
+            }
 
             // Si el jugador cayó a más de 100 unidades en Y, se lo hace respawnear
             if (player1.rigidBody.CenterOfMassPosition.Y < -100)
@@ -164,10 +165,10 @@ namespace TGC.Group.Nivel1
             // Frenar
             if (Input.keyDown(Key.LeftControl))
             {
-                player1.Vehicle.SetBrake(13, 0); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(13, 1);
-                player1.Vehicle.SetBrake(8, 2); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(8, 3);
+                player1.Vehicle.SetBrake(19, 0); //Puede ser una propiedad
+                player1.Vehicle.SetBrake(19, 1);
+                player1.Vehicle.SetBrake(12, 2); //Puede ser una propiedad
+                player1.Vehicle.SetBrake(12, 3);
             }
             else
             {
@@ -193,7 +194,7 @@ namespace TGC.Group.Nivel1
             {
                 if (player1.specialPoints > 12)
                 {
-                    player1.rigidBody.ApplyCentralImpulse(new Vector3(0, 900, 0)); //Puede ser una propiedad
+                    player1.rigidBody.ApplyCentralImpulse(new Vector3(0, 900*4.3f, 0)); //Puede ser una propiedad
                     player1.specialPoints -= 12;
                     jumped = true;
                 }
@@ -305,7 +306,7 @@ namespace TGC.Group.Nivel1
         public override void Render()
         { 
             // Renderizar la malla del auto, en este caso solo el Chasis
-            player1.tgcMesh.Transform = new TGCMatrix(player1.Vehicle.ChassisWorldTransform);
+            player1.tgcMesh.Transform = TGCMatrix.Translation(new TGCVector3(0, 0.11f, 0)) * new TGCMatrix(player1.Vehicle.ChassisWorldTransform);
             player1.tgcMesh.Render();
 
             // Como las ruedas no son cuerpos rigidos (aún) se procede a realizar las transformaciones de las ruedas para renderizar
