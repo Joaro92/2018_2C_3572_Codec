@@ -118,21 +118,43 @@ namespace TGC.Group.Model.GameStates
                     showStart = false;
                     showMenu = true;
                 }
-            }
 
+                if (gameModel.Input.keyPressed(Key.Return))
+                {
+                    frecStart *= 2;
+                    timerStartFlag = true;
+                }
+            }
             else
             {
-                if (gameModel.Input.keyPressed(Key.DownArrow) && showMenu)
+                if (gameModel.Input.keyPressed(Key.DownArrow))
                 {
                     if (selectedOption.Equals(options.Last()) == false)
                         selectedOption = options.getNextOption(selectedOption);
                 }
 
-                if (gameModel.Input.keyPressed(Key.UpArrow) && showMenu)
+                if (gameModel.Input.keyPressed(Key.UpArrow))
                 {
                     if (selectedOption.Equals(options.First()) == false)
                         selectedOption = options.getNextOption(selectedOption, -1);
 
+                }
+
+                if (gameModel.Input.keyPressed(Key.Return))
+                {
+                    switch (selectedOption)
+                    {
+                        case MenuOption.PLAY:
+                            isNextState = true;
+                            break;
+                        case MenuOption.CONTROLS:
+                            break;
+                        case MenuOption.EXIT:
+                            isExit = true;
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
                 switch (selectedOption)
@@ -156,32 +178,6 @@ namespace TGC.Group.Model.GameStates
                         break;
                 }
             }
-
-            if (gameModel.Input.keyPressed(Key.Return))
-            {
-                if (showStart)
-                {
-                    frecStart *= 2;
-                    timerStartFlag = true;
-                }
-                else if (showMenu)
-                {
-                    switch (selectedOption)
-                    {
-                        case MenuOption.PLAY:
-                                            isNextState = true;
-                                            break;
-                        case MenuOption.CONTROLS:
-                                            break;
-                        case MenuOption.EXIT:
-                                            isExit = true;
-                                            break;
-                        default:
-                                            break;
-                    }
-                }
-            }
-
         }
 
         public void Render()
