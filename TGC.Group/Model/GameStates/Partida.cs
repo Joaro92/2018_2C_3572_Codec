@@ -32,6 +32,7 @@ namespace TGC.Group.Model.GameStates
         private TgcArrow directionArrow;
         private float anguloCamara;
         private float halfsPI;
+        private bool mirarHaciaAtras;
         private ModoCamara modoCamara = ModoCamara.NORMAL;
         private Drawer2D drawer2D;
         private int screenHeight, screenWidth;
@@ -151,6 +152,15 @@ namespace TGC.Group.Model.GameStates
                 player1.tgcMesh.deleteDiffuseMap(index, 4); //de donde sale el 4?
             }
 
+            // Mirar hacia atras
+            if (gameModel.Input.keyDown(Key.C))
+            {
+                mirarHaciaAtras = true;
+                halfsPI = 0;
+            }
+            else
+                mirarHaciaAtras = false;
+
             // Rotar 90° la cámara
             if (gameModel.Input.keyPressed(Key.F5))
             {
@@ -168,7 +178,7 @@ namespace TGC.Group.Model.GameStates
 
             // Hacer que la cámara apunte a nuestro Player 1
             camaraInterna.Target = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
-            camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + anguloCamara + halfsPI;
+            camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + anguloCamara + halfsPI + (mirarHaciaAtras ? FastMath.PI : 0);
 
             // Actualizar el Vector UP si se dibuja
             if (drawUpVector)
@@ -198,7 +208,7 @@ namespace TGC.Group.Model.GameStates
 
         public void Render()
         {
-            if (player1.hitPoints < 0)
+            if (player1.hitPoints <= 0)
             {
                 gameModel.Exit();
                 return;
@@ -219,6 +229,8 @@ namespace TGC.Group.Model.GameStates
             DrawText.drawText("W A S D para el movimiento básico", 3, 80, Color.YellowGreen);
             DrawText.drawText("Control Izquierdo para frenar", 3, 95, Color.YellowGreen);
             DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
+            DrawText.drawText("Tecla C para mirar hacia atrás", 3, 125, Color.YellowGreen);
+
 
             // Texto en pantalla sobre el juego
             DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.898f), (int)(screenHeight * 0.931f), Color.Black);
