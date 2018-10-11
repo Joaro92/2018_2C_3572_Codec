@@ -36,7 +36,7 @@ namespace TGC.Group.Model.GameStates
         private ModoCamara modoCamara = ModoCamara.NORMAL;
         private Drawer2D drawer2D;
         private int screenHeight, screenWidth;
-        private CustomSprite statsBar, healthBar, specialBar;
+        private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
         private TGCVector2 specialScale, hpScale;
 
         public Partida(GameModel gameModel)
@@ -59,6 +59,16 @@ namespace TGC.Group.Model.GameStates
             var scalingFactorY = (float)screenHeight / (float)statsBar.Bitmap.Height;
 
             statsBar.Scaling = new TGCVector2(0.25f, 0.42f) * (scalingFactorY / scalingFactorX);
+
+            // Sprite del HUD de las armas
+            weaponsHud = new CustomSprite();
+            weaponsHud.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\weapons hud 2.png", D3DDevice.Instance.Device);
+            weaponsHud.Position = new TGCVector2(-15, screenHeight * 0.64f);
+
+            scalingFactorX = (float)screenWidth / (float)weaponsHud.Bitmap.Width;
+            scalingFactorY = (float)screenHeight / (float)weaponsHud.Bitmap.Height;
+
+            weaponsHud.Scaling = new TGCVector2(0.6f, 0.6f) * (scalingFactorY / scalingFactorX);
 
             // Sprite que representa la vida
             healthBar = new CustomSprite();
@@ -122,7 +132,7 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Dibujar el Vector UP
-            if (gameModel.Input.keyPressed(Key.F3) || gameModel.JoystickButtonPressed(3))
+            if (gameModel.Input.keyPressed(Key.F3))
             {
                 drawUpVector = !drawUpVector;
             }
@@ -153,7 +163,7 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Mirar hacia atras
-            if (gameModel.Input.keyDown(Key.C))
+            if (gameModel.Input.keyDown(Key.C) || gameModel.JoystickButtonDown(4))
             {
                 mirarHaciaAtras = true;
                 halfsPI = 0;
@@ -189,7 +199,7 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Actualizar el mundo físico
-            player1 = physicsEngine.Update(gameModel.Input, camaraInterna, gameModel.ElapsedTime, modoCamara);
+            player1 = physicsEngine.Update(gameModel, camaraInterna, modoCamara);
 
             // Actualizamos la barra de especial
             specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / 100f), specialScale.Y);
@@ -218,6 +228,7 @@ namespace TGC.Group.Model.GameStates
             drawer2D.DrawSprite(statsBar);
             drawer2D.DrawSprite(healthBar);
             drawer2D.DrawSprite(specialBar);
+            drawer2D.DrawSprite(weaponsHud);
             drawer2D.EndDrawSprite();
 
             // Texto en pantalla sobre los comandos disponibles

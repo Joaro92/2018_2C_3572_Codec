@@ -10,9 +10,9 @@ namespace TGC.Group.Model
 {
     public class GameModel : TgcExample
     {
-        public IGameState GameState { get ; set ; }
+        public IGameState GameState { get; set; }
         private Joystick joystick;
-        private bool joyFlag = false;
+        private bool[] joyFlag = { false , false, false, false, false, false, false, false, false, false };
 
         public GameModel(string mediaDir, string shadersDir) : base(mediaDir, shadersDir)
         {
@@ -40,7 +40,7 @@ namespace TGC.Group.Model
                     joystickGuid = deviceInstance.InstanceGuid;
                 }
 
-            // If Joystick not found, throws an error
+            // Configure and set Joystick only if found
             if (joystickGuid != Guid.Empty)
             {
                 // Instantiate the joystick
@@ -96,9 +96,9 @@ namespace TGC.Group.Model
 
             joystick.Poll();
 
-            if (joyFlag == false)
+            if (joyFlag[buttonID] == false)
             {
-                joyFlag = joystick.GetCurrentState().Buttons[buttonID];
+                joyFlag[buttonID] = joystick.GetCurrentState().Buttons[buttonID];
 
                 return false;
             }
@@ -106,11 +106,38 @@ namespace TGC.Group.Model
             {
                 if (joystick.GetCurrentState().Buttons[buttonID] == false)
                 {
-                    joyFlag = false;
+                    joyFlag[buttonID] = false;
                     return true;
                 }
                 else return false;
             }
+        }
+
+        public bool JoystickButtonDown(int buttonID)
+        {
+            if (joystick == null) return false;
+
+            joystick.Poll();
+
+            return joystick.GetCurrentState().Buttons[buttonID];
+        }
+
+        public bool JoystickDpadLeft()
+        {
+            if (joystick == null) return false;
+
+            joystick.Poll();
+
+            return joystick.GetCurrentState().PointOfViewControllers[0] == 27000;
+        }
+
+        public bool JoystickDpadRight()
+        {
+            if (joystick == null) return false;
+
+            joystick.Poll();
+
+            return joystick.GetCurrentState().PointOfViewControllers[0] == 9000;
         }
     }
 }

@@ -15,6 +15,7 @@ using Microsoft.DirectX.Direct3D;
 using TGC.Examples.Engine2D.Spaceship.Core;
 using TGC.Group.Utils;
 using TGC.Core.Terrain;
+using TGC.Group.Model;
 
 namespace TGC.Group.Nivel1
 {
@@ -63,7 +64,7 @@ namespace TGC.Group.Nivel1
             return player1;
         }
 
-        public override Player1 Update(TgcD3dInput Input, TgcThirdPersonCamera camaraInterna, float ElapsedTime, ModoCamara modoCamara)
+        public override Player1 Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
         {
             // Determinar que la simulación del mundo físico se va a procesar 60 veces por segundo
             world.StepSimulation(1 / 60f, 10);
@@ -110,7 +111,7 @@ namespace TGC.Group.Nivel1
 
             // Detectar según el Input, si va a Rotar, Avanzar y/o Saltar
             // Adelante
-            if (Input.keyDown(Key.W) || Input.keyDown(Key.UpArrow))
+            if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || gameModel.JoystickButtonDown(0))
             {
                 player1.Vehicle.ApplyEngineForce(player1.engineForce, 2);
                 player1.Vehicle.ApplyEngineForce(player1.engineForce, 3);
@@ -118,7 +119,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Atras
-            if (Input.keyDown(Key.S) || Input.keyDown(Key.DownArrow))
+            if (gameModel.Input.keyDown(Key.S) || gameModel.Input.keyDown(Key.DownArrow) || gameModel.JoystickButtonDown(3))
             {
                 //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 0);
                 //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 1);
@@ -128,7 +129,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Derecha
-            if (Input.keyDown(Key.D) || Input.keyDown(Key.RightArrow))
+            if (gameModel.Input.keyDown(Key.D) || gameModel.Input.keyDown(Key.RightArrow) || gameModel.JoystickDpadRight())
             {
                 player1.Vehicle.SetSteeringValue(player1.steeringAngle, 2);
                 player1.Vehicle.SetSteeringValue(player1.steeringAngle, 3);
@@ -136,7 +137,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Izquierda
-            if (Input.keyDown(Key.A) || Input.keyDown(Key.LeftArrow))
+            if (gameModel.Input.keyDown(Key.A) || gameModel.Input.keyDown(Key.LeftArrow) || gameModel.JoystickDpadLeft())
             {
                 player1.Vehicle.SetSteeringValue(-player1.steeringAngle, 2);
                 player1.Vehicle.SetSteeringValue(-player1.steeringAngle, 3);
@@ -144,7 +145,7 @@ namespace TGC.Group.Nivel1
             }
 
             // Saltar
-            if (Input.keyDown(Key.Space))
+            if (gameModel.Input.keyDown(Key.Space) || gameModel.JoystickButtonPressed(1))
             {
                 jump = true;
             }
@@ -165,12 +166,12 @@ namespace TGC.Group.Nivel1
             }
 
             // Frenar
-            if (Input.keyDown(Key.LeftControl))
+            if (gameModel.Input.keyDown(Key.LeftControl) || gameModel.JoystickButtonDown(2))
             {
-                player1.Vehicle.SetBrake(19, 0); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(19, 1);
-                player1.Vehicle.SetBrake(12, 2); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(12, 3);
+                player1.Vehicle.SetBrake(23, 0); //Puede ser una propiedad
+                player1.Vehicle.SetBrake(23, 1);
+                player1.Vehicle.SetBrake(23 * 0.66f, 2); //Puede ser una propiedad
+                player1.Vehicle.SetBrake(23 * 0.66f, 3);
             }
             else
             {
@@ -219,7 +220,7 @@ namespace TGC.Group.Nivel1
             // Si está lo suficientemente rotado en los ejes X o Z no se va a poder mover, por eso lo enderezamos
             if (FastMath.Abs(player1.yawPitchRoll.X) > 1.4f || FastMath.Abs(player1.yawPitchRoll.Z) > 1.4f)
             {
-                player1.flippedTime += ElapsedTime;
+                player1.flippedTime += gameModel.ElapsedTime;
 
                 if (player1.flippedTime > 3)
                 {
