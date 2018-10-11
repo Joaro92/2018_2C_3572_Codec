@@ -52,7 +52,7 @@ namespace TGC.Group.Model.GameStates
             // Inicializamos la interface para dibujar sprites 2D
             drawer2D = new Drawer2D();
 
-            // Sprite para mostrar los stats
+            // Sprite del HUD de la velocidad
             statsBar = new CustomSprite();
             statsBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\stats.png", D3DDevice.Instance.Device);
             statsBar.Position = new TGCVector2(screenWidth * 0.81f, screenHeight * 0.695f);
@@ -111,7 +111,7 @@ namespace TGC.Group.Model.GameStates
             directionArrow.Thickness = 0.1f;
             directionArrow.HeadSize = new TGCVector2(1, 2);
 
-            //Cargo el menu
+            //Cargo el display de velocidad
             var pfc = new PrivateFontCollection();
             pfc.AddFontFile(gameModel.MediaDir + "Fonts\\Open 24 Display St.ttf");
             FontFamily family = pfc.Families[0];
@@ -123,7 +123,9 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = "0",
                 Color = Color.Green,
-                Position = new Point((int)(screenWidth * 0.397f), (int)(screenHeight * 0.906f))
+                Position = new Point((int)(screenWidth * 0.397f), (int)(screenHeight * 0.906f))  // para 125% escalado
+                //Position = new Point((int)(screenWidth * 0.38f), (int)(screenHeight * 0.865f)) // para 100% escalado
+
             };
             speed.changeFont(speedFont);
 
@@ -132,7 +134,9 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = "km",
                 Color = Color.Black,
-                Position = new Point((int)(screenWidth * 0.431f), (int)(screenHeight * 0.927f))
+                Position = new Point((int)(screenWidth * 0.431f), (int)(screenHeight * 0.927f)) // para 125% escalado
+                //Position = new Point((int)(screenWidth * 0.41f), (int)(screenHeight * 0.88f)) // para 100% escalado
+
             };
             km.changeFont(kmFont);
         }
