@@ -13,7 +13,8 @@ using TGC.Core.Textures;
 using TGC.Examples.Engine2D.Spaceship.Core;
 using DeviceType = SharpDX.DirectInput.DeviceType;
 using Key = Microsoft.DirectX.DirectInput.Key;
-
+using System.Drawing.Text;
+using TGC.Core.Text;
 
 namespace TGC.Group.Model.GameStates
 {
@@ -38,6 +39,7 @@ namespace TGC.Group.Model.GameStates
         private int screenHeight, screenWidth;
         private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
         private TGCVector2 specialScale, hpScale;
+        private TgcText2D speed, km;
 
         public Partida(GameModel gameModel)
         {
@@ -107,7 +109,32 @@ namespace TGC.Group.Model.GameStates
             directionArrow.BodyColor = Color.Red;
             directionArrow.HeadColor = Color.Green;
             directionArrow.Thickness = 0.1f;
-            directionArrow.HeadSize = new TGCVector2(1, 2); 
+            directionArrow.HeadSize = new TGCVector2(1, 2);
+
+            //Cargo el menu
+            var pfc = new PrivateFontCollection();
+            pfc.AddFontFile(gameModel.MediaDir + "Fonts\\Open 24 Display St.ttf");
+            FontFamily family = pfc.Families[0];
+            var speedFont = new Font(family, 32);
+            var kmFont = new Font(family, 20);
+
+            //Speed
+            speed = new TgcText2D
+            {
+                Text = "0",
+                Color = Color.Green,
+                Position = new Point((int)(screenWidth * 0.397f), (int)(screenHeight * 0.906f))
+            };
+            speed.changeFont(speedFont);
+
+            //Km
+            km = new TgcText2D
+            {
+                Text = "km",
+                Color = Color.Black,
+                Position = new Point((int)(screenWidth * 0.431f), (int)(screenHeight * 0.927f))
+            };
+            km.changeFont(kmFont);
         }
 
         public void Update()
@@ -231,6 +258,20 @@ namespace TGC.Group.Model.GameStates
             drawer2D.DrawSprite(weaponsHud);
             drawer2D.EndDrawSprite();
 
+            speed.Text = player1.linealVelocity;
+
+            if (player1.linealVelocity.Contains("-"))
+            {
+                speed.Color = Color.IndianRed;
+            }
+            else
+            {
+                speed.Color = Color.Green;
+            }
+
+            speed.render();
+            km.render();
+            
             // Texto en pantalla sobre los comandos disponibles
             var DrawText = gameModel.DrawText;
             DrawText.drawText("Con la tecla F1 se dibuja el bounding box (Deprecado, las colisiones las maneja Bullet)", 3, 20, Color.YellowGreen);
@@ -244,7 +285,8 @@ namespace TGC.Group.Model.GameStates
 
 
             // Texto en pantalla sobre el juego
-            DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.898f), (int)(screenHeight * 0.931f), Color.Black);
+            //DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.898f), (int)(screenHeight * 0.931f), Color.Black);
+
 
             if (player1.flippedTime > 0)
             {
