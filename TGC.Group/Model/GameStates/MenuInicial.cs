@@ -119,7 +119,7 @@ namespace TGC.Group.Model.GameStates
                     showMenu = true;
                 }
 
-                if (gameModel.Input.keyPressed(Key.Return))
+                if (gameModel.Input.keyPressed(Key.Return) || gameModel.JoystickButtonPressed(7))
                 {
                     frecStart *= 2;
                     timerStartFlag = true;
@@ -127,20 +127,20 @@ namespace TGC.Group.Model.GameStates
             }
             else
             {
-                if (gameModel.Input.keyPressed(Key.DownArrow))
+                if (gameModel.Input.keyPressed(Key.DownArrow) || gameModel.JoystickDpadPressed(JoystickDpad.DOWN))
                 {
                     if (selectedOption.Equals(options.Last()) == false)
                         selectedOption = options.getNextOption(selectedOption);
                 }
 
-                if (gameModel.Input.keyPressed(Key.UpArrow))
+                if (gameModel.Input.keyPressed(Key.UpArrow) || gameModel.JoystickDpadPressed(JoystickDpad.UP))
                 {
                     if (selectedOption.Equals(options.First()) == false)
                         selectedOption = options.getNextOption(selectedOption, -1);
 
                 }
 
-                if (gameModel.Input.keyPressed(Key.Return))
+                if (gameModel.Input.keyPressed(Key.Return) || gameModel.JoystickButtonPressed(0))
                 {
                     switch (selectedOption)
                     {

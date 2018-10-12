@@ -386,6 +386,7 @@ namespace TGC.Group.Bullet.Physics
             GImpactCollisionAlgorithm.RegisterAlgorithm(dispatcher);
             constraintSolver = new SequentialImpulseConstraintSolver();
             broadphase = new DbvtBroadphase();
+           
             world = new DiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfiguration);
             world.Gravity = new TGCVector3(0, -9.8f, 0).ToBsVector;
 
@@ -394,7 +395,7 @@ namespace TGC.Group.Bullet.Physics
 
         public abstract Player1 Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara);
 
-        public abstract void Render();
+        public abstract void Render(GameModel gameModel);
 
         public abstract void Dispose();
     }

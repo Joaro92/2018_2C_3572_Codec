@@ -13,6 +13,7 @@ namespace TGC.Group.Model
         public IGameState GameState { get; set; }
         private Joystick joystick;
         private bool[] joyFlag = { false , false, false, false, false, false, false, false, false, false };
+        private bool[] dpadFlag = { false, false, false, false };
 
         public GameModel(string mediaDir, string shadersDir) : base(mediaDir, shadersDir)
         {
@@ -93,7 +94,6 @@ namespace TGC.Group.Model
         public bool JoystickButtonPressed(int buttonID)
         {
             if (joystick == null) return false;
-
             joystick.Poll();
 
             if (joyFlag[buttonID] == false)
@@ -116,7 +116,6 @@ namespace TGC.Group.Model
         public bool JoystickButtonDown(int buttonID)
         {
             if (joystick == null) return false;
-
             joystick.Poll();
 
             return joystick.GetCurrentState().Buttons[buttonID];
@@ -138,6 +137,45 @@ namespace TGC.Group.Model
             joystick.Poll();
 
             return joystick.GetCurrentState().PointOfViewControllers[0] == 9000;
+        }
+
+        public bool JoystickDpadPressed(Utils.JoystickDpad arrow)
+        {
+            if (joystick == null) return false;
+            int value = 0;
+            joystick.Poll();
+
+            switch (arrow)
+            {
+                case Utils.JoystickDpad.UP:
+                    value = 0;
+                    break;
+                case Utils.JoystickDpad.RIGHT:
+                    value = 9000;
+                    break;
+                case Utils.JoystickDpad.DOWN:
+                    value = 18000;
+                    break;
+                case Utils.JoystickDpad.LEFT:
+                    value = 27000;
+                    break;
+            }
+
+            if (dpadFlag[(int)arrow] == false)
+            {
+                dpadFlag[(int)arrow] = joystick.GetCurrentState().PointOfViewControllers[0] == value;
+
+                return false;
+            }
+            else
+            {
+                if (joystick.GetCurrentState().PointOfViewControllers[0] != value)
+                {
+                    dpadFlag[(int)arrow] = false;
+                    return true;
+                }
+                else return false;
+            }
         }
     }
 }

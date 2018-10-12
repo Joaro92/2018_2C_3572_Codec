@@ -13,6 +13,7 @@ namespace TGC.Group.PlayerOne
         private RigidBody _rigidBody;
         private RaycastVehicle vehicle;
         private TgcMesh wheel;
+        private int worldID;
 
         // Variables de Control
         public bool jumped = false;
@@ -69,6 +70,7 @@ namespace TGC.Group.PlayerOne
 
 		    //Adds the vehicle chassis to the world
 		    world.AddRigidBody(this._rigidBody);
+            worldID = world.CollisionObjectArray.IndexOf(this._rigidBody);
 
             //RaycastVehicle
             DefaultVehicleRaycaster vehicleRayCaster = new DefaultVehicleRaycaster(world);
@@ -168,6 +170,11 @@ namespace TGC.Group.PlayerOne
         public TgcMesh Wheel
         {
             get { return wheel; }
+        }
+
+        public int WorldID
+        {
+            get { return worldID; }
         }
     }
 }

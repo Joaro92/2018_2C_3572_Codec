@@ -39,7 +39,7 @@ namespace TGC.Group.Model.GameStates
         private int screenHeight, screenWidth;
         private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
         private TGCVector2 specialScale, hpScale;
-        private TgcText2D speed, km;
+        private TgcText2D speed, km, actualWeapon, ammoQuantity, border;
 
         public Partida(GameModel gameModel)
         {
@@ -52,7 +52,7 @@ namespace TGC.Group.Model.GameStates
             // Inicializamos la interface para dibujar sprites 2D
             drawer2D = new Drawer2D();
 
-            // Sprite del HUD de la velocidad
+            // Sprite del HUD de la velocidad y stats del jugador
             statsBar = new CustomSprite();
             statsBar.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\stats.png", D3DDevice.Instance.Device);
             statsBar.Position = new TGCVector2(screenWidth * 0.81f, screenHeight * 0.695f);
@@ -111,14 +111,13 @@ namespace TGC.Group.Model.GameStates
             directionArrow.Thickness = 0.1f;
             directionArrow.HeadSize = new TGCVector2(1, 2);
 
-            //Cargo el display de velocidad
+            // Fuente para mostrar la velocidad
             var pfc = new PrivateFontCollection();
             pfc.AddFontFile(gameModel.MediaDir + "Fonts\\Open 24 Display St.ttf");
             FontFamily family = pfc.Families[0];
             var speedFont = new Font(family, 32);
             var kmFont = new Font(family, 20);
 
-            //Speed
             speed = new TgcText2D
             {
                 Text = "0",
@@ -128,8 +127,6 @@ namespace TGC.Group.Model.GameStates
 
             };
             speed.changeFont(speedFont);
-
-            //Km
             km = new TgcText2D
             {
                 Text = "km",
@@ -139,6 +136,35 @@ namespace TGC.Group.Model.GameStates
 
             };
             km.changeFont(kmFont);
+
+            // Fuentes para mostrar la munición y armas
+            pfc.AddFontFile(gameModel.MediaDir + "Fonts\\Insanibc.ttf");
+            family = pfc.Families[0];
+            var actualWeaponFont = new Font(family, 24);
+            var ammoQuantityFont = new Font(family, 22);
+
+            actualWeapon = new TgcText2D
+            {
+                Text = "[ None ]",
+                Color = Color.Black,
+                Position = new Point(-(int)(screenWidth * 0.406f), (int)(screenHeight * 0.921f))  // para 125% escalado
+            };
+            actualWeapon.changeFont(actualWeaponFont);
+
+            ammoQuantity = new TgcText2D
+            {
+                Text = "0",
+                Color = Color.Black,
+                Position = new Point(-(int)(screenWidth * 0.345f), (int)(screenHeight * 0.856f))  // para 125% escalado
+            };
+            ammoQuantity.changeFont(ammoQuantityFont);
+            border = new TgcText2D // El borde es para que tenga un color blanco de fondo para que se distinga más
+            {
+                Text = "0",
+                Color = Color.White,
+                Position = new Point(-(int)(screenWidth * 0.3453f), (int)(screenHeight * 0.8535f))  // para 125% escalado
+            };
+            border.changeFont(actualWeaponFont);
         }
 
         public void Update()
@@ -217,6 +243,11 @@ namespace TGC.Group.Model.GameStates
                 camaraInterna.OffsetForward = modoCamara.ProfundidadCamara();
             }
 
+            if (gameModel.Input.keyPressed(Key.Z))
+            {
+                ammoQuantity.Text = (int.Parse(ammoQuantity.Text) + 1).ToString();
+            }
+
             // Hacer que la cámara apunte a nuestro Player 1
             camaraInterna.Target = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
             camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + anguloCamara + halfsPI + (mirarHaciaAtras ? FastMath.PI : 0);
@@ -275,30 +306,36 @@ namespace TGC.Group.Model.GameStates
 
             speed.render();
             km.render();
+            actualWeapon.render();
+
+            border.Text = ammoQuantity.Text;
+            border.render();
+            ammoQuantity.render();
+            
             
             // Texto en pantalla sobre los comandos disponibles
             var DrawText = gameModel.DrawText;
-            DrawText.drawText("Con la tecla F1 se dibuja el bounding box (Deprecado, las colisiones las maneja Bullet)", 3, 20, Color.YellowGreen);
-            DrawText.drawText("Con la tecla F2 se rota el ángulo de la cámara", 3, 35, Color.YellowGreen);
-            DrawText.drawText("Con la tecla F3 se dibuja el Vector UP del vehículo", 3, 50, Color.YellowGreen);
-            DrawText.drawText("Con la tecla V se cambia el modo de cámara (NORMAL, LEJOS, CERCA)", 3, 65, Color.YellowGreen);
-            DrawText.drawText("W A S D para el movimiento básico", 3, 80, Color.YellowGreen);
-            DrawText.drawText("Control Izquierdo para frenar", 3, 95, Color.YellowGreen);
-            DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
-            DrawText.drawText("Tecla C para mirar hacia atrás", 3, 125, Color.YellowGreen);
+            //DrawText.drawText("Con la tecla F1 se dibuja el bounding box (Deprecado, las colisiones las maneja Bullet)", 3, 20, Color.YellowGreen);
+            //DrawText.drawText("Con la tecla F2 se rota el ángulo de la cámara", 3, 35, Color.YellowGreen);
+            //DrawText.drawText("Con la tecla F3 se dibuja el Vector UP del vehículo", 3, 50, Color.YellowGreen);
+            //DrawText.drawText("Con la tecla V se cambia el modo de cámara (NORMAL, LEJOS, CERCA)", 3, 65, Color.YellowGreen);
+            //DrawText.drawText("W A S D para el movimiento básico", 3, 80, Color.YellowGreen);
+            //DrawText.drawText("Control Izquierdo para frenar", 3, 95, Color.YellowGreen);
+            //DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
+            //DrawText.drawText("Tecla C para mirar hacia atrás", 3, 125, Color.YellowGreen);
 
 
             // Texto en pantalla sobre el juego
             //DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.898f), (int)(screenHeight * 0.931f), Color.Black);
 
 
-            if (player1.flippedTime > 0)
-            {
-                DrawText.drawText("Tiempo dado vuelta: " + player1.flippedTime, 15, screenHeight - 35, Color.White);
-            }
+            //if (player1.flippedTime > 0)
+            //{
+            //    DrawText.drawText("Tiempo dado vuelta: " + player1.flippedTime, 15, screenHeight - 35, Color.White);
+            //}
 
             // Renderiza todo lo perteneciente al mundo físico
-            physicsEngine.Render();
+            physicsEngine.Render(gameModel);
 
             // Renderizar el Vector UP
             if (drawUpVector)

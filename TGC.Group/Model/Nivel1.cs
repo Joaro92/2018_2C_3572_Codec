@@ -16,6 +16,8 @@ using TGC.Examples.Engine2D.Spaceship.Core;
 using TGC.Group.Utils;
 using TGC.Core.Terrain;
 using TGC.Group.Model;
+using TGC.Group.Machinegun;
+using System.Drawing;
 
 namespace TGC.Group.Nivel1
 {
@@ -31,8 +33,11 @@ namespace TGC.Group.Nivel1
         private bool jump = false;
         private bool jumped = false;
         private bool flag = false;
+        private float bulletFlag = 0;
+        private float neg = 1f;
         private TGCMatrix wheelTransform;
         private TGCVector3 currentCameraPosition;
+        private List<MachinegunBullet> mBullets = new List<MachinegunBullet>();
 
         public override Player1 Init()
         {
@@ -107,6 +112,22 @@ namespace TGC.Group.Nivel1
                 player1.rigidBody.AngularVelocity = Vector3.Zero;
 
                 player1.hitPoints -= 30;
+            }
+
+
+            // Disparar Machinegun
+            if (gameModel.Input.keyDown(Key.E))
+            {
+                if (bulletFlag == 0)
+                {
+                    var b = new MachinegunBullet(world);
+     
+                    b.GhostObject.WorldTransform = Matrix.Translation(neg * player1.tgcMesh.BoundingBox.calculateAxisRadius().X * 0.8f, +0.22f, -player1.tgcMesh.BoundingBox.calculateAxisRadius().Z - velocityVector.Length() * 0.01f - 0.47f) * player1.rigidBody.InterpolationWorldTransform;
+                    b.GhostObject.ApplyCentralImpulse(frontVector.ToBsVector * 13);
+                    mBullets.Add(b);
+                    bulletFlag += gameModel.ElapsedTime;
+                    neg *= -1f;
+                }
             }
 
             // Detectar según el Input, si va a Rotar, Avanzar y/o Saltar
@@ -218,7 +239,7 @@ namespace TGC.Group.Nivel1
             player1.yawPitchRoll = Quat.ToEulerAngles(player1.rigidBody.Orientation);
 
             // Si está lo suficientemente rotado en los ejes X o Z no se va a poder mover, por eso lo enderezamos
-            if (FastMath.Abs(player1.yawPitchRoll.X) > 1.4f || FastMath.Abs(player1.yawPitchRoll.Z) > 1.4f)
+            if (FastMath.Abs(player1.yawPitchRoll.X) > 1.39f || FastMath.Abs(player1.yawPitchRoll.Z) > 1.39f)
             {
                 player1.flippedTime += gameModel.ElapsedTime;
 
@@ -246,6 +267,50 @@ namespace TGC.Group.Nivel1
             //Ajustar la posicion de la camara segun la colision con los objetos del escenario
             ajustarPosicionDeCamara(camaraInterna, modoCamara);
 
+
+            List<int> bulletsID = new List<int>();
+            if (world.Broadphase.OverlappingPairCache.OverlappingPairArray.Count > 0)
+            {
+                foreach (var overlappingPair in world.Broadphase.OverlappingPairCache.OverlappingPairArray)
+                {
+                    RigidBody obj0 = (RigidBody)overlappingPair.Proxy0.ClientObject;
+                    RigidBody obj1 = (RigidBody)overlappingPair.Proxy1.ClientObject;
+
+                    
+                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
+                    {
+                        if (obj0.WorldArrayIndex != player1.rigidBody.WorldArrayIndex)
+                            bulletsID.Add(obj1.WorldArrayIndex);
+                    }
+
+                    if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
+                    {
+                        if (obj1.WorldArrayIndex != player1.rigidBody.WorldArrayIndex)
+                            bulletsID.Add(obj0.WorldArrayIndex);
+                    }
+                }
+            }
+
+            var count = 0;
+            if (bulletsID.Count > 0)
+            {
+                var aux = mBullets.FindAll(b =>
+                {
+                    if (bulletsID.Contains(b.GhostObject.WorldArrayIndex + count))
+                    {
+                        world.RemoveRigidBody(b.GhostObject);
+                        b.Dispose();
+                        count = count + bulletsID.Count + 2;
+                        return false;
+                    }
+                    else return true;
+                });
+
+                mBullets = aux;
+            }
+
+            if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
+            if (bulletFlag > 0.25f) bulletFlag = 0;
 
             return player1;
         }
@@ -306,12 +371,12 @@ namespace TGC.Group.Nivel1
         }
 
 
-        public override void Render()
+        public override void Render(GameModel gameModel)
         { 
             // Renderizar la malla del auto, en este caso solo el Chasis
             player1.tgcMesh.Transform = TGCMatrix.Translation(new TGCVector3(0, 0.11f, 0)) * new TGCMatrix(player1.Vehicle.ChassisWorldTransform);
             player1.tgcMesh.Render();
-
+            
             // Como las ruedas no son cuerpos rigidos (aún) se procede a realizar las transformaciones de las ruedas para renderizar
             wheelTransform = TGCMatrix.RotationY(player1.Vehicle.GetSteeringValue(0)) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(player1.rigidBody.Orientation.X, player1.rigidBody.Orientation.Y, player1.rigidBody.Orientation.Z, player1.rigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(player1.Vehicle.GetWheelInfo(0).WorldTransform.Origin));
             player1.Wheel.Transform = wheelTransform;
@@ -332,6 +397,13 @@ namespace TGC.Group.Nivel1
             // Renderizar el escenario
             escenario.Render();
 
+            foreach (var b in mBullets)
+            {
+                b.TgcBox.Transform = new TGCMatrix(b.GhostObject.WorldTransform);
+                b.TgcBox.Render();
+                
+            }
+
             //Render SkyBox
             skyBox.Render();
         }
@@ -346,6 +418,7 @@ namespace TGC.Group.Nivel1
             player1.tgcMesh.Dispose();
             player1.rigidBody.Dispose();
             escenario.Dispose();
+            mBullets.ForEach(b => b.Dispose());
         }
     }
 }
