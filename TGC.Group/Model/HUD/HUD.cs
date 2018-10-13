@@ -5,7 +5,7 @@ using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
 using TGC.Core.Text;
 using TGC.Group.Model.TGCUtils;
-using TGC.Group.Model.World.Vehicles;
+using TGC.Group.Model.World;
 
 namespace TGC.Group.Model
 {

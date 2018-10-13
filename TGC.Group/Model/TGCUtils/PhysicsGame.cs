@@ -6,7 +6,8 @@ using TGC.Core.SceneLoader;
 using TGC.Examples.Camara;
 using TGC.Group.Utils;
 using TGC.Group.Model;
-using TGC.Group.Model.World.Vehicles;
+using TGC.Group.Model.World;
+using TGC.Core.Terrain;
 
 namespace TGC.Group.Bullet.Physics
 {
@@ -381,7 +382,11 @@ namespace TGC.Group.Bullet.Physics
         protected SequentialImpulseConstraintSolver constraintSolver;
         protected BroadphaseInterface broadphase;
 
-        public virtual Player1 Init()
+        public Player1 Player1 {get;set;}
+        protected Escenario escenario;
+        protected TgcSkyBox skyBox;
+
+        public virtual void Init()
         {
             //Creamos el mundo fisico por defecto.
             collisionConfiguration = new DefaultCollisionConfiguration();
@@ -394,11 +399,9 @@ namespace TGC.Group.Bullet.Physics
             {
                 Gravity = new TGCVector3(0, -9.8f, 0).ToBsVector
             };
-
-            return null;
         }
 
-        public abstract Player1 Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara);
+        public abstract void Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara);
 
         public abstract void Render(GameModel gameModel);
 

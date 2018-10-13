@@ -5,7 +5,7 @@ using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using static TGC.Group.Utils.WheelContactInfo;
 
-namespace TGC.Group.Model.World.Vehicles
+namespace TGC.Group.Model.World
 {
     public class Player1
     {

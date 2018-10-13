@@ -4,7 +4,6 @@ using TGC.Core.Mathematica;
 using TGC.Examples.Camara;
 using TGC.Group.Bullet.Physics;
 using TGC.Group.Model.World;
-using TGC.Group.Model.World.Vehicles;
 using TGC.Group.Utils;
 using TGC.Group.Model.Interfaces;
 using TGC.Core.Direct3D;
@@ -21,8 +20,7 @@ namespace TGC.Group.Model.GameStates
         private readonly string[] vehicleColors = new string[] { "Blue", "Citrus", "Green", "Orange", "Red", "Silver", "Violet" };
         private readonly ModoCamara[] modosCamara = new ModoCamara[] { ModoCamara.NORMAL, ModoCamara.LEJOS, ModoCamara.CERCA };
 
-        private PhysicsGame physicsEngine;
-        private Player1 player1;
+        private PhysicsGame world;
         private TgcThirdPersonCamera camaraInterna;
         private bool drawUpVector = false;
         private bool showBoundingBox = false;
@@ -40,19 +38,21 @@ namespace TGC.Group.Model.GameStates
             hud = new HUD(gameModel);
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
-            physicsEngine = new NivelUno();
-            player1 = physicsEngine.Init();
+            world = new NivelUno();
+            world.Init();
 
             // Configuramos la Cámara en tercera persona para que siga a nuestro Player 1
-            camaraInterna = new TgcThirdPersonCamera(new TGCVector3(player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), modoCamara.AlturaCamara(), modoCamara.ProfundidadCamara());
+            camaraInterna = new TgcThirdPersonCamera(new TGCVector3(world.Player1.rigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), modoCamara.AlturaCamara(), modoCamara.ProfundidadCamara());
             this.gameModel.Camara = camaraInterna;
 
             // Creamos una flecha que representara el vector UP del auto
-            directionArrow = new TgcArrow();
-            directionArrow.BodyColor = Color.Red;
-            directionArrow.HeadColor = Color.Green;
-            directionArrow.Thickness = 0.1f;
-            directionArrow.HeadSize = new TGCVector2(1, 2);
+            directionArrow = new TgcArrow
+            {
+                BodyColor = Color.Red,
+                HeadColor = Color.Green,
+                Thickness = 0.1f,
+                HeadSize = new TGCVector2(1, 2)
+            };
         }
 
         public void Update()
@@ -84,7 +84,7 @@ namespace TGC.Group.Model.GameStates
 
             if (gameModel.Input.keyPressed(Key.F4))
             {
-                TgcTexture[] diffuseMaps = player1.tgcMesh.DiffuseMaps;
+                TgcTexture[] diffuseMaps = world.Player1.tgcMesh.DiffuseMaps;
 
                 string newTextureName = "";
                 int index = 0;
@@ -103,8 +103,8 @@ namespace TGC.Group.Model.GameStates
                 newTextureName = newTextureName.Replace(oldColor, newColor);
 
                 var textureAux = TgcTexture.createTexture(D3DDevice.Instance.Device, newTextureName.Split('\\')[5], newTextureName);
-                player1.tgcMesh.addDiffuseMap(textureAux);
-                player1.tgcMesh.deleteDiffuseMap(index, 4); 
+                world.Player1.tgcMesh.addDiffuseMap(textureAux);
+                world.Player1.tgcMesh.deleteDiffuseMap(index, 4); 
             }
 
             // Mirar hacia atras
@@ -133,26 +133,26 @@ namespace TGC.Group.Model.GameStates
 
 
             // Hacer que la cámara apunte a nuestro Player 1
-            camaraInterna.Target = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
-            camaraInterna.RotationY = Quat.ToEulerAngles(player1.rigidBody.Orientation).Y + anguloCamara + halfsPI + (mirarHaciaAtras ? FastMath.PI : 0);
+            camaraInterna.Target = new TGCVector3(world.Player1.rigidBody.CenterOfMassPosition);
+            camaraInterna.RotationY = Quat.ToEulerAngles(world.Player1.rigidBody.Orientation).Y + anguloCamara + halfsPI + (mirarHaciaAtras ? FastMath.PI : 0);
 
             // Actualizar el Vector UP si se dibuja
             if (drawUpVector)
             {
-                directionArrow.PStart = new TGCVector3(player1.rigidBody.CenterOfMassPosition);
-                directionArrow.PEnd = directionArrow.PStart + new TGCVector3(Vector3.TransformNormal(Vector3.UnitY, player1.rigidBody.InterpolationWorldTransform)) * 3.5f;
+                directionArrow.PStart = new TGCVector3(world.Player1.rigidBody.CenterOfMassPosition);
+                directionArrow.PEnd = directionArrow.PStart + new TGCVector3(Vector3.TransformNormal(Vector3.UnitY, world.Player1.rigidBody.InterpolationWorldTransform)) * 3.5f;
                 directionArrow.updateValues();
             }
 
             // Actualizar el mundo físico
-            player1 = physicsEngine.Update(gameModel, camaraInterna, modoCamara);
+            world.Update(gameModel, camaraInterna, modoCamara);
 
-            hud.Update(gameModel, player1);
+            hud.Update(gameModel, world.Player1);
         }
 
         public void Render()
         {
-            if (player1.hitPoints <= 0)
+            if (world.Player1.hitPoints <= 0)
             {
                 gameModel.Exit();
                 return;
@@ -180,7 +180,7 @@ namespace TGC.Group.Model.GameStates
             //}
 
             // Renderiza todo lo perteneciente al mundo físico
-            physicsEngine.Render(gameModel);
+            world.Render(gameModel);
 
             hud.Render();
 
@@ -193,9 +193,8 @@ namespace TGC.Group.Model.GameStates
 
         public void Dispose()
         {
-            physicsEngine.Dispose();
+            world.Dispose();
             directionArrow.Dispose();
-            player1.rigidBody.Dispose();
             hud.Dispose();
         }
     }
