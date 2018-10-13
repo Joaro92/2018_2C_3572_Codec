@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Drawing.Text;
 using TGC.Group.Utils;
 using TGC.Group.Model.TGCUtils;
-
+using TGC.Group.Model.Interfaces;
 
 namespace TGC.Group.Model.GameStates
 {
@@ -214,6 +214,9 @@ namespace TGC.Group.Model.GameStates
         {
             background.Dispose();
             start.Dispose();
+            play.Dispose();
+            controls.Dispose();
+            exit.Dispose();
         }
     }
 }

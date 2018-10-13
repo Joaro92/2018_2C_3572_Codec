@@ -1,10 +1,10 @@
 using TGC.Core.Example;
-
 using TGC.Group.Model.GameStates;
 using TGC.Group.Form;
 using System.Windows.Forms;
 using SharpDX.DirectInput;
 using System;
+using TGC.Group.Model.Interfaces;
 
 namespace TGC.Group.Model
 {

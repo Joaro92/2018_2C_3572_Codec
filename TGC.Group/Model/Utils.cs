@@ -9,7 +9,7 @@ namespace TGC.Group.Utils
 
     public enum JoystickDpad { UP, RIGHT, DOWN, LEFT };
 
-    static class WheelContactInfo
+    public static class WheelContactInfo
     {
         public static Vector4 contactInfoByChassis(string meshName)
         {
@@ -42,7 +42,7 @@ namespace TGC.Group.Utils
         }
     }
 
-    static class ModoCamaraMethods
+    public static class ModoCamaraMethods
     {
         public static float AlturaCamara(this ModoCamara m)
         {
@@ -74,7 +74,7 @@ namespace TGC.Group.Utils
         }
     }
 
-    static class UtilMethods
+    public static class UtilMethods
     {
         public static T getNextOption <T> (this T[] options, T selectedOption, int direction = 1)
         {
