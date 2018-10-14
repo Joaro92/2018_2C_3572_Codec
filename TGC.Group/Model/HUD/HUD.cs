@@ -6,6 +6,7 @@ using TGC.Core.Mathematica;
 using TGC.Core.Text;
 using TGC.Group.Model.TGCUtils;
 using TGC.Group.Model.World;
+using TGC.Group.Utils;
 
 namespace TGC.Group.Model
 {
@@ -79,11 +80,9 @@ namespace TGC.Group.Model
             specialScale = specialBar.Scaling;
 
             // Fuente para mostrar la velocidad
-            var pfc = new PrivateFontCollection();
-            pfc.AddFontFile(gameModel.MediaDir + "Fonts\\Open 24 Display St.ttf");
-            FontFamily family = pfc.Families[0];
-            var speedFont = new Font(family, 32);
-            var kmFont = new Font(family, 20);
+           
+            var speedFont = UtilMethods.createFont("Open 24 Display St", 32);
+            var kmFont = UtilMethods.createFont("Open 24 Display St", 20);
 
             speed = new TgcText2D
             {
@@ -105,10 +104,9 @@ namespace TGC.Group.Model
             km.changeFont(kmFont);
 
             // Fuentes para mostrar la munición y armas
-            pfc.AddFontFile(gameModel.MediaDir + "Fonts\\Insanibc.ttf");
-            family = pfc.Families[0];
-            var actualWeaponFont = new Font(family, 24);
-            var ammoQuantityFont = new Font(family, 22);
+            
+            var actualWeaponFont = UtilMethods.createFont("Insanibc", 24);
+            var ammoQuantityFont = UtilMethods.createFont("Insanibc", 22);
 
             actualWeapon = new TgcText2D
             {

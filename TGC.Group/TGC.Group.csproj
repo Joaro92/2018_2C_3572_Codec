@@ -104,9 +104,11 @@
       <DependentUpon>Game.settings</DependentUpon>
     </Compile>
     <Compile Include="Model\GameStates\Partida.cs" />
+    <Compile Include="Model\GameStates\SelectorVehiculo.cs" />
     <Compile Include="Model\HUD\HUD.cs" />
     <Compile Include="Model\Interfaces\IGameState.cs" />
     <Compile Include="Model\GameStates\MenuInicial.cs" />
+    <Compile Include="Model\Vehicles\Vehiculo.cs" />
     <Compile Include="Model\World\Machinegun.cs" />
     <Compile Include="Model\TGCUtils\CustomBitmap.cs" />
     <Compile Include="Model\TGCUtils\CustomSprite.cs" />

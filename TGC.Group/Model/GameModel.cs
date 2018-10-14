@@ -11,6 +11,11 @@ namespace TGC.Group.Model
     public class GameModel : TgcExample
     {
         public IGameState GameState { get; set; }
+
+        public static readonly string[] VehicleNames = { "Coupe", "Hatchback", "Microcargo", "Micro", "Minibus", "MPV", "Normal", "Pickup-Small", "Pickup", "Station" };
+        public static readonly string[] VehicleColors = { "Blue", "Citrus", "Green", "Orange", "Red", "Silver", "Violet" };
+
+
         private Joystick joystick;
         private bool[] joyFlag = { false , false, false, false, false, false, false, false, false, false };
         private bool[] dpadFlag = { false, false, false, false };

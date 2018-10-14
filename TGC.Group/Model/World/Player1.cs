@@ -3,14 +3,17 @@ using BulletSharp.Math;
 using System;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
+using TGC.Group.Model.Vehicles;
 using static TGC.Group.Utils.WheelContactInfo;
 
 namespace TGC.Group.Model.World
 {
     public class Player1
     {
-        private TgcMesh _tgcMesh;
-        private RigidBody _rigidBody;
+        private Vehiculo vehiculo;
+
+        private TgcMesh mesh;
+        private RigidBody rigidBody;
         private RaycastVehicle vehicle;
         private TgcMesh wheel;
         private int worldID;
@@ -40,16 +43,20 @@ namespace TGC.Group.Model.World
         /// <summary>
         ///  Crea un Vehiculo con propiedades de Bullet y TgcMesh y lo agrega al mundo a partir de un archivo 'TgcScene.xml'
         /// </summary>
-        public Player1(DiscreteDynamicsWorld world, String xmlChassisPath, String xmlWheelPath, TGCVector3 position)
+        public Player1(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position)
         {
-            var loader = new TgcSceneLoader();
-            this._tgcMesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + xmlChassisPath).Meshes[0];
-            this.wheel = loader.loadSceneFromFile(Game.Default.MediaDirectory + xmlWheelPath).Meshes[0];
+            this.vehiculo = vehiculo;
 
-            this._tgcMesh.AutoTransform = false;
+            var loader = new TgcSceneLoader();
+            this.mesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + vehiculo.ChassisXmlPath).Meshes[0];
+            this.wheel = loader.loadSceneFromFile(Game.Default.MediaDirectory + vehiculo.WheelsXmlPath).Meshes[0];
+
+            Vehiculo.ChangeTextureColor(this.mesh, vehiculo.Color);
+
+            this.mesh.AutoTransform = false;
             this.Wheel.AutoTransform = false;
 
-            var meshAxisRadius = this._tgcMesh.BoundingBox.calculateAxisRadius().ToBsVector;
+            var meshAxisRadius = this.mesh.BoundingBox.calculateAxisRadius().ToBsVector;
             var wheelRadius = this.wheel.BoundingBox.calculateAxisRadius().Y;
 
             //The btBoxShape is centered at the origin
@@ -66,24 +73,24 @@ namespace TGC.Group.Model.World
             compound.AddChildShape(localTransform, chassisShape);
 
             //Creates a rigid body
-            this._rigidBody = createChassisRigidBodyFromShape(compound, position);
+            this.rigidBody = createChassisRigidBodyFromShape(compound, position);
 
 		    //Adds the vehicle chassis to the world
-		    world.AddRigidBody(this._rigidBody);
-            worldID = world.CollisionObjectArray.IndexOf(this._rigidBody);
+		    world.AddRigidBody(this.rigidBody);
+            worldID = world.CollisionObjectArray.IndexOf(this.rigidBody);
 
             //RaycastVehicle
             DefaultVehicleRaycaster vehicleRayCaster = new DefaultVehicleRaycaster(world);
             VehicleTuning tuning = new VehicleTuning();
 
             //Creates a new instance of the raycast vehicle
-            vehicle = new RaycastVehicle(tuning, this._rigidBody, vehicleRayCaster);
+            vehicle = new RaycastVehicle(tuning, this.rigidBody, vehicleRayCaster);
 
             //Never deactivate the vehicle
-            this._rigidBody.ActivationState = ActivationState.DisableDeactivation;
+            this.rigidBody.ActivationState = ActivationState.DisableDeactivation;
 
             //Reduce even further the Center of Mass for more stability
-            this._rigidBody.CenterOfMassTransform = TGCMatrix.Translation(new TGCVector3(0, -(meshAxisRadius.Y * 0.95f) , 0)).ToBsMatrix * this._rigidBody.CenterOfMassTransform;
+            this.rigidBody.CenterOfMassTransform = TGCMatrix.Translation(new TGCVector3(0, -(meshAxisRadius.Y * 0.95f) , 0)).ToBsMatrix * this.rigidBody.CenterOfMassTransform;
 
             //Adds the vehicle to the world
             world.AddAction(vehicle);
@@ -115,7 +122,7 @@ namespace TGC.Group.Model.World
             //The axis which the wheel rotates arround
             Vector3 wheelAxleCS = new Vector3(-1, 0, 0);
 
-            Vector4 points = contactInfoByChassis(tgcMesh.Name);
+            Vector4 points = contactInfoByChassis(mesh.Name);
 
             //The height where the wheels are connected to the chassis
             //float connectionHeight = -1.148f + 1f - wheelDistance - wheelRadius / 2;
@@ -150,16 +157,16 @@ namespace TGC.Group.Model.World
 
         // -----------------------------------------------------
 
-        public RigidBody rigidBody
+        public RigidBody RigidBody
         {
-            get { return _rigidBody; }
-            set { _rigidBody = value; }
+            get { return rigidBody; }
+            set { rigidBody = value; }
         }
 
-        public TgcMesh tgcMesh
+        public TgcMesh Mesh
         {
-            get { return _tgcMesh; }
-            set { _tgcMesh = value; }
+            get { return mesh; }
+            set { mesh = value; }
         }
 
         public RaycastVehicle Vehicle

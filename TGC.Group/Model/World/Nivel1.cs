@@ -9,6 +9,7 @@ using TGC.Examples.Camara;
 using TGC.Group.Utils;
 using TGC.Core.Terrain;
 using TGC.Group.Model.World.Weapons;
+using TGC.Group.Model.Vehicles;
 
 namespace TGC.Group.Model.World
 {
@@ -26,19 +27,17 @@ namespace TGC.Group.Model.World
         private TGCVector3 currentCameraPosition;
         private List<MachinegunBullet> mBullets = new List<MachinegunBullet>();
 
-        public override void Init()
+        public NivelUno(Vehiculo vehiculoP1)
         {
-            base.Init();
-
             // Cargamos el escenario y lo agregamos al mundo
             escenario = new Escenario("Scenarios\\scene-level1a-TgcScene.xml");
-            foreach(RigidBody rigid in escenario.rigidBodys)
+            foreach (RigidBody rigid in escenario.rigidBodys)
             {
                 world.AddRigidBody(rigid);
             }
 
             // Creamos a nuestro jugador y lo agregamos al mundo
-            Player1 = new Player1(world, "Vehicles\\chassis-coupe-TgcScene.xml", "Vehicles\\tires-common-TgcScene.xml", initialPos);
+            Player1 = new Player1(world, vehiculoP1, initialPos);
 
             //Crear SkyBox
             skyBox = new TgcSkyBox
@@ -67,8 +66,8 @@ namespace TGC.Group.Model.World
             jump = false;
 
             // Actualizar la velocidad lineal instantanea del vehiculo
-            var frontVector = new TGCVector3(Vector3.TransformNormal(-Vector3.UnitZ, Player1.rigidBody.InterpolationWorldTransform));
-            var velocityVector = new TGCVector3(Player1.rigidBody.InterpolationLinearVelocity.X, 0, Player1.rigidBody.InterpolationLinearVelocity.Z);
+            var frontVector = new TGCVector3(Vector3.TransformNormal(-Vector3.UnitZ, Player1.RigidBody.InterpolationWorldTransform));
+            var velocityVector = new TGCVector3(Player1.RigidBody.InterpolationLinearVelocity.X, 0, Player1.RigidBody.InterpolationLinearVelocity.Z);
 
             if (velocityVector.Length() < 0.111f)
             {
@@ -89,14 +88,14 @@ namespace TGC.Group.Model.World
             }
 
             // Si el jugador cayó a más de 100 unidades en Y, se lo hace respawnear
-            if (Player1.rigidBody.CenterOfMassPosition.Y < -100)
+            if (Player1.RigidBody.CenterOfMassPosition.Y < -100)
             {
                 var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
                 transformationMatrix.Origin = initialPos.ToBsVector; 
 
-                Player1.rigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-                Player1.rigidBody.LinearVelocity = Vector3.Zero;
-                Player1.rigidBody.AngularVelocity = Vector3.Zero;
+                Player1.RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+                Player1.RigidBody.LinearVelocity = Vector3.Zero;
+                Player1.RigidBody.AngularVelocity = Vector3.Zero;
 
                 Player1.hitPoints -= 30;
             }
@@ -109,7 +108,7 @@ namespace TGC.Group.Model.World
                 {
                     var b = new MachinegunBullet(world);
      
-                    b.GhostObject.WorldTransform = Matrix.Translation(neg * Player1.tgcMesh.BoundingBox.calculateAxisRadius().X * 0.8f, +0.22f, -Player1.tgcMesh.BoundingBox.calculateAxisRadius().Z - velocityVector.Length() * 0.01f - 0.47f) * Player1.rigidBody.InterpolationWorldTransform;
+                    b.GhostObject.WorldTransform = Matrix.Translation(neg * Player1.Mesh.BoundingBox.calculateAxisRadius().X * 0.8f, +0.22f, -Player1.Mesh.BoundingBox.calculateAxisRadius().Z - velocityVector.Length() * 0.01f - 0.47f) * Player1.RigidBody.InterpolationWorldTransform;
                     b.GhostObject.ApplyCentralImpulse(frontVector.ToBsVector * 13);
                     mBullets.Add(b);
                     bulletFlag += gameModel.ElapsedTime;
@@ -205,25 +204,25 @@ namespace TGC.Group.Model.World
             {
                 if (Player1.specialPoints > 12)
                 {
-                    Player1.rigidBody.ApplyCentralImpulse(new Vector3(0, 900*4.3f, 0)); //Puede ser una propiedad
+                    Player1.RigidBody.ApplyCentralImpulse(new Vector3(0, 900*4.3f, 0)); //Puede ser una propiedad
                     Player1.specialPoints -= 12;
                     jumped = true;
                 }
             }
 
-            if (jumped && Player1.rigidBody.LinearVelocity.Y < -0.1f)
+            if (jumped && Player1.RigidBody.LinearVelocity.Y < -0.1f)
             {
                 flag = true;
                 jumped = false;
             }
 
-            if (Player1.rigidBody.LinearVelocity.Y > -0.05f)
+            if (Player1.RigidBody.LinearVelocity.Y > -0.05f)
             {
                 flag = false;
             }
 
             // Actualizar la inclinación del vehiculo
-            Player1.yawPitchRoll = Quat.ToEulerAngles(Player1.rigidBody.Orientation);
+            Player1.yawPitchRoll = Quat.ToEulerAngles(Player1.RigidBody.Orientation);
 
             // Si está lo suficientemente rotado en los ejes X o Z no se va a poder mover, por eso lo enderezamos
             if (FastMath.Abs(Player1.yawPitchRoll.X) > 1.39f || FastMath.Abs(Player1.yawPitchRoll.Z) > 1.39f)
@@ -233,11 +232,11 @@ namespace TGC.Group.Model.World
                 if (Player1.flippedTime > 3)
                 {
                     var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-                    transformationMatrix.Origin = Player1.rigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
+                    transformationMatrix.Origin = Player1.RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
 
-                    Player1.rigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-                    Player1.rigidBody.LinearVelocity = Vector3.Zero;
-                    Player1.rigidBody.AngularVelocity = Vector3.Zero;
+                    Player1.RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+                    Player1.RigidBody.LinearVelocity = Vector3.Zero;
+                    Player1.RigidBody.AngularVelocity = Vector3.Zero;
                     Player1.flippedTime = 0;
                 }
             }
@@ -266,13 +265,13 @@ namespace TGC.Group.Model.World
                     
                     if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
                     {
-                        if (obj0.WorldArrayIndex != Player1.rigidBody.WorldArrayIndex)
+                        if (obj0.WorldArrayIndex != Player1.RigidBody.WorldArrayIndex)
                             bulletsID.Add(obj1.WorldArrayIndex);
                     }
 
                     if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
                     {
-                        if (obj1.WorldArrayIndex != Player1.rigidBody.WorldArrayIndex)
+                        if (obj1.WorldArrayIndex != Player1.RigidBody.WorldArrayIndex)
                             bulletsID.Add(obj0.WorldArrayIndex);
                     }
                 }
@@ -359,23 +358,23 @@ namespace TGC.Group.Model.World
         public override void Render(GameModel gameModel)
         { 
             // Renderizar la malla del auto, en este caso solo el Chasis
-            Player1.tgcMesh.Transform = TGCMatrix.Translation(new TGCVector3(0, 0.11f, 0)) * new TGCMatrix(Player1.Vehicle.ChassisWorldTransform);
-            Player1.tgcMesh.Render();
+            Player1.Mesh.Transform = TGCMatrix.Translation(new TGCVector3(0, 0.11f, 0)) * new TGCMatrix(Player1.Vehicle.ChassisWorldTransform);
+            Player1.Mesh.Render();
             
             // Como las ruedas no son cuerpos rigidos (aún) se procede a realizar las transformaciones de las ruedas para renderizar
-            wheelTransform = TGCMatrix.RotationY(Player1.Vehicle.GetSteeringValue(0)) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(Player1.rigidBody.Orientation.X, Player1.rigidBody.Orientation.Y, Player1.rigidBody.Orientation.Z, Player1.rigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Player1.Vehicle.GetWheelInfo(0).WorldTransform.Origin));
+            wheelTransform = TGCMatrix.RotationY(Player1.Vehicle.GetSteeringValue(0)) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(Player1.RigidBody.Orientation.X, Player1.RigidBody.Orientation.Y, Player1.RigidBody.Orientation.Z, Player1.RigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Player1.Vehicle.GetWheelInfo(0).WorldTransform.Origin));
             Player1.Wheel.Transform = wheelTransform;
             Player1.Wheel.Render();
 
-            wheelTransform = TGCMatrix.RotationY(Player1.Vehicle.GetSteeringValue(1) + FastMath.PI) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(Player1.rigidBody.Orientation.X, Player1.rigidBody.Orientation.Y, Player1.rigidBody.Orientation.Z, Player1.rigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Player1.Vehicle.GetWheelInfo(1).WorldTransform.Origin));
+            wheelTransform = TGCMatrix.RotationY(Player1.Vehicle.GetSteeringValue(1) + FastMath.PI) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(Player1.RigidBody.Orientation.X, Player1.RigidBody.Orientation.Y, Player1.RigidBody.Orientation.Z, Player1.RigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Player1.Vehicle.GetWheelInfo(1).WorldTransform.Origin));
             Player1.Wheel.Transform = wheelTransform;
             Player1.Wheel.Render();
 
-            wheelTransform = TGCMatrix.RotationY(-Player1.Vehicle.GetSteeringValue(2)) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(Player1.rigidBody.Orientation.X, Player1.rigidBody.Orientation.Y, Player1.rigidBody.Orientation.Z, Player1.rigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Player1.Vehicle.GetWheelInfo(2).WorldTransform.Origin));
+            wheelTransform = TGCMatrix.RotationY(-Player1.Vehicle.GetSteeringValue(2)) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(Player1.RigidBody.Orientation.X, Player1.RigidBody.Orientation.Y, Player1.RigidBody.Orientation.Z, Player1.RigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Player1.Vehicle.GetWheelInfo(2).WorldTransform.Origin));
             Player1.Wheel.Transform = wheelTransform;
             Player1.Wheel.Render();
 
-            wheelTransform = TGCMatrix.RotationY(-Player1.Vehicle.GetSteeringValue(3) + FastMath.PI) *  TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(Player1.rigidBody.Orientation.X, Player1.rigidBody.Orientation.Y, Player1.rigidBody.Orientation.Z, Player1.rigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Player1.Vehicle.GetWheelInfo(3).WorldTransform.Origin));
+            wheelTransform = TGCMatrix.RotationY(-Player1.Vehicle.GetSteeringValue(3) + FastMath.PI) *  TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(Player1.RigidBody.Orientation.X, Player1.RigidBody.Orientation.Y, Player1.RigidBody.Orientation.Z, Player1.RigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Player1.Vehicle.GetWheelInfo(3).WorldTransform.Origin));
             Player1.Wheel.Transform = wheelTransform;
             Player1.Wheel.Render();
 
@@ -400,8 +399,8 @@ namespace TGC.Group.Model.World
             collisionConfiguration.Dispose();
             constraintSolver.Dispose();
             broadphase.Dispose();
-            Player1.tgcMesh.Dispose();
-            Player1.rigidBody.Dispose();
+            Player1.Mesh.Dispose();
+            Player1.RigidBody.Dispose();
             escenario.Dispose();
             mBullets.ForEach(b => b.Dispose());
         }

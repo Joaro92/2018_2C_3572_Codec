@@ -63,10 +63,8 @@ namespace TGC.Group.Model.GameStates
             start.Position = new TGCVector2(screenWidth * 0.083f , screenHeight * 0.67f);
 
             //Cargo el menu
-            var pfc = new PrivateFontCollection();
-            pfc.AddFontFile(gameModel.MediaDir + "Fonts\\Minecraft.ttf");
-            FontFamily family = pfc.Families[0];
-            var menuFont = new Font(family, 75);
+            
+            var menuFont = UtilMethods.createFont("Twisted Stallions", 75);
 
             //Play
             play = new TgcText2D
@@ -129,15 +127,12 @@ namespace TGC.Group.Model.GameStates
             {
                 if (gameModel.Input.keyPressed(Key.DownArrow) || gameModel.JoystickDpadPressed(JoystickDpad.DOWN))
                 {
-                    if (selectedOption.Equals(options.Last()) == false)
-                        selectedOption = options.getNextOption(selectedOption);
+                    selectedOption = options.getNextOption(selectedOption);
                 }
 
                 if (gameModel.Input.keyPressed(Key.UpArrow) || gameModel.JoystickDpadPressed(JoystickDpad.UP))
                 {
-                    if (selectedOption.Equals(options.First()) == false)
-                        selectedOption = options.getNextOption(selectedOption, -1);
-
+                    selectedOption = options.getNextOption(selectedOption, -1);
                 }
 
                 if (gameModel.Input.keyPressed(Key.Return) || gameModel.JoystickButtonPressed(0))
@@ -207,7 +202,10 @@ namespace TGC.Group.Model.GameStates
             }
 
             if (isNextState)
-                gameModel.GameState = new Partida(gameModel);
+            {
+                gameModel.GameState = new SelectorVehiculo(gameModel);
+                this.Dispose();
+            }
         }
 
         public void Dispose()

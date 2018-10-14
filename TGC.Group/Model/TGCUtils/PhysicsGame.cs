@@ -386,7 +386,7 @@ namespace TGC.Group.Bullet.Physics
         protected Escenario escenario;
         protected TgcSkyBox skyBox;
 
-        public virtual void Init()
+        public PhysicsGame()
         {
             //Creamos el mundo fisico por defecto.
             collisionConfiguration = new DefaultCollisionConfiguration();

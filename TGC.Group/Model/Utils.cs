@@ -1,4 +1,6 @@
 ﻿using BulletSharp.Math;
+using System.Drawing;
+using System.Drawing.Text;
 
 namespace TGC.Group.Utils
 {
@@ -78,10 +80,20 @@ namespace TGC.Group.Utils
     {
         public static T getNextOption <T> (this T[] options, T selectedOption, int direction = 1)
         {
-            return options[(System.Array.FindIndex(options, c => c.Equals(selectedOption)) + direction) % options.Length];
+            int newIndex = (System.Array.FindIndex(options, c => c.Equals(selectedOption)) + direction) % options.Length;
+            if (newIndex < 0)
+                newIndex = options.Length + newIndex;
+            return options[newIndex];
+        }
+
+        public static Font createFont(string fontName, int size)
+        {
+            var pfc = new PrivateFontCollection();
+            pfc.AddFontFile(Game.Default.MediaDirectory + "Fonts\\" + fontName + ".ttf");
+            FontFamily family = pfc.Families[0];
+            return new Font(family, size);
         }
     }
 
-    
 
 }
