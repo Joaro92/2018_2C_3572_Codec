@@ -89,23 +89,25 @@ namespace TGC.Group.Model.GameStates
 
         public void Update()
         {
-            if (gameModel.Input.keyPressed(Key.LeftArrow) || gameModel.JoystickDpadPressed(JoystickDpad.LEFT))
+            var jh = gameModel.JoystickHandler;
+
+            if (gameModel.Input.keyPressed(Key.LeftArrow) || jh.JoystickDpadPressed(JoystickDpad.LEFT))
             {
                 selected = vehiculos.ToArray().getNextOption(selected,-1);    
             }
 
-            if (gameModel.Input.keyPressed(Key.RightArrow) || gameModel.JoystickDpadPressed(JoystickDpad.RIGHT))
+            if (gameModel.Input.keyPressed(Key.RightArrow) || jh.JoystickDpadPressed(JoystickDpad.RIGHT))
             {
                 selected = vehiculos.ToArray().getNextOption(selected);
             }
 
-            if (gameModel.Input.keyPressed(Key.UpArrow) || gameModel.JoystickDpadPressed(JoystickDpad.UP))
+            if (gameModel.Input.keyPressed(Key.UpArrow) || jh.JoystickDpadPressed(JoystickDpad.UP))
             {
                 var newColor = GameModel.VehicleColors.getNextOption(selected.Color);
                 selected.ChangeColor(newColor);
             }
 
-            if (gameModel.Input.keyPressed(Key.Return) || gameModel.JoystickButtonPressed(0))
+            if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(0) || jh.JoystickButtonPressed(7))
             {
                 gameModel.Mp3Player.stop();
                 confirmed = true;

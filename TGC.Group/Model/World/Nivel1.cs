@@ -145,8 +145,10 @@ namespace TGC.Group.Model.World
 
         private void ManageInputs(GameModel gameModel)
         {
+            var jh = gameModel.JoystickHandler;
+
             // Adelante
-            if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || gameModel.JoystickButtonDown(0))
+            if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || jh.JoystickButtonDown(0))
             {
                 player1.Vehicle.ApplyEngineForce(player1.engineForce, 2);
                 player1.Vehicle.ApplyEngineForce(player1.engineForce, 3);
@@ -154,7 +156,7 @@ namespace TGC.Group.Model.World
             }
 
             // Atras
-            if (gameModel.Input.keyDown(Key.S) || gameModel.Input.keyDown(Key.DownArrow) || gameModel.JoystickButtonDown(3))
+            if (gameModel.Input.keyDown(Key.S) || gameModel.Input.keyDown(Key.DownArrow) || jh.JoystickButtonDown(3))
             {
                 //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 0);
                 //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 1);
@@ -164,7 +166,7 @@ namespace TGC.Group.Model.World
             }
 
             // Derecha
-            if (gameModel.Input.keyDown(Key.D) || gameModel.Input.keyDown(Key.RightArrow) || gameModel.JoystickDpadRight())
+            if (gameModel.Input.keyDown(Key.D) || gameModel.Input.keyDown(Key.RightArrow) || jh.JoystickDpadRight())
             {
                 player1.Vehicle.SetSteeringValue(player1.steeringAngle, 2);
                 player1.Vehicle.SetSteeringValue(player1.steeringAngle, 3);
@@ -172,7 +174,7 @@ namespace TGC.Group.Model.World
             }
 
             // Izquierda
-            if (gameModel.Input.keyDown(Key.A) || gameModel.Input.keyDown(Key.LeftArrow) || gameModel.JoystickDpadLeft())
+            if (gameModel.Input.keyDown(Key.A) || gameModel.Input.keyDown(Key.LeftArrow) || jh.JoystickDpadLeft())
             {
                 player1.Vehicle.SetSteeringValue(-player1.steeringAngle, 2);
                 player1.Vehicle.SetSteeringValue(-player1.steeringAngle, 3);
@@ -194,7 +196,7 @@ namespace TGC.Group.Model.World
             }
 
             // Frenar
-            if (gameModel.Input.keyDown(Key.LeftControl) || gameModel.JoystickButtonDown(2))
+            if (gameModel.Input.keyDown(Key.LeftControl) || jh.JoystickButtonDown(2))
             {
                 player1.Vehicle.SetBrake(23, 0); //Puede ser una propiedad
                 player1.Vehicle.SetBrake(23, 1);
@@ -224,7 +226,7 @@ namespace TGC.Group.Model.World
             }
 
             // Disparar Machinegun
-            if (gameModel.Input.keyDown(Key.E) || gameModel.JoystickR2Down())
+            if (gameModel.Input.keyDown(Key.E) || jh.JoystickR2Down())
             {
                 if (bulletFlag == 0)
                 {
@@ -239,7 +241,7 @@ namespace TGC.Group.Model.World
             }
 
             // Saltar
-            if (gameModel.Input.keyDown(Key.Space) || gameModel.JoystickButtonPressed(1))
+            if (gameModel.Input.keyDown(Key.Space) || jh.JoystickButtonPressed(1))
             {
                 jump = true;
             }

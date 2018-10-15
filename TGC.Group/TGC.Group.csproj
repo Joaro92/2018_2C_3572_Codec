@@ -113,6 +113,7 @@
     <Compile Include="Model\Items\Energia.cs" />
     <Compile Include="Model\Items\Item.cs" />
     <Compile Include="Model\Items\ItemCreator.cs" />
+    <Compile Include="Model\JoystickHandler.cs" />
     <Compile Include="Model\Vehicles\Vehiculo.cs" />
     <Compile Include="Model\World\Machinegun.cs" />
     <Compile Include="Model\TGCUtils\CustomBitmap.cs" />

@@ -30,17 +30,13 @@ namespace TGC.Group.Model
         public void Update(GameModel gameModel, Player1 player1)
         {
             // Actualizamos la barra de especial
-            specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / 100f), specialScale.Y);
-            healthBar.Scaling = new TGCVector2(hpScale.X * (player1.hitPoints / 100f), hpScale.Y);
+            specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / player1.maxSpecialPoints), specialScale.Y);
+            healthBar.Scaling = new TGCVector2(hpScale.X * (player1.hitPoints / player1.maxHitPoints), hpScale.Y);
 
             // Actualizar los stats
-            if (player1.specialPoints < 100)
+            if (player1.specialPoints < player1.maxSpecialPoints)
             {
                 player1.specialPoints += gameModel.ElapsedTime;
-            }
-            else
-            {
-                player1.specialPoints = 100;
             }
 
             // Actualizamos la munición y velocidad actual

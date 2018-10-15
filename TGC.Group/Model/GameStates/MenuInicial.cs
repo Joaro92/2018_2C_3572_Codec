@@ -33,7 +33,8 @@ namespace TGC.Group.Model.GameStates
         private TgcText2D exit;
         private bool showMenu = false;
         private MenuOption selectedOption = MenuOption.PLAY;
-        private string mainMenuSong = "Sounds\\Twisted Metal Black - Main Menu Theme.mp3";
+
+        private string mainMenuSong = "Twisted Metal Black - Main Menu Theme.mp3";
 
         private bool isNextState = false;
         private bool isExit = false;
@@ -93,12 +94,14 @@ namespace TGC.Group.Model.GameStates
 
             this.gameModel.Camara = new TgcThirdPersonCamera();
 
-            this.gameModel.loadMp3(gameModel.MediaDir + mainMenuSong);
+            this.gameModel.LoadMp3(mainMenuSong);
             this.gameModel.Mp3Player.play(true);
         }
 
         public void Update()
         {
+            var jh = gameModel.JoystickHandler;
+
             if (!showMenu)
             {
                 timerStart1 += gameModel.ElapsedTime;
@@ -120,7 +123,7 @@ namespace TGC.Group.Model.GameStates
                     showMenu = true;
                 }
 
-                if (gameModel.Input.keyPressed(Key.Return) || gameModel.JoystickButtonPressed(7))
+                if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
                 {
                     frecStart *= 2;
                     timerStartFlag = true;
@@ -128,17 +131,17 @@ namespace TGC.Group.Model.GameStates
             }
             else
             {
-                if (gameModel.Input.keyPressed(Key.DownArrow) || gameModel.JoystickDpadPressed(JoystickDpad.DOWN))
+                if (gameModel.Input.keyPressed(Key.DownArrow) || jh.JoystickDpadPressed(JoystickDpad.DOWN))
                 {
                     selectedOption = options.getNextOption(selectedOption);
                 }
 
-                if (gameModel.Input.keyPressed(Key.UpArrow) || gameModel.JoystickDpadPressed(JoystickDpad.UP))
+                if (gameModel.Input.keyPressed(Key.UpArrow) || jh.JoystickDpadPressed(JoystickDpad.UP))
                 {
                     selectedOption = options.getNextOption(selectedOption, -1);
                 }
 
-                if (gameModel.Input.keyPressed(Key.Return) || gameModel.JoystickButtonPressed(0))
+                if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(0) || jh.JoystickButtonPressed(7))
                 {
                     switch (selectedOption)
                     {

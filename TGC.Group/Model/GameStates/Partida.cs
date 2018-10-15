@@ -26,7 +26,8 @@ namespace TGC.Group.Model.GameStates
         private bool mirarHaciaAtras;
         private float anguloCamara;
         private float halfsPI;
-        private string levelSong = "Sounds\\Twisted Metal Small Brawl - Now Slaying.mp3";
+
+        private string levelSong = "Twisted Metal Small Brawl - Now Slaying.mp3";
 
         public Partida(GameModel gameModel, Vehiculo vehiculoP1)
         {
@@ -50,7 +51,7 @@ namespace TGC.Group.Model.GameStates
                 HeadSize = new TGCVector2(0.5f, 1f)
             };
 
-            this.gameModel.loadMp3(gameModel.MediaDir + levelSong);
+            this.gameModel.LoadMp3(levelSong);
             this.gameModel.Mp3Player.play(true);
         }
 
@@ -132,14 +133,16 @@ namespace TGC.Group.Model.GameStates
 
         private void ManageInputs(GameModel gameModel)
         {
+            var jh = gameModel.JoystickHandler;
+
             // Dibujar el Vector UP
-            if (gameModel.Input.keyPressed(Key.F3))
+            if (gameModel.Input.keyPressed(Key.F1))
             {
                 drawUpVector = !drawUpVector;
             }
 
             // Girar la cámara unos grados
-            if (gameModel.Input.keyPressed(Key.F5))
+            if (gameModel.Input.keyPressed(Key.F2))
             {
                 if (anguloCamara == 0.33f)
                 {
@@ -152,13 +155,13 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Rotar 90° la cámara
-            if (gameModel.Input.keyPressed(Key.F6))
+            if (gameModel.Input.keyPressed(Key.F3))
             {
                 halfsPI = (halfsPI + FastMath.PI_HALF) % FastMath.TWO_PI;
             }
 
             // Acercar la cámara
-            if (gameModel.Input.keyPressed(Key.F8) || gameModel.JoystickButtonPressed(6))
+            if (gameModel.Input.keyPressed(Key.F5) ||jh.JoystickButtonPressed(6))
             {
                 modoCamara = modosCamara.getNextOption(modoCamara);
 
@@ -167,7 +170,7 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Mirar hacia atras
-            if (gameModel.Input.keyDown(Key.C) || gameModel.JoystickButtonDown(4))
+            if (gameModel.Input.keyDown(Key.C) ||jh.JoystickButtonDown(4))
             {
                 mirarHaciaAtras = true;
                 halfsPI = 0;
