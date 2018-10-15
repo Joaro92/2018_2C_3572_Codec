@@ -10,6 +10,8 @@ using TGC.Group.Utils;
 using TGC.Core.Terrain;
 using TGC.Group.Model.World.Weapons;
 using TGC.Group.Model.Vehicles;
+using TGC.Group.Model.Items;
+using TGC.Core.BoundingVolumes;
 
 namespace TGC.Group.Model.World
 {
@@ -26,6 +28,7 @@ namespace TGC.Group.Model.World
         private TGCMatrix wheelTransform;
         private TGCVector3 currentCameraPosition;
         private List<MachinegunBullet> mBullets = new List<MachinegunBullet>();
+        private List<Item> items = new List<Item>();
 
         public NivelUno(Vehiculo vehiculoP1)
         {
@@ -36,7 +39,7 @@ namespace TGC.Group.Model.World
                 world.AddRigidBody(rigid);
             }
 
-            // Creamos a nuestro jugador y lo agregamos al mundo
+            //Creamos a nuestro jugador y lo agregamos al mundo
             Player1 = new Player1(world, vehiculoP1, initialPos);
 
             //Crear SkyBox
@@ -53,6 +56,10 @@ namespace TGC.Group.Model.World
             skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Front, texturesPath + "skybox front.png");
             skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Back, texturesPath + "skybox back.png");
             skyBox.Init();
+
+            //Spawneamos algunos items
+            items.Add(new Corazon(new TGCVector3(144f, 4f, 24f)));
+
         }
 
         public override void Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
@@ -253,7 +260,7 @@ namespace TGC.Group.Model.World
             //Ajustar la posicion de la camara segun la colision con los objetos del escenario
             ajustarPosicionDeCamara(camaraInterna, modoCamara);
 
-
+            
             List<int> bulletsID = new List<int>();
             if (world.Broadphase.OverlappingPairCache.OverlappingPairArray.Count > 0)
             {
@@ -297,6 +304,29 @@ namespace TGC.Group.Model.World
 
             if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
             if (bulletFlag > 0.25f) bulletFlag = 0;
+
+            //Obtengo BoundingBox de Player1 para determinar colision con items
+            Vector3 min, max;
+            Player1.RigidBody.GetAabb(out min, out max);
+            var player1AABB = new TgcBoundingAxisAlignBox(new TGCVector3(min), new TGCVector3(max));
+
+            //Rotar items, desaparecerlos y hacer efecto si colisionan y contar el tiempo que falta para que vuelvan a aparecer los que no estan
+            foreach (Item i in items)
+            {
+                if (i.IsPresent)
+                {
+                    i.Mesh.RotateY(FastMath.PI_HALF * gameModel.ElapsedTime);
+
+                    if(TgcCollisionUtils.testAABBAABB(player1AABB, i.Mesh.BoundingBox)){
+                        i.Dissapear();
+                        i.Effect(Player1);
+                    }
+                }
+                else
+                    i.UpdateTimer(gameModel.ElapsedTime);
+            }
+
+            
         }
 
         private void ajustarPosicionDeCamara(TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
@@ -378,7 +408,7 @@ namespace TGC.Group.Model.World
             Player1.Wheel.Transform = wheelTransform;
             Player1.Wheel.Render();
 
-            // Renderizar el escenario
+            //Renderizar el escenario
             escenario.Render();
 
             foreach (var b in mBullets)
@@ -386,6 +416,13 @@ namespace TGC.Group.Model.World
                 b.TgcBox.Transform = new TGCMatrix(b.GhostObject.WorldTransform);
                 b.TgcBox.Render();
                 
+            }
+
+            //Render items
+            foreach (Item i in items)
+            {
+                if (i.IsPresent)
+                    i.Mesh.Render();
             }
 
             //Render SkyBox
@@ -403,6 +440,11 @@ namespace TGC.Group.Model.World
             Player1.RigidBody.Dispose();
             escenario.Dispose();
             mBullets.ForEach(b => b.Dispose());
+            foreach (Item i in items)
+            {
+                if (i.IsPresent)
+                    i.Mesh.Dispose();
+            }
         }
     }
 }

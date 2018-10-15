@@ -24,6 +24,9 @@ namespace TGC.Group.Model.World
         public float flippedTime = 0;
         public string linealVelocity;
         public bool collision = false;
+
+        public readonly float maxHitPoints = 100f;
+        public readonly float maxSpecialPoints = 100f;
         public float hitPoints = 100f;
         public float specialPoints = 100f;
 
@@ -97,6 +100,10 @@ namespace TGC.Group.Model.World
 
 		    //Adds the wheels to the vehicle
 		    addWheels(meshAxisRadius, vehicle, tuning, wheelRadius);
+
+            //Inicializo puntos
+            hitPoints = maxHitPoints;
+            specialPoints = maxSpecialPoints;
         }
 
         private RigidBody createChassisRigidBodyFromShape(CollisionShape chassisShape, TGCVector3 position)
