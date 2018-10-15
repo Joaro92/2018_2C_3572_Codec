@@ -27,7 +27,7 @@ namespace TGC.Group.Model.World
         private float bulletFlag = 0;
         private float neg = 1f;
 
-        private TGCVector3 currentCameraPosition;
+        //private TGCVector3 currentCameraPosition;
         private List<MachinegunBullet> mBullets = new List<MachinegunBullet>();
         private List<Item> items = new List<Item>();
 
@@ -443,8 +443,7 @@ namespace TGC.Group.Model.World
         private void ItemsHandler(GameModel gameModel)
         {
             //Obtengo BoundingBox de Player1 para determinar colision con items
-            Vector3 min, max;
-            player1.RigidBody.GetAabb(out min, out max);
+            player1.RigidBody.GetAabb(out Vector3 min, out Vector3 max);
             var player1AABB = new TgcBoundingAxisAlignBox(new TGCVector3(min), new TGCVector3(max));
 
             //Rotar items, desaparecerlos y hacer efecto si colisionan y contar el tiempo que falta para que vuelvan a aparecer los que no estan

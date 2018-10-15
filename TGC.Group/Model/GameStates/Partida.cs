@@ -9,6 +9,8 @@ using TGC.Group.Model.Interfaces;
 using BulletSharp.Math;
 using Key = Microsoft.DirectX.DirectInput.Key;
 using TGC.Group.Model.Vehicles;
+using TGC.Core.Text;
+using TGC.Core.Direct3D;
 
 namespace TGC.Group.Model.GameStates
 {
@@ -21,11 +23,19 @@ namespace TGC.Group.Model.GameStates
         private PhysicsGame world;
         private TgcThirdPersonCamera camaraInterna;
         private HUD hud;
+
         private TgcArrow directionArrow;
         private bool drawUpVector = false;
-        private bool mirarHaciaAtras;
-        private float anguloCamara;
-        private float halfsPI;
+
+        private bool mirarHaciaAtras = false;
+        private float anguloCamara = 0f;
+        private float halfsPI = 0f;
+
+        private bool paused = false;
+        private TgcText2D pauseMsg;
+
+        private readonly int tiempoInicial = 15; //en minutos
+        public float Tiempo { get; private set; } //en segundos
 
         private string levelSong = "Twisted Metal Small Brawl - Now Slaying.mp3";
 
@@ -33,7 +43,9 @@ namespace TGC.Group.Model.GameStates
         {
             this.gameModel = gameModel;
 
-            hud = new HUD(gameModel);
+            Tiempo = tiempoInicial * 60;
+
+            hud = new HUD(gameModel, Tiempo);
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
             world = new NivelUno(vehiculoP1);
@@ -53,12 +65,33 @@ namespace TGC.Group.Model.GameStates
 
             this.gameModel.LoadMp3(levelSong);
             this.gameModel.Mp3Player.play(true);
+
+            // Font para mensaje de pausa
+            var pauseFont = UtilMethods.createFont("Minecraft", 100);
+
+            //Leo las dimensiones de la ventana
+            var screenHeight = D3DDevice.Instance.Device.Viewport.Height;
+            var screenWidth = D3DDevice.Instance.Device.Viewport.Width;
+
+            //Play
+            pauseMsg = new TgcText2D
+            {
+                Text = "PAUSE",
+                Color = Color.White,
+                Position = new Point(0, screenHeight / 2),
+            };
+            pauseMsg.changeFont(pauseFont);
+
         }
 
         public void Update()
         {
             // Manejar los inputs del teclado y joystick
             ManageInputs(gameModel);
+
+            // Si pausado no computo nada mas
+            if (paused)
+                return;
 
             // Actualizar la posición y rotación de la cámara para que apunte a nuestro Player 1
             camaraInterna.Target = new TGCVector3(world.player1.RigidBody.CenterOfMassPosition);
@@ -75,14 +108,23 @@ namespace TGC.Group.Model.GameStates
             // Actualizar el mundo físico
             world.Update(gameModel, camaraInterna, modoCamara);
 
+            // Actualizar el tiempo
+            Tiempo -= gameModel.ElapsedTime;
+
             // Actualizar el HUD
-            hud.Update(gameModel, world.player1);
+            hud.Update(gameModel, world.player1, Tiempo);
         }
 
         public void Render()
         {
+            // Si pausado muestro el mensaje
+            if (paused)
+            {
+                pauseMsg.render();
+            }
+
             // Acción cuando nuestro Player 1 pierde todos sus puntos de vida
-            if (world.player1.hitPoints <= 0)
+            if (world.player1.hitPoints <= 0 || Tiempo <= 0)
             {
                 gameModel.Exit();
                 return;
@@ -135,6 +177,17 @@ namespace TGC.Group.Model.GameStates
         {
             var jh = gameModel.JoystickHandler;
 
+            // Si pausado me fijo si quitaron la pausa
+            if (paused)
+            {
+                if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
+                {
+                    paused = false;
+                    gameModel.Mp3Player.resume();
+                }
+                return;
+            }
+
             // Dibujar el Vector UP
             if (gameModel.Input.keyPressed(Key.F1))
             {
@@ -161,7 +214,7 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Acercar la cámara
-            if (gameModel.Input.keyPressed(Key.F5) ||jh.JoystickButtonPressed(6))
+            if (gameModel.Input.keyPressed(Key.F5) || jh.JoystickButtonPressed(6))
             {
                 modoCamara = modosCamara.getNextOption(modoCamara);
 
@@ -170,12 +223,18 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Mirar hacia atras
-            if (gameModel.Input.keyDown(Key.C) ||jh.JoystickButtonDown(4))
+            if (gameModel.Input.keyDown(Key.C) || jh.JoystickButtonDown(4))
             {
                 mirarHaciaAtras = true;
                 halfsPI = 0;
             }
             else mirarHaciaAtras = false;
+
+            if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
+            {
+                paused = true;
+                gameModel.Mp3Player.pause();
+            }
         }
     }
 }
