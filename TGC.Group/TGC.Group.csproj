@@ -110,6 +110,7 @@
     <Compile Include="Model\Interfaces\IGameState.cs" />
     <Compile Include="Model\GameStates\MenuInicial.cs" />
     <Compile Include="Model\Items\Corazon.cs" />
+    <Compile Include="Model\Items\Energia.cs" />
     <Compile Include="Model\Items\Item.cs" />
     <Compile Include="Model\Items\ItemCreator.cs" />
     <Compile Include="Model\Vehicles\Vehiculo.cs" />
