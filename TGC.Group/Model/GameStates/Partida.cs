@@ -26,7 +26,8 @@ namespace TGC.Group.Model.GameStates
         private bool mirarHaciaAtras;
         private float anguloCamara;
         private float halfsPI;
-     
+        private string levelSong = "Sounds\\Twisted Metal Small Brawl - Now Slaying.mp3";
+
         public Partida(GameModel gameModel, Vehiculo vehiculoP1)
         {
             this.gameModel = gameModel;
@@ -48,6 +49,9 @@ namespace TGC.Group.Model.GameStates
                 Thickness = 0.1f,
                 HeadSize = new TGCVector2(0.5f, 1f)
             };
+
+            this.gameModel.loadMp3(gameModel.MediaDir + levelSong);
+            this.gameModel.Mp3Player.play(true);
         }
 
         public void Update()

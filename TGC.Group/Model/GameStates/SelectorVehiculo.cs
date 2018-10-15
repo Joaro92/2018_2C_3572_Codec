@@ -107,6 +107,7 @@ namespace TGC.Group.Model.GameStates
 
             if (gameModel.Input.keyPressed(Key.Return) || gameModel.JoystickButtonPressed(0))
             {
+                gameModel.Mp3Player.stop();
                 confirmed = true;
             }
 

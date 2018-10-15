@@ -33,6 +33,7 @@ namespace TGC.Group.Model.GameStates
         private TgcText2D exit;
         private bool showMenu = false;
         private MenuOption selectedOption = MenuOption.PLAY;
+        private string mainMenuSong = "Sounds\\Twisted Metal Black - Main Menu Theme.mp3";
 
         private bool isNextState = false;
         private bool isExit = false;
@@ -41,7 +42,6 @@ namespace TGC.Group.Model.GameStates
         {
             this.gameModel = gameModel;
             drawer2D = new Drawer2D();
-
 
             //Leo las dimensiones de la ventana
             var screenHeight = D3DDevice.Instance.Device.Viewport.Height;
@@ -92,6 +92,9 @@ namespace TGC.Group.Model.GameStates
             exit.changeFont(menuFont);
 
             this.gameModel.Camara = new TgcThirdPersonCamera();
+
+            this.gameModel.loadMp3(gameModel.MediaDir + mainMenuSong);
+            this.gameModel.Mp3Player.play(true);
         }
 
         public void Update()

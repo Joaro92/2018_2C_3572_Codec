@@ -3,6 +3,7 @@ using SharpDX.DirectInput;
 using System;
 using System.Windows.Forms;
 using TGC.Core.Example;
+using TGC.Core.Sound;
 using TGC.Group.Form;
 using TGC.Group.Model.GameStates;
 using TGC.Group.Model.Interfaces;
@@ -18,6 +19,8 @@ namespace TGC.Group.Model
         public static readonly string[] VehicleColors = { "Blue", "Citrus", "Green", "Orange", "Red", "Silver", "Violet" };
 
         private Joystick joystick;
+        private TgcMp3Player mp3Player;
+        private string currentMp3File = null;
         private bool[] joyFlag = { false , false, false, false, false, false, false, false, false, false };
         private bool[] dpadFlag = { false, false, false, false };
 
@@ -38,7 +41,9 @@ namespace TGC.Group.Model
         public override void Init()
         {
             InitializeJoystick1();
- 
+
+            mp3Player = new TgcMp3Player();
+
             GameState = new MenuInicial(this);
         }
 
@@ -63,6 +68,7 @@ namespace TGC.Group.Model
         public override void Dispose()
         {
             GameState.Dispose();
+            if (joystick != null) joystick.Dispose();
         }
 
         public void Exit()
@@ -74,10 +80,26 @@ namespace TGC.Group.Model
             gameForm.Close();
         }
 
+        public TgcMp3Player Mp3Player
+        {
+            get { return mp3Player; }
+        }
 
         // ----------------------------------------------
         // --------------- Joystick input ---------------
         // ----------------------------------------------
+
+        public void loadMp3(string filePath)
+        {
+            if (currentMp3File == null || currentMp3File != filePath)
+            {
+                currentMp3File = filePath;
+
+                //Cargar archivo
+                mp3Player.closeFile();
+                mp3Player.FileName = currentMp3File;
+            }
+        }
 
         private void InitializeJoystick1()
         {
