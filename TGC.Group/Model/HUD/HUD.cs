@@ -1,6 +1,6 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Text;
+﻿using System.Drawing;
+using System.Windows;
+using System.Windows.Forms;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
 using TGC.Core.Text;
@@ -17,6 +17,7 @@ namespace TGC.Group.Model
         private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
         private TGCVector2 specialScale, hpScale;
         private TgcText2D speed, km, actualWeapon, ammoQuantity, border;
+        private readonly int scaling = GameModel.GetWindowsScaling(); // 96 es el 100%, 120 es el 125%
 
         public HUD(GameModel gameModel)
         {
@@ -54,10 +55,10 @@ namespace TGC.Group.Model
             // Sprite que representa la vida
             healthBar = new CustomSprite
             {
-                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\healthBar.png", D3DDevice.Instance.Device),
-                //Position = new TGCVector2(screenWidth * 0.8605f, screenHeight * 0.728f); //para 125 % escalado
-                Position = new TGCVector2(screenWidth * 0.8515f, screenHeight * 0.7215f) //para 100% escalado
+                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\healthBar.png", D3DDevice.Instance.Device)
             };
+            if (scaling == 96) healthBar.Position = new TGCVector2(screenWidth * 0.8515f, screenHeight * 0.7215f);
+            else healthBar.Position = new TGCVector2(screenWidth * 0.8605f, screenHeight * 0.728f);
 
             scalingFactorX = (float)screenWidth / (float)healthBar.Bitmap.Width;
             scalingFactorY = (float)screenHeight / (float)healthBar.Bitmap.Height;
@@ -68,10 +69,10 @@ namespace TGC.Group.Model
             // Sprite de la barra de especiales
             specialBar = new CustomSprite
             {
-                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\specialBar.png", D3DDevice.Instance.Device),
-                //Position = new TGCVector2(screenWidth * 0.861f, screenHeight * 0.83f); //para 125 % escalado
-                Position = new TGCVector2(screenWidth * 0.8515f, screenHeight * 0.8025f) //para 100 % escalado
+                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\specialBar.png", D3DDevice.Instance.Device)
             };
+            if (scaling == 96) specialBar.Position = new TGCVector2(screenWidth * 0.8515f, screenHeight * 0.8025f);
+            else specialBar.Position = new TGCVector2(screenWidth * 0.861f, screenHeight * 0.83f);
 
             scalingFactorX = (float)screenWidth / (float)specialBar.Bitmap.Width;
             scalingFactorY = (float)screenHeight / (float)specialBar.Bitmap.Height;
@@ -79,28 +80,27 @@ namespace TGC.Group.Model
             specialBar.Scaling = new TGCVector2(0.079f, 0.08f) * (scalingFactorY / scalingFactorX);
             specialScale = specialBar.Scaling;
 
+
             // Fuente para mostrar la velocidad
-           
             var speedFont = UtilMethods.createFont("Open 24 Display St", 32);
             var kmFont = UtilMethods.createFont("Open 24 Display St", 20);
 
             speed = new TgcText2D
             {
                 Text = "0",
-                Color = Color.Green,
-                //Position = new Point((int)(screenWidth * 0.397f), (int)(screenHeight * 0.906f))  // para 125% escalado
-                Position = new Point((int)(screenWidth * 0.38f), (int)(screenHeight * 0.865f)) // para 100% escalado
-
+                Color = Color.Green
             };
+            if (scaling == 96) speed.Position = new Point((int)(screenWidth * 0.38f), (int)(screenHeight * 0.865f));
+            else speed.Position = new Point((int)(screenWidth * 0.397f), (int)(screenHeight * 0.906f));
             speed.changeFont(speedFont);
+
             km = new TgcText2D
             {
                 Text = "km",
-                Color = Color.Black,
-                //Position = new Point((int)(screenWidth * 0.431f), (int)(screenHeight * 0.927f)) // para 125% escalado
-                Position = new Point((int)(screenWidth * 0.41f), (int)(screenHeight * 0.88f)) // para 100% escalado
-
+                Color = Color.Black
             };
+            if (scaling == 96) km.Position = new Point((int)(screenWidth * 0.41f), (int)(screenHeight * 0.88f));
+            else km.Position = new Point((int)(screenWidth * 0.431f), (int)(screenHeight * 0.927f));
             km.changeFont(kmFont);
 
             // Fuentes para mostrar la munición y armas
@@ -111,30 +111,28 @@ namespace TGC.Group.Model
             actualWeapon = new TgcText2D
             {
                 Text = "[ None ]",
-                Color = Color.Black,
-                //Position = new Point(-(int)(screenWidth * 0.406f), (int)(screenHeight * 0.921f))  // para 125% escalado
-                Position = new Point(-(int)(screenWidth * 0.421f), (int)(screenHeight * 0.87f)) // para 100% escalado
-
+                Color = Color.Black
             };
+            if (scaling == 96) actualWeapon.Position = new Point(-(int)(screenWidth * 0.421f), (int)(screenHeight * 0.87f));
+            else actualWeapon.Position = new Point(-(int)(screenWidth * 0.406f), (int)(screenHeight * 0.921f));
             actualWeapon.changeFont(actualWeaponFont);
 
             ammoQuantity = new TgcText2D
             {
                 Text = "-",
-                Color = Color.Black,
-                //Position = new Point(-(int)(screenWidth * 0.345f), (int)(screenHeight * 0.856f))  // para 125% escalado
-                Position = new Point(-(int)(screenWidth * 0.3725f), (int)(screenHeight * 0.815f)) // para 100% escalado
-
+                Color = Color.Black
             };
+            if (scaling == 96) ammoQuantity.Position = new Point(-(int)(screenWidth * 0.3725f), (int)(screenHeight * 0.815f));
+            else ammoQuantity.Position = new Point(-(int)(screenWidth * 0.345f), (int)(screenHeight * 0.856f));
             ammoQuantity.changeFont(ammoQuantityFont);
+
             border = new TgcText2D // El borde es para que tenga un color blanco de fondo para que se distinga más
             {
                 Text = "-",
-                Color = Color.White,
-                //Position = new Point(-(int)(screenWidth * 0.3453f), (int)(screenHeight * 0.8535f))  // para 125% escalado
-                Position = new Point(-(int)(screenWidth * 0.3728f), (int)(screenHeight * 0.8125f)) // para 100% escalado
-
+                Color = Color.White
             };
+            if (scaling == 96) border.Position = new Point(-(int)(screenWidth * 0.3728f), (int)(screenHeight * 0.8125f));
+            else border.Position = new Point(-(int)(screenWidth * 0.3453f), (int)(screenHeight * 0.8535f));
             border.changeFont(actualWeaponFont);
         }
 
@@ -203,6 +201,5 @@ namespace TGC.Group.Model
             km.Dispose();
         }
     }
-
 
 }

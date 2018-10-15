@@ -1,10 +1,12 @@
-using TGC.Core.Example;
-using TGC.Group.Model.GameStates;
-using TGC.Group.Form;
-using System.Windows.Forms;
+using Microsoft.Win32;
 using SharpDX.DirectInput;
 using System;
+using System.Windows.Forms;
+using TGC.Core.Example;
+using TGC.Group.Form;
+using TGC.Group.Model.GameStates;
 using TGC.Group.Model.Interfaces;
+using TGC.Group.Utils;
 
 namespace TGC.Group.Model
 {
@@ -14,7 +16,6 @@ namespace TGC.Group.Model
 
         public static readonly string[] VehicleNames = { "Coupe", "Hatchback", "Microcargo", "Micro", "Minibus", "MPV", "Normal", "Pickup-Small", "Pickup", "Station" };
         public static readonly string[] VehicleColors = { "Blue", "Citrus", "Green", "Orange", "Red", "Silver", "Violet" };
-
 
         private Joystick joystick;
         private bool[] joyFlag = { false , false, false, false, false, false, false, false, false, false };
@@ -29,39 +30,14 @@ namespace TGC.Group.Model
 
         public override void Init()
         {
-            // Initialize DirectInput
-            var directInput = new DirectInput();
-
-            // Find a Joystick Guid
-            var joystickGuid = Guid.Empty;
-            foreach (var deviceInstance in directInput.GetDevices(DeviceType.Gamepad, DeviceEnumerationFlags.AllDevices))
-            {
-                joystickGuid = deviceInstance.InstanceGuid;
-            }
-
-            // If Gamepad not found, look for a Joystick
-            if (joystickGuid == Guid.Empty)
-                foreach (var deviceInstance in directInput.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AllDevices))
-                {
-                    joystickGuid = deviceInstance.InstanceGuid;
-                }
-
-            // Configure and set Joystick only if found
-            if (joystickGuid != Guid.Empty)
-            {
-                // Instantiate the joystick
-                joystick = new Joystick(directInput, joystickGuid);
-
-                Console.WriteLine("Found Joystick/Gamepad with GUID: {0}", joystickGuid);
-
-                // Set BufferSize in order to use buffered data.
-                joystick.Properties.BufferSize = 2048;
-
-                // Acquire the joystick
-                joystick.Acquire();
-            }
-
+            InitializeJoystick1();
+ 
             GameState = new MenuInicial(this);
+        }
+
+        public static int GetWindowsScaling()
+        {
+            return (int)Registry.GetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics", "AppliedDPI", 96);
         }
 
         public override void Update()
@@ -96,6 +72,47 @@ namespace TGC.Group.Model
             gameForm.Close();
         }
 
+
+
+        // ----------------------------------------------
+        // --------------- Joystick input ---------------
+        // ----------------------------------------------
+
+        private void InitializeJoystick1()
+        {
+            // Initialize DirectInput
+            var directInput = new DirectInput();
+
+            // Find a Joystick Guid
+            var joystickGuid = Guid.Empty;
+            foreach (var deviceInstance in directInput.GetDevices(DeviceType.Gamepad, DeviceEnumerationFlags.AllDevices))
+            {
+                joystickGuid = deviceInstance.InstanceGuid;
+            }
+
+            // If Gamepad not found, look for a Joystick
+            if (joystickGuid == Guid.Empty)
+                foreach (var deviceInstance in directInput.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AllDevices))
+                {
+                    joystickGuid = deviceInstance.InstanceGuid;
+                }
+
+            // Configure and set Joystick only if found
+            if (joystickGuid != Guid.Empty)
+            {
+                // Instantiate the joystick
+                joystick = new Joystick(directInput, joystickGuid);
+
+                Console.WriteLine("Found Joystick/Gamepad with GUID: {0}", joystickGuid);
+
+                // Set BufferSize in order to use buffered data.
+                joystick.Properties.BufferSize = 2048;
+
+                // Acquire the joystick
+                joystick.Acquire();
+            }
+        }
+
         public bool JoystickButtonPressed(int buttonID)
         {
             if (joystick == null) return false;
@@ -118,33 +135,7 @@ namespace TGC.Group.Model
             }
         }
 
-        public bool JoystickButtonDown(int buttonID)
-        {
-            if (joystick == null) return false;
-            joystick.Poll();
-
-            return joystick.GetCurrentState().Buttons[buttonID];
-        }
-
-        public bool JoystickDpadLeft()
-        {
-            if (joystick == null) return false;
-
-            joystick.Poll();
-
-            return joystick.GetCurrentState().PointOfViewControllers[0] == 27000;
-        }
-
-        public bool JoystickDpadRight()
-        {
-            if (joystick == null) return false;
-
-            joystick.Poll();
-
-            return joystick.GetCurrentState().PointOfViewControllers[0] == 9000;
-        }
-
-        public bool JoystickDpadPressed(Utils.JoystickDpad arrow)
+        public bool JoystickDpadPressed(JoystickDpad arrow)
         {
             if (joystick == null) return false;
             int value = 0;
@@ -182,5 +173,32 @@ namespace TGC.Group.Model
                 else return false;
             }
         }
+
+        public bool JoystickButtonDown(int buttonID)
+        {
+            if (joystick == null) return false;
+            joystick.Poll();
+
+            return joystick.GetCurrentState().Buttons[buttonID];
+        }
+
+        public bool JoystickDpadLeft()
+        {
+            if (joystick == null) return false;
+
+            joystick.Poll();
+
+            return joystick.GetCurrentState().PointOfViewControllers[0] == 27000;
+        }
+
+        public bool JoystickDpadRight()
+        {
+            if (joystick == null) return false;
+
+            joystick.Poll();
+
+            return joystick.GetCurrentState().PointOfViewControllers[0] == 9000;
+        }
+
     }
 }
