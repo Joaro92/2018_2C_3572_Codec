@@ -1,6 +1,5 @@
 ﻿using BulletSharp;
 using BulletSharp.Math;
-using System;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Group.Model.Vehicles;
@@ -21,16 +20,18 @@ namespace TGC.Group.Model.World
         // Variables de Control
         public bool jumped = false;
         public Vector3 yawPitchRoll;
+        public TGCVector3 frontVector, velocityVector;
         public float flippedTime = 0;
         public string linealVelocity;
         public bool collision = false;
-
-        public readonly float maxHitPoints = 100f;
-        public readonly float maxSpecialPoints = 100f;
-        public float hitPoints = 100f;
-        public float specialPoints = 100f;
+        public float hitPoints;
+        public float specialPoints;
+        private TGCMatrix wheelTransform;
 
         // Atributos constantes
+        public readonly float maxHitPoints = 100f;
+        public readonly float maxSpecialPoints = 100f;
+
         public readonly float engineForce = -1100;
         public readonly float steeringAngle = -0.27f;
         public readonly float mass = 480f;
@@ -164,6 +165,30 @@ namespace TGC.Group.Model.World
 
         // -----------------------------------------------------
 
+        public void Render()
+        {
+            // Renderizar la malla del auto, en este caso solo el Chasis
+            Mesh.Transform = TGCMatrix.Translation(new TGCVector3(0, 0.11f, 0)) * new TGCMatrix(Vehicle.ChassisWorldTransform);
+            Mesh.Render();
+
+            // Como las ruedas no son cuerpos rigidos (aún) se procede a realizar las transformaciones de las ruedas para renderizar
+            wheelTransform = TGCMatrix.RotationY(Vehicle.GetSteeringValue(0)) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(RigidBody.Orientation.X, RigidBody.Orientation.Y, RigidBody.Orientation.Z, RigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Vehicle.GetWheelInfo(0).WorldTransform.Origin));
+            Wheel.Transform = wheelTransform;
+            Wheel.Render();
+
+            wheelTransform = TGCMatrix.RotationY(Vehicle.GetSteeringValue(1) + FastMath.PI) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(RigidBody.Orientation.X, RigidBody.Orientation.Y, RigidBody.Orientation.Z, RigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Vehicle.GetWheelInfo(1).WorldTransform.Origin));
+            Wheel.Transform = wheelTransform;
+            Wheel.Render();
+
+            wheelTransform = TGCMatrix.RotationY(-Vehicle.GetSteeringValue(2)) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(RigidBody.Orientation.X, RigidBody.Orientation.Y, RigidBody.Orientation.Z, RigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Vehicle.GetWheelInfo(2).WorldTransform.Origin));
+            Wheel.Transform = wheelTransform;
+            Wheel.Render();
+
+            wheelTransform = TGCMatrix.RotationY(-Vehicle.GetSteeringValue(3) + FastMath.PI) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(RigidBody.Orientation.X, RigidBody.Orientation.Y, RigidBody.Orientation.Z, RigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(Vehicle.GetWheelInfo(3).WorldTransform.Origin));
+            Wheel.Transform = wheelTransform;
+            Wheel.Render();
+        }
+        
         public RigidBody RigidBody
         {
             get { return rigidBody; }

@@ -1,7 +1,6 @@
 ﻿using BulletSharp;
 using System;
 using System.Collections.Generic;
-using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Group.Bullet.Physics;
 
@@ -9,44 +8,41 @@ namespace TGC.Group.Model.World
 {
     public class Escenario
     {
-        private TgcScene _tgcScene;
-        private List<RigidBody> _rigidBodys;
+        private TgcScene tgcScene;
+        private List<RigidBody> rigidBodys;
 
         /// <summary>
         ///  Se crea el escenario a partir del TgcScene y se crean todos los cuerpos rigidos estáticos por cada mesh
         /// </summary>
-        public Escenario(String xmlPath)
+        public Escenario(DiscreteDynamicsWorld world, String xmlPath)
         {
             var loader = new TgcSceneLoader();
-            this._tgcScene = loader.loadSceneFromFile(Game.Default.MediaDirectory + xmlPath);
+            this.tgcScene = loader.loadSceneFromFile(Game.Default.MediaDirectory + xmlPath);
 
-            this._rigidBodys = new List<RigidBody>();
-            TGCVector3 radio; // = obj.tgcMesh.BoundingBox.calculateAxisRadius();
-            TGCVector3 pmin; //= obj.tgcMesh.BoundingBox.PMin;
+            this.rigidBodys = new List<RigidBody>();
             RigidBody newRigid;
 
-            foreach (TgcMesh mesh in this._tgcScene.Meshes)
+            foreach (TgcMesh mesh in this.tgcScene.Meshes)
             {
                 if (!(mesh.Name.Equals("Arbusto") || mesh.Name.Equals("Pasto")))
                 {
-                    radio = mesh.BoundingBox.calculateAxisRadius(); // para que sirve esto?
-                    pmin = mesh.BoundingBox.PMin; // para que sirve esto?
                     newRigid = BulletRigidBodyConstructor.CreateRigidBodyFromTgcMesh(mesh);
-                    this._rigidBodys.Add(newRigid);
+                    this.rigidBodys.Add(newRigid);
+                    world.AddRigidBody(newRigid);
                 }
             }
         }
 
-        public List<RigidBody> rigidBodys
+        public List<RigidBody> RigidBodys
         {
-            get { return _rigidBodys; }
-            set { _rigidBodys = value; }
+            get { return rigidBodys; }
+            set { rigidBodys = value; }
         }
 
-        public TgcScene tgcScene
+        public TgcScene TgcScene
         {
-            get { return _tgcScene; }
-            set { _tgcScene = value; }
+            get { return tgcScene; }
+            set { tgcScene = value; }
         }
 
         public void Render()
@@ -56,10 +52,9 @@ namespace TGC.Group.Model.World
 
         public void Dispose()
         {
-            this._tgcScene.DisposeAll();
-            _rigidBodys.ForEach(rigid => rigid.Dispose());
+            this.tgcScene.DisposeAll();
+            rigidBodys.ForEach(rigid => rigid.Dispose());
         }
 
-      
     }
 }

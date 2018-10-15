@@ -68,56 +68,6 @@ namespace TGC.Group.Bullet.Physics
         }
     }
 
-    public class ContactSensorCallback : ContactResultCallback
-    {
-        private RigidBody _monitoredBody;
-        private object _context; // External information for contact processing
-
-        // Constructor, pass whatever context you want to have available when processing contacts.
-        // You may also want to set CollisionFilterGroups and CollisionFilterMask
-        //  (supplied by the superclass) for NeedsCollision().
-        public ContactSensorCallback(RigidBody monitoredBody, object context /*, ... */)
-        {
-            _monitoredBody = monitoredBody;
-            _context = context;
-        }
-
-        // If you don't want to consider collisions where the bodies are joined by a constraint, override NeedsCollision:
-        // However, if you use a CollisionObject for #body instead of a RigidBody,
-        //  then this is unnecessary — CheckCollideWithOverride isn't available.
-        /* public override bool NeedsCollision(BroadphaseProxy proxy)
-        {
-            // superclass will check CollisionFilterGroup and CollisionFilterMask
-            if (base.NeedsCollision(proxy))
-            {
-                // if passed filters, may also want to avoid contacts between constraints
-                return body.CheckCollideWithOverride(proxy.ClientObject as CollisionObject);
-            }
-
-            return false;
-        } */
-
-        // Called with each contact for your own processing (e.g. test if contacts fall in within sensor parameters)
-        public override float AddSingleResult(ManifoldPoint contact,
-            CollisionObjectWrapper colObj0, int partId0, int index0,
-            CollisionObjectWrapper colObj1, int partId1, int index1)
-        {
-            Vector3 collisionPoint; // relative to body
-            if (colObj0.CollisionObject == _monitoredBody)
-            {
-                collisionPoint = contact.LocalPointA;
-            }
-            else
-            {
-                System.Diagnostics.Debug.Assert(colObj1.CollisionObject == _monitoredBody);
-                collisionPoint = contact.LocalPointB;
-            }
-
-            // do stuff with the collision point
-            return 0; // not actually sure if return value is used for anything...?
-        }
-    }
-
     public abstract class BulletRigidBodyConstructor
 
     {
@@ -382,7 +332,7 @@ namespace TGC.Group.Bullet.Physics
         protected SequentialImpulseConstraintSolver constraintSolver;
         protected BroadphaseInterface broadphase;
 
-        public Player1 Player1 {get;set;}
+        public Player1 player1 { get; set; }
         protected Escenario escenario;
         protected TgcSkyBox skyBox;
 

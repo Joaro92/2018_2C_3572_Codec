@@ -13,18 +13,82 @@ namespace TGC.Group.Model
     public class HUD
     {
         private Drawer2D drawer2D;
-        private readonly int screenHeight, screenWidth;
         private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
         private TGCVector2 specialScale, hpScale;
         private TgcText2D speed, km, actualWeapon, ammoQuantity, border;
         private readonly int scaling = GameModel.GetWindowsScaling(); // 96 es el 100%, 120 es el 125%
+        private readonly int screenHeight = D3DDevice.Instance.Device.Viewport.Height;
+        private readonly int screenWidth = D3DDevice.Instance.Device.Viewport.Width;
 
         public HUD(GameModel gameModel)
         {
-            // Tamaño de la pantalla
-            screenHeight = D3DDevice.Instance.Device.Viewport.Height;
-            screenWidth = D3DDevice.Instance.Device.Viewport.Width;
+            InitializeHUDSprites(gameModel);
 
+            InitializeHUDTexts(gameModel);
+        }
+
+        public void Update(GameModel gameModel, Player1 player1)
+        {
+            // Actualizamos la barra de especial
+            specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / 100f), specialScale.Y);
+            healthBar.Scaling = new TGCVector2(hpScale.X * (player1.hitPoints / 100f), hpScale.Y);
+
+            // Actualizar los stats
+            if (player1.specialPoints < 100)
+            {
+                player1.specialPoints += gameModel.ElapsedTime;
+            }
+            else
+            {
+                player1.specialPoints = 100;
+            }
+
+            // Actualizamos la munición y velocidad actual
+            speed.Text = player1.linealVelocity;
+            border.Text = ammoQuantity.Text;
+        }
+
+        public void Render()
+        {
+            drawer2D.BeginDrawSprite();
+            drawer2D.DrawSprite(statsBar);
+            drawer2D.DrawSprite(healthBar);
+            drawer2D.DrawSprite(specialBar);
+            drawer2D.DrawSprite(weaponsHud);
+            drawer2D.EndDrawSprite();
+
+            if (speed.Text.Contains("-"))
+            {
+                speed.Color = Color.IndianRed;
+            }
+            else
+            {
+                speed.Color = Color.Green;
+            }
+
+            speed.render();
+            km.render();
+
+            actualWeapon.render();
+            border.render();
+            ammoQuantity.render();
+        }
+
+        public void Dispose()
+        {
+            statsBar.Dispose();
+            healthBar.Dispose();
+            specialBar.Dispose();
+            weaponsHud.Dispose();
+            actualWeapon.Dispose();
+            ammoQuantity.Dispose();
+            border.Dispose();
+            speed.Dispose();
+            km.Dispose();
+        }
+
+        private void InitializeHUDSprites(GameModel gameModel)
+        {
             // Inicializamos la interface para dibujar sprites 2D
             drawer2D = new Drawer2D();
 
@@ -79,8 +143,10 @@ namespace TGC.Group.Model
 
             specialBar.Scaling = new TGCVector2(0.079f, 0.08f) * (scalingFactorY / scalingFactorX);
             specialScale = specialBar.Scaling;
+        }
 
-
+        private void InitializeHUDTexts(GameModel gameModel)
+        {
             // Fuente para mostrar la velocidad
             var speedFont = UtilMethods.createFont("Open 24 Display St", 32);
             var kmFont = UtilMethods.createFont("Open 24 Display St", 20);
@@ -104,7 +170,6 @@ namespace TGC.Group.Model
             km.changeFont(kmFont);
 
             // Fuentes para mostrar la munición y armas
-            
             var actualWeaponFont = UtilMethods.createFont("Insanibc", 24);
             var ammoQuantityFont = UtilMethods.createFont("Insanibc", 22);
 
@@ -134,71 +199,6 @@ namespace TGC.Group.Model
             if (scaling == 96) border.Position = new Point(-(int)(screenWidth * 0.3728f), (int)(screenHeight * 0.8125f));
             else border.Position = new Point(-(int)(screenWidth * 0.3453f), (int)(screenHeight * 0.8535f));
             border.changeFont(actualWeaponFont);
-        }
-
-        public void Update(GameModel gameModel, Player1 player1)
-        {
-            //if (gameModel.Input.keyPressed(Key.Z))
-            //{
-            //    ammoQuantity.Text = (int.Parse(ammoQuantity.Text) + 1).ToString();
-            //}
-
-            // Actualizamos la barra de especial
-            specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / 100f), specialScale.Y);
-            healthBar.Scaling = new TGCVector2(hpScale.X * (player1.hitPoints / 100f), hpScale.Y);
-
-            // Actualizar los stats
-            if (player1.specialPoints < 100)
-            {
-                player1.specialPoints += gameModel.ElapsedTime;
-            }
-            else
-            {
-                player1.specialPoints = 100;
-            }
-
-            speed.Text = player1.linealVelocity;
-
-            border.Text = ammoQuantity.Text;
-        }
-
-        public void Render()
-        {
-            drawer2D.BeginDrawSprite();
-            drawer2D.DrawSprite(statsBar);
-            drawer2D.DrawSprite(healthBar);
-            drawer2D.DrawSprite(specialBar);
-            drawer2D.DrawSprite(weaponsHud);
-            drawer2D.EndDrawSprite();
-
-            if (speed.Text.Contains("-"))
-            {
-                speed.Color = Color.IndianRed;
-            }
-            else
-            {
-                speed.Color = Color.Green;
-            }
-
-            speed.render();
-            km.render();
-
-            actualWeapon.render();
-            border.render();
-            ammoQuantity.render();
-        }
-
-        public void Dispose()
-        {
-            statsBar.Dispose();
-            healthBar.Dispose();
-            specialBar.Dispose();
-            weaponsHud.Dispose();
-            actualWeapon.Dispose();
-            ammoQuantity.Dispose();
-            border.Dispose();
-            speed.Dispose();
-            km.Dispose();
         }
     }
 

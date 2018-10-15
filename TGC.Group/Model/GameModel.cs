@@ -28,16 +28,18 @@ namespace TGC.Group.Model
             Description = "Idea seleccionada: Twisted Metal - Derby de demolición";
         }
 
+        public static int GetWindowsScaling()
+        {
+            return (int)Registry.GetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics", "AppliedDPI", 96);
+        }
+
+        // ----------------------------------------------
+
         public override void Init()
         {
             InitializeJoystick1();
  
             GameState = new MenuInicial(this);
-        }
-
-        public static int GetWindowsScaling()
-        {
-            return (int)Registry.GetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics", "AppliedDPI", 96);
         }
 
         public override void Update()
@@ -71,7 +73,6 @@ namespace TGC.Group.Model
             gameForm.ShutDown();
             gameForm.Close();
         }
-
 
 
         // ----------------------------------------------
@@ -200,5 +201,12 @@ namespace TGC.Group.Model
             return joystick.GetCurrentState().PointOfViewControllers[0] == 9000;
         }
 
+        public bool JoystickR2Down()
+        {
+            if (joystick == null) return false;
+            joystick.Poll();
+
+            return joystick.GetCurrentState().Z < 13000;
+        }
     }
 }
