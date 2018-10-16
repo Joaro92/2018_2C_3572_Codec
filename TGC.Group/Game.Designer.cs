@@ -154,5 +154,17 @@ namespace TGC.Group {
                 this["FXDirectory"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Items\\")]
+        public string ItemsDirectory {
+            get {
+                return ((string)(this["ItemsDirectory"]));
+            }
+            set {
+                this["ItemsDirectory"] = value;
+            }
+        }
     }
 }

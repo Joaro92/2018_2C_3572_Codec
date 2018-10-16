@@ -2,15 +2,15 @@
 using BulletSharp.Math;
 using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
+using TGC.Core.BoundingVolumes;
 using TGC.Core.Collision;
 using TGC.Core.Mathematica;
-using TGC.Group.Bullet.Physics;
 using TGC.Examples.Camara;
-using TGC.Group.Utils;
-using TGC.Group.Model.World.Weapons;
-using TGC.Group.Model.Vehicles;
+using TGC.Group.Bullet.Physics;
 using TGC.Group.Model.Items;
-using TGC.Core.BoundingVolumes;
+using TGC.Group.Model.Vehicles;
+using TGC.Group.Model.World.Weapons;
+using TGC.Group.Utils;
 
 namespace TGC.Group.Model.World
 {
@@ -44,7 +44,7 @@ namespace TGC.Group.Model.World
             skyBox = Skybox.InitSkybox();
 
             // Spawneamos algunos items
-            items.Add(new Corazon(new TGCVector3(144f, 4f, 24f)));
+            SpawnItems();
         }
 
         public override void Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
@@ -439,6 +439,12 @@ namespace TGC.Group.Model.World
 
             if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
             if (bulletFlag > 0.25f) bulletFlag = 0;
+        }
+
+        private void SpawnItems()
+        {
+            items.Add(new Corazon(new TGCVector3(144f, 4f, 24f)));
+            items.Add(new Energia(new TGCVector3(168f, 4f, 36f)));
         }
 
         private void ItemsHandler(GameModel gameModel)

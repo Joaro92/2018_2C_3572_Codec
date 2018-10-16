@@ -115,7 +115,6 @@
     <Compile Include="Model\Items\Corazon.cs" />
     <Compile Include="Model\Items\Energia.cs" />
     <Compile Include="Model\Items\Item.cs" />
-    <Compile Include="Model\Items\ItemCreator.cs" />
     <Compile Include="Model\JoystickHandler.cs" />
     <Compile Include="Model\SoundManager.cs" />
     <Compile Include="Model\Vehicles\Vehiculo.cs" />

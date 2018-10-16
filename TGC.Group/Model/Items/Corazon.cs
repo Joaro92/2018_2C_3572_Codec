@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TGC.Core.Mathematica;
+﻿using TGC.Core.Mathematica;
 using TGC.Group.Model.World;
 
 namespace TGC.Group.Model.Items
@@ -15,7 +10,6 @@ namespace TGC.Group.Model.Items
         public Corazon(TGCVector3 pos) : base(pos)
         {
             respawnTime = 10f;
-            this.spawn();
         }
 
         public override void Effect(Player1 player1)
@@ -26,7 +20,7 @@ namespace TGC.Group.Model.Items
 
         protected override void spawn()
         {
-            Mesh = ItemCreator.SpawnItem("Heart", Position);
+            Mesh = Item.LoadMesh("Heart", Position);
             base.spawn();
         }
     }

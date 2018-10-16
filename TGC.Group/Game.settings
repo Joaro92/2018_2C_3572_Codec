@@ -35,5 +35,8 @@
     <Setting Name="FXDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)">Sounds\FX\</Value>
     </Setting>
+    <Setting Name="ItemsDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Items\</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
