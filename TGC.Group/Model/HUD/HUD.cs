@@ -13,33 +13,29 @@ namespace TGC.Group.Model
 {
     public class HUD
     {
+        private Player1 player1;
         private Drawer2D drawer2D;
         private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
         private TGCVector2 specialScale, hpScale;
-        private TgcText2D speed, km, actualWeapon, ammoQuantity, border, reloj;
-
+        private TgcText2D speed, km, actualWeapon, ammoQuantity, border, reloj, turbo;
         private readonly int scaling = GameModel.GetWindowsScaling(); // 96 es el 100%, 120 es el 125%
         private readonly int screenHeight = D3DDevice.Instance.Device.Viewport.Height;
         private readonly int screenWidth = D3DDevice.Instance.Device.Viewport.Width;
 
-        public HUD(float time)
+        public HUD(Player1 p1, float time)
         {
+            player1 = p1;
+
             InitializeHUDSprites();
 
             InitializeHUDTexts(time);
         }
 
-        public void Update(Player1 player1, float elapsedTime, float matchTime)
+        public void Update(float matchTime)
         {
             // Actualizamos la barra de especial
             specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / player1.maxSpecialPoints), specialScale.Y);
             healthBar.Scaling = new TGCVector2(hpScale.X * (player1.hitPoints / player1.maxHitPoints), hpScale.Y);
-
-            // Actualizar los stats
-            if (player1.specialPoints < player1.maxSpecialPoints)
-            {
-                player1.specialPoints += elapsedTime;
-            }
 
             // Actualizamos la munición y velocidad actual
             speed.Text = player1.linealVelocity;
@@ -70,6 +66,8 @@ namespace TGC.Group.Model
             km.render();
 
             reloj.render();
+            if (player1.turbo)
+                turbo.render();
 
             actualWeapon.render();
             border.render();
@@ -87,6 +85,8 @@ namespace TGC.Group.Model
             border.Dispose();
             speed.Dispose();
             km.Dispose();
+            reloj.Dispose();
+            turbo.Dispose();
         }
 
         //--------------------------------------------------------------------------------------------------//
@@ -214,6 +214,17 @@ namespace TGC.Group.Model
             if (scaling == 96) border.Position = new Point(-(int)(screenWidth * 0.3728f), (int)(screenHeight * 0.8125f));
             else border.Position = new Point(-(int)(screenWidth * 0.3453f), (int)(screenHeight * 0.8535f));
             border.changeFont(actualWeaponFont);
+
+            //Fuente para TURBO
+            var turboFont = UtilMethods.createFont("Speed", 30);
+
+            turbo = new TgcText2D // El borde es para que tenga un color blanco de fondo para que se distinga más
+            {
+                Text = "TURBO MODE",
+                Color = Color.Blue
+            };
+            turbo.Position = new Point(0, (int)(screenHeight * 0.15f));
+            turbo.changeFont(turboFont);
         }
 
         private string formatTime(float time)
