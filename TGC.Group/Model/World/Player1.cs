@@ -35,8 +35,8 @@ namespace TGC.Group.Model.World
         public readonly float costTurbo = 10f; //por segundo
         public readonly float specialPointsGain = 1f; //por segundo
 
-        public readonly float turboMultiplier = 5f;
-        public readonly float engineForce = -1100f;
+        public readonly float turboMultiplier = 10f;
+        public readonly float engineForce = -300f;
         public readonly float steeringAngle = -0.27f;
         public readonly float mass = 480f;
         protected float wheelDistance = 0;
