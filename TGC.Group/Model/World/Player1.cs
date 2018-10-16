@@ -32,11 +32,11 @@ namespace TGC.Group.Model.World
         // Atributos constantes
         public readonly float maxHitPoints = 100f;
         public readonly float maxSpecialPoints = 100f;
-        public readonly float costTurbo = 10f; //por segundo
+        public readonly float costTurbo = 6f; //por segundo
         public readonly float specialPointsGain = 1f; //por segundo
 
         public readonly float turboMultiplier = 10f;
-        public readonly float engineForce = -300f;
+        public readonly float engineForce = -950f;
         public readonly float steeringAngle = -0.27f;
         public readonly float mass = 480f;
         protected float wheelDistance = 0;

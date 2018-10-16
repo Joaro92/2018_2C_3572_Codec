@@ -100,7 +100,13 @@ namespace TGC.Group.Model.GameStates
 
             // Actualizar la posición y rotación de la cámara para que apunte a nuestro Player 1
             camaraInterna.Target = new TGCVector3(world.player1.RigidBody.CenterOfMassPosition);
-            camaraInterna.RotationY = Quat.ToEulerAngles(world.player1.RigidBody.Orientation).Y + anguloCamara + halfsPI + (mirarHaciaAtras ? FastMath.PI : 0);
+            var rightStick = gameModel.JoystickHandler.JoystickRightStick();
+            float grades = 0;
+            if (FastMath.Abs(rightStick) > 1800)
+            {
+                grades = ((FastMath.Abs(rightStick) - 1800f) / 81000f) * (FastMath.Abs(rightStick) / rightStick);
+            }
+            camaraInterna.RotationY = Quat.ToEulerAngles(world.player1.RigidBody.Orientation).Y + anguloCamara + halfsPI + grades + (mirarHaciaAtras ? FastMath.PI : 0);
 
             // Actualizar el Vector UP si se dibuja
             if (drawUpVector)

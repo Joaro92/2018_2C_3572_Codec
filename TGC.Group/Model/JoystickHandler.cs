@@ -14,6 +14,8 @@ namespace TGC.Group.Model
 
         private bool[] joyFlag = { false, false, false, false, false, false, false, false, false, false };
         private bool[] dpadFlag = { false, false, false, false };
+        private int doubleTap = 0;
+        private float elapsedTime = 0;
 
         public JoystickHandler()
         {
@@ -77,7 +79,52 @@ namespace TGC.Group.Model
                 else return false;
             }
         }
+        public bool JoystickButtonPressedDouble(int buttonID, float ElapsedTime)
+        {
+            if (joystick == null) return false;
+            joystick.Poll();
 
+
+            if (doubleTap == 1)
+            {
+                elapsedTime += ElapsedTime;
+
+                if (joystick.GetCurrentState().Buttons[buttonID])
+                {
+                    doubleTap = 2;
+                    elapsedTime = 0;
+                    return true;
+                }
+                
+                if (elapsedTime > 0.15f)
+                {
+                    elapsedTime = 0;
+                    doubleTap = 0;
+                    return false;
+                }
+                return false;
+            }
+
+            if (doubleTap == 2 && joystick.GetCurrentState().Buttons[buttonID]) return true;
+            else doubleTap = 0;
+
+            if (joyFlag[buttonID] == false)
+            {
+                joyFlag[buttonID] = joystick.GetCurrentState().Buttons[buttonID];
+
+                return false;
+            }
+            else
+            {
+                if (joystick.GetCurrentState().Buttons[buttonID] == false)
+                {
+                    joyFlag[buttonID] = false;
+                    doubleTap = 1;
+                    return false;
+                }
+                else return false;
+            }
+        }
 
         public bool JoystickDpadPressed(JoystickDpad arrow)
         {
@@ -150,6 +197,14 @@ namespace TGC.Group.Model
             joystick.Poll();
 
             return joystick.GetCurrentState().Z < 13000;
+        }
+
+        public int JoystickRightStick()
+        {
+            if (joystick == null) return 0;
+            joystick.Poll();
+
+            return joystick.GetCurrentState().RotationX - 32768;
         }
 
         public void Dispose()

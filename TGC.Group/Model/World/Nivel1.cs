@@ -152,23 +152,11 @@ namespace TGC.Group.Model.World
             var jh = gameModel.JoystickHandler;
             float multiplier;
 
-            // Turbo
-            if (player1.specialPoints >= player1.costTurbo && (gameModel.Input.keyDown(Key.LeftShift) || jh.JoystickButtonDown(5)))
-            {
-                multiplier = player1.turboMultiplier;
-                player1.turbo = true;
-            }
-            else {
-                multiplier = 1f;
-                player1.turbo = false;
-            }
-
-
             // Adelante
             if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || jh.JoystickButtonDown(0))
             {
-                player1.Vehicle.ApplyEngineForce(player1.engineForce * multiplier, 2);
-                player1.Vehicle.ApplyEngineForce(player1.engineForce * multiplier, 3);
+                player1.Vehicle.ApplyEngineForce(player1.engineForce, 2);
+                player1.Vehicle.ApplyEngineForce(player1.engineForce, 3);
                 moving = true;
             }
 
@@ -212,13 +200,26 @@ namespace TGC.Group.Model.World
                 player1.Vehicle.ApplyEngineForce(0, 3);
             }
 
+            // Turbo
+            if (player1.specialPoints >= player1.costTurbo && (gameModel.Input.keyDown(Key.LeftShift) || jh.JoystickButtonPressedDouble(0, gameModel.ElapsedTime)))
+            {
+                multiplier = player1.turboMultiplier;
+                player1.turbo = true;
+                player1.RigidBody.ApplyCentralForce(player1.frontVector.ToBsVector * 1200);
+            }
+            else
+            {
+                multiplier = 1f;
+                player1.turbo = false;
+            }
+
             // Frenar
             if (gameModel.Input.keyDown(Key.LeftControl) || jh.JoystickButtonDown(2))
             {
-                player1.Vehicle.SetBrake(23, 0); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(23, 1);
-                player1.Vehicle.SetBrake(23 * 0.66f, 2); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(23 * 0.66f, 3);
+                player1.Vehicle.SetBrake(40, 0); //Puede ser una propiedad
+                player1.Vehicle.SetBrake(40, 1);
+                player1.Vehicle.SetBrake(40 * 0.66f, 2); //Puede ser una propiedad
+                player1.Vehicle.SetBrake(40 * 0.66f, 3);
                 braking = true;
             }
             
