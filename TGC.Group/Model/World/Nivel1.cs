@@ -151,7 +151,7 @@ namespace TGC.Group.Model.World
             float multiplier;
 
             // Turbo
-            if (gameModel.Input.keyDown(Key.LeftShift) || jh.JoystickButtonDown(5))
+            if (player1.specialPoints >= player1.costTurbo && (gameModel.Input.keyDown(Key.LeftShift) || jh.JoystickButtonDown(5)))
             {
                 multiplier = player1.turboMultiplier;
                 player1.turbo = true;
