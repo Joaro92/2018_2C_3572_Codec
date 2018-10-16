@@ -49,7 +49,7 @@ namespace TGC.Group {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Twisted Metal")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Idea seleccionada: Twisted Metal - Derby de demolición")]
         public string Description {
             get {
                 return ((string)(this["Description"]));
@@ -80,6 +80,78 @@ namespace TGC.Group {
             }
             set {
                 this["MediaDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Fonts\\")]
+        public string FontsDirectory {
+            get {
+                return ((string)(this["FontsDirectory"]));
+            }
+            set {
+                this["FontsDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Vehicles\\")]
+        public string VehiclesDirectory {
+            get {
+                return ((string)(this["VehiclesDirectory"]));
+            }
+            set {
+                this["VehiclesDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Scenarios\\")]
+        public string ScenariosDirectory {
+            get {
+                return ((string)(this["ScenariosDirectory"]));
+            }
+            set {
+                this["ScenariosDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Images\\")]
+        public string ImagesDirectory {
+            get {
+                return ((string)(this["ImagesDirectory"]));
+            }
+            set {
+                this["ImagesDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Sounds\\Music\\")]
+        public string MusicDirectory {
+            get {
+                return ((string)(this["MusicDirectory"]));
+            }
+            set {
+                this["MusicDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Sounds\\FX\\")]
+        public string FXDirectory {
+            get {
+                return ((string)(this["FXDirectory"]));
+            }
+            set {
+                this["FXDirectory"] = value;
             }
         }
     }

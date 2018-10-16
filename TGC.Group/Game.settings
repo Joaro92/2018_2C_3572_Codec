@@ -9,13 +9,31 @@
       <Value Profile="(Default)">Grupo 7: Codec</Value>
     </Setting>
     <Setting Name="Description" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Twisted Metal</Value>
+      <Value Profile="(Default)">Idea seleccionada: Twisted Metal - Derby de demolición</Value>
     </Setting>
     <Setting Name="ShadersDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)">..\..\Shaders\</Value>
     </Setting>
     <Setting Name="MediaDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)">..\..\Media\</Value>
+    </Setting>
+    <Setting Name="FontsDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Fonts\</Value>
+    </Setting>
+    <Setting Name="VehiclesDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Vehicles\</Value>
+    </Setting>
+    <Setting Name="ScenariosDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Scenarios\</Value>
+    </Setting>
+    <Setting Name="ImagesDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Images\</Value>
+    </Setting>
+    <Setting Name="MusicDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Sounds\Music\</Value>
+    </Setting>
+    <Setting Name="FXDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Sounds\FX\</Value>
     </Setting>
   </Settings>
 </SettingsFile>

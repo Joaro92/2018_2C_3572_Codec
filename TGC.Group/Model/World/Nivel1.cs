@@ -34,7 +34,8 @@ namespace TGC.Group.Model.World
         public NivelUno(Vehiculo vehiculoP1)
         {
             // Cargamos el escenario y lo agregamos al mundo
-            escenario = new Escenario(world, "Scenarios\\scene-level1a-TgcScene.xml");
+            var dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
+            escenario = new Escenario(world, dir + "scene-level1a-TgcScene.xml");
             
             // Creamos a nuestro jugador y lo agregamos al mundo
             player1 = new Player1(world, vehiculoP1, initialPos);

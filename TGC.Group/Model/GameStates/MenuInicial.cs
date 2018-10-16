@@ -16,12 +16,11 @@ namespace TGC.Group.Model.GameStates
         private readonly MenuOption[] options = new MenuOption[] { MenuOption.PLAY, MenuOption.CONTROLS, MenuOption.EXIT };
 
         private GameModel gameModel;
+
         private Drawer2D drawer2D;
         private CustomSprite background;
         private CustomSprite start;
-        private TgcStaticSound sound;
         private bool showStart = true;
-        private string currentFile = null;
         private float timerStart1 = 0f;
         private float timerStart2 = 0f;
         private bool timerStartFlag = false;
@@ -34,7 +33,7 @@ namespace TGC.Group.Model.GameStates
         private bool showMenu = false;
         private MenuOption selectedOption = MenuOption.PLAY;
 
-        private string mainMenuSong = "Twisted Metal Black - Main Menu Theme.mp3";
+        private readonly string mainMenuSong = "Twisted Metal Black - Main Menu Theme.mp3";
 
         private bool isNextState = false;
         private bool isExit = false;
@@ -47,10 +46,12 @@ namespace TGC.Group.Model.GameStates
             //Leo las dimensiones de la ventana
             var screenHeight = D3DDevice.Instance.Device.Viewport.Height;
             var screenWidth = D3DDevice.Instance.Device.Viewport.Width;
-           
+
+            var imgDir = Game.Default.MediaDirectory + Game.Default.ImagesDirectory;
+
             // Cargo la imagen de fondo
             background = new CustomSprite();
-            background.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\start-screen.png", D3DDevice.Instance.Device);
+            background.Bitmap = new CustomBitmap(imgDir + "start-screen.png", D3DDevice.Instance.Device);
             // La ubico ocupando toda la pantalla
             var scalingFactorX = (float)screenWidth / (float)background.Bitmap.Width;
             var scalingFactorY = (float)screenHeight / (float)background.Bitmap.Height;
@@ -58,7 +59,7 @@ namespace TGC.Group.Model.GameStates
 
             //Cargo el mensaje de start
             start = new CustomSprite();
-            start.Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\press-start.png", D3DDevice.Instance.Device);
+            start.Bitmap = new CustomBitmap(imgDir + "press-start.png", D3DDevice.Instance.Device);
             //La ubico en la pantalla
             start.Scaling = TGCVector2.One * (scalingFactorY / scalingFactorX);
             start.Position = new TGCVector2(screenWidth * 0.083f , screenHeight * 0.67f);
@@ -94,13 +95,15 @@ namespace TGC.Group.Model.GameStates
 
             this.gameModel.Camara = new TgcThirdPersonCamera();
 
-            this.gameModel.LoadMp3(mainMenuSong);
-            this.gameModel.Mp3Player.play(true);
+            var sm = gameModel.SoundManager;
+            sm.LoadMp3(mainMenuSong);
+            sm.Mp3Player.play(true);
         }
 
         public void Update()
         {
             var jh = gameModel.JoystickHandler;
+            var sm = gameModel.SoundManager;
 
             if (!showMenu)
             {
@@ -126,8 +129,7 @@ namespace TGC.Group.Model.GameStates
                 if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
                 {
                     frecStart *= 2;
-                    loadSound("Sounds\\menuEnter.wav");
-                    sound.play();
+                    sm.PlaySound("menuEnter.wav");
                     timerStartFlag = true;
                 }
             }
@@ -136,21 +138,18 @@ namespace TGC.Group.Model.GameStates
                 if (gameModel.Input.keyPressed(Key.DownArrow) || jh.JoystickDpadPressed(JoystickDpad.DOWN))
                 {
                     selectedOption = options.getNextOption(selectedOption);
-                    loadSound("Sounds\\menuRight.wav");
-                    sound.play();
+                    sm.PlaySound("menuRight.wav");
                 }
 
                 if (gameModel.Input.keyPressed(Key.UpArrow) || jh.JoystickDpadPressed(JoystickDpad.UP))
                 {
                     selectedOption = options.getNextOption(selectedOption, -1);
-                    loadSound("Sounds\\menuLeft.wav");
-                    sound.play();
+                    sm.PlaySound("menuLeft.wav");
                 }
 
                 if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(0) || jh.JoystickButtonPressed(7))
                 {
-                    loadSound("Sounds\\menuEnter.wav");
-                    sound.play();
+                    sm.PlaySound("menuEnter.wav");
                     switch (selectedOption)
                     {
                         case MenuOption.PLAY:
@@ -231,24 +230,6 @@ namespace TGC.Group.Model.GameStates
             exit.Dispose();
         }
 
-        private void loadSound(string filePath)
-        {
-            if (currentFile == null || currentFile != filePath)
-            {
-                currentFile = gameModel.MediaDir + filePath;
-
-                //Borrar sonido anterior
-                if (sound != null)
-                {
-                    sound.dispose();
-                    sound = null;
-                }
-
-                //Cargar sonido
-                sound = new TgcStaticSound();
-                
-                sound.loadSound(currentFile, gameModel.DirectSound.DsDevice);
-            }
-        }
+        
     }
 }

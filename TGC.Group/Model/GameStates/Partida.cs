@@ -34,18 +34,18 @@ namespace TGC.Group.Model.GameStates
         private bool paused = false;
         private TgcText2D pauseMsg;
 
-        private readonly int tiempoInicial = 15; //en minutos
-        public float Tiempo { get; private set; } //en segundos
+        private readonly int matchInitialTime = 15; //en minutos
+        private float matchTime; //en segundos
 
-        private string levelSong = "Twisted Metal Small Brawl - Now Slaying.mp3";
+        private readonly string levelSong = "Twisted Metal Small Brawl - Now Slaying.mp3";
 
         public Partida(GameModel gameModel, Vehiculo vehiculoP1)
         {
             this.gameModel = gameModel;
 
-            Tiempo = tiempoInicial * 60;
+            matchTime = matchInitialTime * 60;
 
-            hud = new HUD(gameModel, Tiempo);
+            hud = new HUD(matchTime);
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
             world = new NivelUno(vehiculoP1);
@@ -63,8 +63,9 @@ namespace TGC.Group.Model.GameStates
                 HeadSize = new TGCVector2(0.5f, 1f)
             };
 
-            this.gameModel.LoadMp3(levelSong);
-            this.gameModel.Mp3Player.play(true);
+            var sm = gameModel.SoundManager;
+            sm.LoadMp3(levelSong);
+            sm.Mp3Player.play(true);
 
             // Font para mensaje de pausa
             var pauseFont = UtilMethods.createFont("Minecraft", 100);
@@ -109,10 +110,10 @@ namespace TGC.Group.Model.GameStates
             world.Update(gameModel, camaraInterna, modoCamara);
 
             // Actualizar el tiempo
-            Tiempo -= gameModel.ElapsedTime;
+            matchTime -= gameModel.ElapsedTime;
 
             // Actualizar el HUD
-            hud.Update(gameModel, world.player1, Tiempo);
+            hud.Update(world.player1, gameModel.ElapsedTime, matchTime);
         }
 
         public void Render()
@@ -124,7 +125,7 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Acción cuando nuestro Player 1 pierde todos sus puntos de vida
-            if (world.player1.hitPoints <= 0 || Tiempo <= 0)
+            if (world.player1.hitPoints <= 0 || matchTime <= 0)
             {
                 gameModel.Exit();
                 return;
@@ -176,6 +177,7 @@ namespace TGC.Group.Model.GameStates
         private void ManageInputs(GameModel gameModel)
         {
             var jh = gameModel.JoystickHandler;
+            var sm = gameModel.SoundManager;
 
             // Si pausado me fijo si quitaron la pausa
             if (paused)
@@ -183,7 +185,7 @@ namespace TGC.Group.Model.GameStates
                 if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
                 {
                     paused = false;
-                    gameModel.Mp3Player.resume();
+                    sm.Mp3Player.resume();
                 }
                 return;
             }
@@ -233,7 +235,7 @@ namespace TGC.Group.Model.GameStates
             if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
             {
                 paused = true;
-                gameModel.Mp3Player.pause();
+                sm.Mp3Player.pause();
             }
         }
     }

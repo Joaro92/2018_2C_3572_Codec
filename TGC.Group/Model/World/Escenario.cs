@@ -17,7 +17,7 @@ namespace TGC.Group.Model.World
         public Escenario(DiscreteDynamicsWorld world, String xmlPath)
         {
             var loader = new TgcSceneLoader();
-            this.tgcScene = loader.loadSceneFromFile(Game.Default.MediaDirectory + xmlPath);
+            this.tgcScene = loader.loadSceneFromFile(xmlPath);
 
             this.rigidBodys = new List<RigidBody>();
             RigidBody newRigid;

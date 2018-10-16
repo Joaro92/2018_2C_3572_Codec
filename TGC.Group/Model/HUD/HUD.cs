@@ -22,14 +22,14 @@ namespace TGC.Group.Model
         private readonly int screenHeight = D3DDevice.Instance.Device.Viewport.Height;
         private readonly int screenWidth = D3DDevice.Instance.Device.Viewport.Width;
 
-        public HUD(GameModel gameModel, float time)
+        public HUD(float time)
         {
-            InitializeHUDSprites(gameModel);
+            InitializeHUDSprites();
 
             InitializeHUDTexts(time);
         }
 
-        public void Update(GameModel gameModel, Player1 player1, float time)
+        public void Update(Player1 player1, float elapsedTime, float matchTime)
         {
             // Actualizamos la barra de especial
             specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / player1.maxSpecialPoints), specialScale.Y);
@@ -38,14 +38,14 @@ namespace TGC.Group.Model
             // Actualizar los stats
             if (player1.specialPoints < player1.maxSpecialPoints)
             {
-                player1.specialPoints += gameModel.ElapsedTime;
+                player1.specialPoints += elapsedTime;
             }
 
             // Actualizamos la munición y velocidad actual
             speed.Text = player1.linealVelocity;
             border.Text = ammoQuantity.Text;
 
-            reloj.Text = formatTime(time);
+            reloj.Text = formatTime(matchTime);
         }
 
         public void Render()
@@ -91,15 +91,17 @@ namespace TGC.Group.Model
 
         //--------------------------------------------------------------------------------------------------//
 
-        private void InitializeHUDSprites(GameModel gameModel)
+        private void InitializeHUDSprites()
         {
+            var imgDir = Game.Default.MediaDirectory + Game.Default.ImagesDirectory;
+
             // Inicializamos la interface para dibujar sprites 2D
             drawer2D = new Drawer2D();
 
             // Sprite del HUD de la velocidad y stats del jugador
             statsBar = new CustomSprite
             {
-                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\stats.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(imgDir + "stats.png", D3DDevice.Instance.Device),
                 Position = new TGCVector2(screenWidth * 0.81f, screenHeight * 0.695f)
             };
 
@@ -111,7 +113,7 @@ namespace TGC.Group.Model
             // Sprite del HUD de las armas
             weaponsHud = new CustomSprite
             {
-                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\weapons hud 2.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(imgDir + "weapons hud 2.png", D3DDevice.Instance.Device),
                 Position = new TGCVector2(-15, screenHeight * 0.64f)
             };
 
@@ -123,7 +125,7 @@ namespace TGC.Group.Model
             // Sprite que representa la vida
             healthBar = new CustomSprite
             {
-                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\healthBar.png", D3DDevice.Instance.Device)
+                Bitmap = new CustomBitmap(imgDir + "healthBar.png", D3DDevice.Instance.Device)
             };
             if (scaling == 96) healthBar.Position = new TGCVector2(screenWidth * 0.8515f, screenHeight * 0.7215f);
             else healthBar.Position = new TGCVector2(screenWidth * 0.8605f, screenHeight * 0.728f);
@@ -137,7 +139,7 @@ namespace TGC.Group.Model
             // Sprite de la barra de especiales
             specialBar = new CustomSprite
             {
-                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\specialBar.png", D3DDevice.Instance.Device)
+                Bitmap = new CustomBitmap(imgDir + "specialBar.png", D3DDevice.Instance.Device)
             };
             if (scaling == 96) specialBar.Position = new TGCVector2(screenWidth * 0.8515f, screenHeight * 0.8025f);
             else specialBar.Position = new TGCVector2(screenWidth * 0.861f, screenHeight * 0.83f);

@@ -89,7 +89,7 @@ namespace TGC.Group.Utils
         public static Font createFont(string fontName, int size)
         {
             var pfc = new PrivateFontCollection();
-            pfc.AddFontFile(Game.Default.MediaDirectory + "Fonts\\" + fontName + ".ttf");
+            pfc.AddFontFile(Game.Default.MediaDirectory + Game.Default.FontsDirectory + fontName + ".ttf");
             FontFamily family = pfc.Families[0];
             return new Font(family, size);
         }

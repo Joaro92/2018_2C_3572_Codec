@@ -21,13 +21,11 @@ namespace TGC.Group.Model.GameStates
         private List<Vehiculo> vehiculos = new List<Vehiculo>();
         private Vehiculo selected;
         private TgcScene background;
-        private TgcStaticSound sound;
         private Drawer2D drawer2D;
         private CustomSprite flechaIzq;
         private CustomSprite flechaDer;
         private CustomSprite flechaArriba;
         private TgcText2D select;
-        private string currentFile = null;
 
         private bool confirmed = false;
 
@@ -50,15 +48,17 @@ namespace TGC.Group.Model.GameStates
 
             //cargo el fondo en 3D del selector
             var loader = new TgcSceneLoader();
-            this.background = loader.loadSceneFromFile(gameModel.MediaDir + "Scenarios\\selector-vehiculo-TgcScene.xml");
+            var scenesDir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
+            this.background = loader.loadSceneFromFile(scenesDir + "selector-vehiculo-TgcScene.xml");
 
             this.gameModel.Camara = new TgcThirdPersonCamera(selected.SampleMesh.Position, 100f, 170f);
 
             //Cargo los sprites
+            var imgDir = Game.Default.MediaDirectory + Game.Default.ImagesDirectory;
             //flecha izquierda
             flechaIzq = new CustomSprite
             {
-                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\left-arrow.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(imgDir + "left-arrow.png", D3DDevice.Instance.Device),
                 Scaling = TGCVector2.One * 0.25f,
                 Position = new TGCVector2(screenWidth * 0.25f, screenHeight * 0.4f)
             };
@@ -66,7 +66,7 @@ namespace TGC.Group.Model.GameStates
             //flecha derecha
             flechaDer = new CustomSprite
             {
-                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\right-arrow.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(imgDir + "right-arrow.png", D3DDevice.Instance.Device),
                 Scaling = TGCVector2.One * 0.25f,
                 Position = new TGCVector2(screenWidth * 0.7f, screenHeight * 0.4f)
             };
@@ -74,7 +74,7 @@ namespace TGC.Group.Model.GameStates
             //flecha arriba
             flechaArriba = new CustomSprite
             {
-                Bitmap = new CustomBitmap(gameModel.MediaDir + "Images\\up-arrow.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(imgDir + "up-arrow.png", D3DDevice.Instance.Device),
                 Scaling = TGCVector2.One * 0.25f,
                 Position = new TGCVector2(screenWidth * 0.475f, screenHeight * 0.05f)
             };
@@ -92,19 +92,18 @@ namespace TGC.Group.Model.GameStates
         public void Update()
         {
             var jh = gameModel.JoystickHandler;
+            var sm = gameModel.SoundManager;
 
             if (gameModel.Input.keyPressed(Key.LeftArrow) || jh.JoystickDpadPressed(JoystickDpad.LEFT))
             {
                 selected = vehiculos.ToArray().getNextOption(selected,-1);
-                loadSound("Sounds\\menuLeft.wav");
-                sound.play();
+                sm.PlaySound("menuLeft.wav");
             }
 
             if (gameModel.Input.keyPressed(Key.RightArrow) || jh.JoystickDpadPressed(JoystickDpad.RIGHT))
             {
                 selected = vehiculos.ToArray().getNextOption(selected);
-                loadSound("Sounds\\menuRight.wav");
-                sound.play();
+                sm.PlaySound("menuRight.wav");
             }
 
             if (gameModel.Input.keyPressed(Key.UpArrow) || jh.JoystickDpadPressed(JoystickDpad.UP))
@@ -115,9 +114,8 @@ namespace TGC.Group.Model.GameStates
 
             if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(0) || jh.JoystickButtonPressed(7))
             {
-                gameModel.Mp3Player.stop();
-                loadSound("Sounds\\menuEngine.wav");
-                sound.play();
+                sm.Mp3Player.stop();
+                sm.PlaySound("menuEngine.wav");
                 Thread.Sleep(1000);
                 confirmed = true;
             }
@@ -158,25 +156,5 @@ namespace TGC.Group.Model.GameStates
             flechaDer.Dispose();
             select.Dispose();
         }
-        private void loadSound(string filePath)
-        {
-            if (currentFile == null || currentFile != filePath)
-            {
-                currentFile = gameModel.MediaDir + filePath;
-
-                //Borrar sonido anterior
-                if (sound != null)
-                {
-                    sound.dispose();
-                    sound = null;
-                }
-
-                //Cargar sonido
-                sound = new TgcStaticSound();
-
-                sound.loadSound(currentFile, gameModel.DirectSound.DsDevice);
-            }
-        }
-
     }
 }

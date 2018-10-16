@@ -52,8 +52,8 @@ namespace TGC.Group.Model.World
             this.vehiculo = vehiculo;
 
             var loader = new TgcSceneLoader();
-            this.mesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + vehiculo.ChassisXmlPath).Meshes[0];
-            this.wheel = loader.loadSceneFromFile(Game.Default.MediaDirectory + vehiculo.WheelsXmlPath).Meshes[0];
+            this.mesh = loader.loadSceneFromFile(vehiculo.ChassisXmlPath).Meshes[0];
+            this.wheel = loader.loadSceneFromFile(vehiculo.WheelsXmlPath).Meshes[0];
 
             Vehiculo.ChangeTextureColor(this.mesh, vehiculo.Color);
 

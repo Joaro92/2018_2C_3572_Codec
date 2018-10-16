@@ -25,10 +25,11 @@ namespace TGC.Group.Model.Vehicles
             this.Color = color;
             var lowercaseName = Name.ToLower();
 
+            var dir = Game.Default.MediaDirectory + Game.Default.VehiclesDirectory;
             var loader = new TgcSceneLoader();
-            this.SampleMesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + "Vehicles\\car-" + lowercaseName + "-TgcScene.xml" ).Meshes[0];
-            this.ChassisXmlPath = "Vehicles\\chassis-" + lowercaseName + "-TgcScene.xml";
-            this.WheelsXmlPath = "Vehicles\\tires-common-TgcScene.xml";
+            this.SampleMesh = loader.loadSceneFromFile(dir + "car-" + lowercaseName + "-TgcScene.xml" ).Meshes[0];
+            this.ChassisXmlPath = dir + "chassis-" + lowercaseName + "-TgcScene.xml";
+            this.WheelsXmlPath = dir + "tires-common-TgcScene.xml";
 
             if (this.Color != "Blue")
             {
