@@ -1,13 +1,10 @@
 using Microsoft.Win32;
-using SharpDX.DirectInput;
-using System;
 using System.Windows.Forms;
 using TGC.Core.Example;
 using TGC.Core.Sound;
 using TGC.Group.Form;
 using TGC.Group.Model.GameStates;
 using TGC.Group.Model.Interfaces;
-using TGC.Group.Utils;
 
 namespace TGC.Group.Model
 {

@@ -1,14 +1,13 @@
-﻿using System.Linq;
-using TGC.Core.Direct3D;
+﻿using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
 using TGC.Examples.Camara;
 using Microsoft.DirectX.DirectInput;
 using TGC.Core.Text;
 using System.Drawing;
-using System.Drawing.Text;
 using TGC.Group.Utils;
 using TGC.Group.Model.TGCUtils;
 using TGC.Group.Model.Interfaces;
+using TGC.Core.Sound;
 
 namespace TGC.Group.Model.GameStates
 {
@@ -19,9 +18,10 @@ namespace TGC.Group.Model.GameStates
         private GameModel gameModel;
         private Drawer2D drawer2D;
         private CustomSprite background;
-
         private CustomSprite start;
+        private TgcStaticSound sound;
         private bool showStart = true;
+        private string currentFile = null;
         private float timerStart1 = 0f;
         private float timerStart2 = 0f;
         private bool timerStartFlag = false;
@@ -126,6 +126,8 @@ namespace TGC.Group.Model.GameStates
                 if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
                 {
                     frecStart *= 2;
+                    loadSound("Sounds\\menuEnter.wav");
+                    sound.play();
                     timerStartFlag = true;
                 }
             }
@@ -134,15 +136,21 @@ namespace TGC.Group.Model.GameStates
                 if (gameModel.Input.keyPressed(Key.DownArrow) || jh.JoystickDpadPressed(JoystickDpad.DOWN))
                 {
                     selectedOption = options.getNextOption(selectedOption);
+                    loadSound("Sounds\\menuRight.wav");
+                    sound.play();
                 }
 
                 if (gameModel.Input.keyPressed(Key.UpArrow) || jh.JoystickDpadPressed(JoystickDpad.UP))
                 {
                     selectedOption = options.getNextOption(selectedOption, -1);
+                    loadSound("Sounds\\menuLeft.wav");
+                    sound.play();
                 }
 
                 if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(0) || jh.JoystickButtonPressed(7))
                 {
+                    loadSound("Sounds\\menuEnter.wav");
+                    sound.play();
                     switch (selectedOption)
                     {
                         case MenuOption.PLAY:
@@ -221,6 +229,26 @@ namespace TGC.Group.Model.GameStates
             play.Dispose();
             controls.Dispose();
             exit.Dispose();
+        }
+
+        private void loadSound(string filePath)
+        {
+            if (currentFile == null || currentFile != filePath)
+            {
+                currentFile = gameModel.MediaDir + filePath;
+
+                //Borrar sonido anterior
+                if (sound != null)
+                {
+                    sound.dispose();
+                    sound = null;
+                }
+
+                //Cargar sonido
+                sound = new TgcStaticSound();
+                
+                sound.loadSound(currentFile, gameModel.DirectSound.DsDevice);
+            }
         }
     }
 }

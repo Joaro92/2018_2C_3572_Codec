@@ -1,9 +1,11 @@
 ﻿using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
+using TGC.Core.Sound;
 using TGC.Core.Text;
 using TGC.Examples.Camara;
 using TGC.Group.Model.Interfaces;
@@ -19,15 +21,15 @@ namespace TGC.Group.Model.GameStates
         private List<Vehiculo> vehiculos = new List<Vehiculo>();
         private Vehiculo selected;
         private TgcScene background;
-
+        private TgcStaticSound sound;
         private Drawer2D drawer2D;
         private CustomSprite flechaIzq;
         private CustomSprite flechaDer;
         private CustomSprite flechaArriba;
         private TgcText2D select;
+        private string currentFile = null;
 
         private bool confirmed = false;
-
 
         public SelectorVehiculo(GameModel gameModel)
         {
@@ -93,12 +95,16 @@ namespace TGC.Group.Model.GameStates
 
             if (gameModel.Input.keyPressed(Key.LeftArrow) || jh.JoystickDpadPressed(JoystickDpad.LEFT))
             {
-                selected = vehiculos.ToArray().getNextOption(selected,-1);    
+                selected = vehiculos.ToArray().getNextOption(selected,-1);
+                loadSound("Sounds\\menuLeft.wav");
+                sound.play();
             }
 
             if (gameModel.Input.keyPressed(Key.RightArrow) || jh.JoystickDpadPressed(JoystickDpad.RIGHT))
             {
                 selected = vehiculos.ToArray().getNextOption(selected);
+                loadSound("Sounds\\menuRight.wav");
+                sound.play();
             }
 
             if (gameModel.Input.keyPressed(Key.UpArrow) || jh.JoystickDpadPressed(JoystickDpad.UP))
@@ -110,6 +116,9 @@ namespace TGC.Group.Model.GameStates
             if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(0) || jh.JoystickButtonPressed(7))
             {
                 gameModel.Mp3Player.stop();
+                loadSound("Sounds\\menuEngine.wav");
+                sound.play();
+                Thread.Sleep(1000);
                 confirmed = true;
             }
 
@@ -149,5 +158,25 @@ namespace TGC.Group.Model.GameStates
             flechaDer.Dispose();
             select.Dispose();
         }
+        private void loadSound(string filePath)
+        {
+            if (currentFile == null || currentFile != filePath)
+            {
+                currentFile = gameModel.MediaDir + filePath;
+
+                //Borrar sonido anterior
+                if (sound != null)
+                {
+                    sound.dispose();
+                    sound = null;
+                }
+
+                //Cargar sonido
+                sound = new TgcStaticSound();
+
+                sound.loadSound(currentFile, gameModel.DirectSound.DsDevice);
+            }
+        }
+
     }
 }
