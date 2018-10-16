@@ -50,6 +50,9 @@ namespace TGC.Group.Model.GameStates
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
             world = new NivelUno(vehiculoP1);
 
+            //Configuramos el player para que sea el Listener
+            gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
+
             // Configuramos la Cámara en tercera persona para que siga a nuestro Player 1
             camaraInterna = new TgcThirdPersonCamera(new TGCVector3(world.player1.RigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), modoCamara.AlturaCamara(), modoCamara.ProfundidadCamara());
             this.gameModel.Camara = camaraInterna;

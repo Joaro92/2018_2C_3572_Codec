@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TGC.Core.BoundingVolumes;
 using TGC.Core.Collision;
 using TGC.Core.Mathematica;
+using TGC.Core.Sound;
 using TGC.Examples.Camara;
 using TGC.Group.Bullet.Physics;
 using TGC.Group.Model.Items;
@@ -23,6 +24,7 @@ namespace TGC.Group.Model.World
         private bool jump = false;
         private bool jumped = false;
         private bool flag = false;
+        private bool afterJump = true;
         private bool inflictDmg = true;
         private float bulletFlag = 0;
         private float neg = 1f;
@@ -234,10 +236,14 @@ namespace TGC.Group.Model.World
                     var b = new MachinegunBullet(world);
 
                     b.GhostObject.WorldTransform = Matrix.Translation(neg * player1.Mesh.BoundingBox.calculateAxisRadius().X * 0.8f, +0.22f, -player1.Mesh.BoundingBox.calculateAxisRadius().Z - player1.velocityVector.Length() * 0.01f - 0.47f) * player1.RigidBody.InterpolationWorldTransform;
-                    b.GhostObject.ApplyCentralImpulse(player1.frontVector.ToBsVector * 13);
+                    b.GhostObject.ApplyCentralImpulse(player1.frontVector.ToBsVector * 20);
                     mBullets.Add(b);
                     bulletFlag += gameModel.ElapsedTime;
                     neg *= -1f;
+
+                    var sound = new Tgc3dSound(gameModel.MediaDir + "Sounds\\FX\\machinegun.wav", player1.Mesh.Transform.Origin, gameModel.DirectSound.DsDevice);
+                    sound.MinDistance = 150f;
+                    sound.play(false);
                 }
             }
 
@@ -254,7 +260,7 @@ namespace TGC.Group.Model.World
                 {
                     player1.RigidBody.ApplyCentralImpulse(new Vector3(0, 900 * 4.3f, 0)); //Puede ser una propiedad
                     player1.specialPoints -= 12;
-                    jumped = true;
+                    afterJump = jumped = true;
                 }
             }
             if (jumped && player1.RigidBody.LinearVelocity.Y < -0.1f)
@@ -265,6 +271,14 @@ namespace TGC.Group.Model.World
             if (player1.RigidBody.LinearVelocity.Y > -0.05f)
             {
                 flag = false;
+
+                if (afterJump && !jumped)
+                {
+                    var sound = new Tgc3dSound(gameModel.MediaDir + "Sounds\\FX\\afterJump.wav", player1.Mesh.Transform.Origin, gameModel.DirectSound.DsDevice);
+                    sound.MinDistance = 150f;
+                    sound.play(false);
+                    afterJump = false;
+                }
             }
         }
 
@@ -312,6 +326,7 @@ namespace TGC.Group.Model.World
             player1.RigidBody.LinearVelocity = Vector3.Zero;
             player1.RigidBody.AngularVelocity = Vector3.Zero;
             player1.flippedTime = 0;
+            afterJump = true;
         }
 
         private void AdjustCameraPosition(TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
