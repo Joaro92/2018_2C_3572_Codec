@@ -26,13 +26,17 @@ namespace TGC.Group.Model.World
         public bool collision = false;
         public float hitPoints;
         public float specialPoints;
+        public bool turbo = false;
         private TGCMatrix wheelTransform;
 
         // Atributos constantes
         public readonly float maxHitPoints = 100f;
         public readonly float maxSpecialPoints = 100f;
+        public readonly float costTurbo = 10f; //por segundo
+        public readonly float specialPointsGain = 1f; //por segundo
 
-        public readonly float engineForce = -1100;
+        public readonly float turboMultiplier = 5f;
+        public readonly float engineForce = -1100f;
         public readonly float steeringAngle = -0.27f;
         public readonly float mass = 480f;
         protected float wheelDistance = 0;

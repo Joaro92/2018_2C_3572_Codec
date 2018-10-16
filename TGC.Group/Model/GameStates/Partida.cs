@@ -45,11 +45,13 @@ namespace TGC.Group.Model.GameStates
 
             matchTime = matchInitialTime * 60;
 
-            hud = new HUD(matchTime);
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
             world = new NivelUno(vehiculoP1);
 
+            // Inicializo el HUD
+            hud = new HUD(world.player1,matchTime);
+            
             // Configuramos la Cámara en tercera persona para que siga a nuestro Player 1
             camaraInterna = new TgcThirdPersonCamera(new TGCVector3(world.player1.RigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), modoCamara.AlturaCamara(), modoCamara.ProfundidadCamara());
             this.gameModel.Camara = camaraInterna;
@@ -109,11 +111,22 @@ namespace TGC.Group.Model.GameStates
             // Actualizar el mundo físico
             world.Update(gameModel, camaraInterna, modoCamara);
 
+            // Actualizar los stats
+            var p1 = world.player1;
+            if (p1.turbo)
+            {
+                p1.specialPoints = FastMath.Max(0f, p1.specialPoints - p1.costTurbo * gameModel.ElapsedTime);
+            }
+            if (p1.specialPoints < p1.maxSpecialPoints)
+            {
+               p1.specialPoints = FastMath.Min(p1.maxSpecialPoints, p1.specialPoints + p1.specialPointsGain * gameModel.ElapsedTime);
+            }
+
             // Actualizar el tiempo
             matchTime -= gameModel.ElapsedTime;
 
             // Actualizar el HUD
-            hud.Update(world.player1, gameModel.ElapsedTime, matchTime);
+            hud.Update(matchTime);
         }
 
         public void Render()
