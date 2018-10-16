@@ -45,9 +45,14 @@ namespace TGC.Group.Model.GameStates
 
             matchTime = matchInitialTime * 60;
 
-
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
             world = new NivelUno(vehiculoP1);
+
+            //Configuramos el player para que sea el Listener
+            gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
+
+            // Inicializo el HUD
+            hud = new HUD(world.player1, matchTime);
 
             // Configuramos la Cámara en tercera persona para que siga a nuestro Player 1
             camaraInterna = new TgcThirdPersonCamera(new TGCVector3(world.player1.RigidBody.CenterOfMassPosition), new TGCVector3(0, 2, 0), modoCamara.AlturaCamara(), modoCamara.ProfundidadCamara());
@@ -250,9 +255,5 @@ namespace TGC.Group.Model.GameStates
         }
     }
 }
-            //Configuramos el player para que sea el Listener
-            gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
 
-            // Inicializo el HUD
-            hud = new HUD(world.player1,matchTime);
             
