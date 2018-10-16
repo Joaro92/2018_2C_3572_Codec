@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
 using TGC.Core.Direct3D;
@@ -15,19 +16,20 @@ namespace TGC.Group.Model
         private Drawer2D drawer2D;
         private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
         private TGCVector2 specialScale, hpScale;
-        private TgcText2D speed, km, actualWeapon, ammoQuantity, border;
+        private TgcText2D speed, km, actualWeapon, ammoQuantity, border, reloj;
+
         private readonly int scaling = GameModel.GetWindowsScaling(); // 96 es el 100%, 120 es el 125%
         private readonly int screenHeight = D3DDevice.Instance.Device.Viewport.Height;
         private readonly int screenWidth = D3DDevice.Instance.Device.Viewport.Width;
 
-        public HUD(GameModel gameModel)
+        public HUD(GameModel gameModel, float time)
         {
             InitializeHUDSprites(gameModel);
 
-            InitializeHUDTexts(gameModel);
+            InitializeHUDTexts(time);
         }
 
-        public void Update(GameModel gameModel, Player1 player1)
+        public void Update(GameModel gameModel, Player1 player1, float time)
         {
             // Actualizamos la barra de especial
             specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / player1.maxSpecialPoints), specialScale.Y);
@@ -42,6 +44,8 @@ namespace TGC.Group.Model
             // Actualizamos la munición y velocidad actual
             speed.Text = player1.linealVelocity;
             border.Text = ammoQuantity.Text;
+
+            reloj.Text = formatTime(time);
         }
 
         public void Render()
@@ -65,6 +69,8 @@ namespace TGC.Group.Model
             speed.render();
             km.render();
 
+            reloj.render();
+
             actualWeapon.render();
             border.render();
             ammoQuantity.render();
@@ -82,6 +88,8 @@ namespace TGC.Group.Model
             speed.Dispose();
             km.Dispose();
         }
+
+        //--------------------------------------------------------------------------------------------------//
 
         private void InitializeHUDSprites(GameModel gameModel)
         {
@@ -141,11 +149,12 @@ namespace TGC.Group.Model
             specialScale = specialBar.Scaling;
         }
 
-        private void InitializeHUDTexts(GameModel gameModel)
+        private void InitializeHUDTexts(float time)
         {
-            // Fuente para mostrar la velocidad
+            // Fuente para mostrar la velocidad y el reloj
             var speedFont = UtilMethods.createFont("Open 24 Display St", 32);
             var kmFont = UtilMethods.createFont("Open 24 Display St", 20);
+            var relojFont = UtilMethods.createFont("Open 24 Display St", 40);
 
             speed = new TgcText2D
             {
@@ -164,6 +173,14 @@ namespace TGC.Group.Model
             if (scaling == 96) km.Position = new Point((int)(screenWidth * 0.41f), (int)(screenHeight * 0.88f));
             else km.Position = new Point((int)(screenWidth * 0.431f), (int)(screenHeight * 0.927f));
             km.changeFont(kmFont);
+
+            reloj = new TgcText2D
+            {
+                Text = formatTime(time),
+                Color = Color.Black
+            };
+            reloj.Position = new Point(0, 0);
+            reloj.changeFont(relojFont);
 
             // Fuentes para mostrar la munición y armas
             var actualWeaponFont = UtilMethods.createFont("Insanibc", 24);
@@ -196,6 +213,19 @@ namespace TGC.Group.Model
             else border.Position = new Point(-(int)(screenWidth * 0.3453f), (int)(screenHeight * 0.8535f));
             border.changeFont(actualWeaponFont);
         }
+
+        private string formatTime(float time)
+        {
+            int trunkTime = (int)time;
+            int minutos = trunkTime / 60;
+            int segundos = trunkTime % 60;
+            string minString = minutos.ToString();
+            string segString = segundos.ToString();
+            if (segundos < 10)
+                segString = "0" + segString;
+            return $"{minString}:{segString}";
+        }
+
     }
 
 }
