@@ -26,7 +26,7 @@ namespace TGC.Group.Model.World
         private bool jumped = false;
         private bool flag = false;
         private bool afterJump = true;
-        private bool inflictDmg = true;
+        private bool inflictDmg = false;
         private float bulletFlag = 0;
         private float neg = 1f;
 
@@ -155,8 +155,11 @@ namespace TGC.Group.Model.World
             // Adelante
             if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || jh.JoystickButtonDown(0))
             {
-                player1.Vehicle.ApplyEngineForce(player1.engineForce, 2);
-                player1.Vehicle.ApplyEngineForce(player1.engineForce, 3);
+                var multi = 1f;
+                if ((player1.velocityVector * 2.5f).Length() < 15)
+                    multi = 1.8f;
+                player1.Vehicle.ApplyEngineForce(player1.engineForce * multi, 2);
+                player1.Vehicle.ApplyEngineForce(player1.engineForce * multi, 3);
                 moving = true;
             }
 
@@ -165,8 +168,8 @@ namespace TGC.Group.Model.World
             {
                 //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 0);
                 //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 1);
-                player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.33f, 2);
-                player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.33f, 3);
+                player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.4f, 2);
+                player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.4f, 3);
                 moving = true;
             }
 
@@ -205,6 +208,8 @@ namespace TGC.Group.Model.World
             {
                 multiplier = player1.turboMultiplier;
                 player1.turbo = true;
+                player1.Vehicle.ApplyEngineForce(player1.engineForce * multiplier, 2);
+                player1.Vehicle.ApplyEngineForce(player1.engineForce * multiplier, 3);
                 player1.RigidBody.ApplyCentralForce(player1.frontVector.ToBsVector * 1200);
             }
             else
@@ -216,10 +221,10 @@ namespace TGC.Group.Model.World
             // Frenar
             if (gameModel.Input.keyDown(Key.LeftControl) || jh.JoystickButtonDown(2))
             {
-                player1.Vehicle.SetBrake(40, 0); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(40, 1);
-                player1.Vehicle.SetBrake(40 * 0.66f, 2); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(40 * 0.66f, 3);
+                player1.Vehicle.SetBrake(42, 0); //Puede ser una propiedad
+                player1.Vehicle.SetBrake(42, 1);
+                player1.Vehicle.SetBrake(42 * 0.66f, 2); //Puede ser una propiedad
+                player1.Vehicle.SetBrake(42 * 0.66f, 3);
                 braking = true;
             }
             
