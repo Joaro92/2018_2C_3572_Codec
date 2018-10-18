@@ -7,7 +7,6 @@ namespace TGC.Group.Model.Items
     {
         public CoheteItem(TGCVector3 pos) : base(pos, "Rocket")
         {
-            Weapon = new Cohete();
         }
 
         protected override void spawn()

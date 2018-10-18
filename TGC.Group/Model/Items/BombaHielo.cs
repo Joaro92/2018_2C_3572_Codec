@@ -7,7 +7,6 @@ namespace TGC.Group.Model.Items
     {
         public BombaHieloItem(TGCVector3 pos) : base(pos, "Ice-Bomb")
         {
-            Weapon = new BombaHielo();
         }
 
         protected override void spawn()
