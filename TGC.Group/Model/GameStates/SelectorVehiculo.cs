@@ -26,9 +26,11 @@ namespace TGC.Group.Model.GameStates
         private CustomSprite flechaIzq;
         private CustomSprite flechaDer;
         private CustomSprite flechaArriba;
+        private TgcText2D vehicleName;
         private TgcText2D select;
 
         private bool confirmed = false;
+        private bool back = false;
 
         public SelectorVehiculo(GameModel gameModel)
         {
@@ -84,6 +86,15 @@ namespace TGC.Group.Model.GameStates
                 Position = new TGCVector2(screenWidth * 0.475f, screenHeight * 0.05f)
             };
 
+            //Nombre vehiculo
+            vehicleName = new TgcText2D
+            {
+                Text = selected.Name,
+                Color = Color.Gold,
+                Position = new Point(0, (int)(screenHeight * 0.65f)),
+            };
+            vehicleName.changeFont(UtilMethods.createFont("Twisted Stallions", 45));
+
             //Select Vehicle
             select = new TgcText2D
             {
@@ -126,7 +137,13 @@ namespace TGC.Group.Model.GameStates
             }
 
             selected.SampleMesh.RotateY(FastMath.QUARTER_PI * gameModel.ElapsedTime);
+            vehicleName.Text = selected.Name;
 
+            if (gameModel.Input.keyPressed(Key.Escape))
+            {
+                sm.PlaySound("menuEnter.wav");
+                back = true;
+            }
         }
 
         public void Render()
@@ -144,10 +161,16 @@ namespace TGC.Group.Model.GameStates
             drawer2D.EndDrawSprite();
 
             select.render();
+            vehicleName.render();
 
             if (confirmed)
             {
                 gameModel.GameState = new Partida(gameModel, selected);
+                this.Dispose();
+            }
+            else if (back)
+            {
+                gameModel.GameState = new MenuInicial(gameModel);
                 this.Dispose();
             }
         }
@@ -160,6 +183,7 @@ namespace TGC.Group.Model.GameStates
             flechaIzq.Dispose();
             flechaDer.Dispose();
             select.Dispose();
+            vehicleName.Dispose();
         }
     }
 }

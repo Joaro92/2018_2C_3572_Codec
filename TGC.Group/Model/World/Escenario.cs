@@ -24,7 +24,7 @@ namespace TGC.Group.Model.World
 
             foreach (TgcMesh mesh in this.tgcScene.Meshes)
             {
-                if (!(mesh.Name.Equals("Arbusto") || mesh.Name.Equals("Pasto")))
+                if (!(mesh.Name.Equals("Arbusto") || mesh.Name.Equals("Pasto") || mesh.Name.Equals("Flores")))
                 {
                     newRigid = BulletRigidBodyConstructor.CreateRigidBodyFromTgcMesh(mesh);
                     this.rigidBodys.Add(newRigid);

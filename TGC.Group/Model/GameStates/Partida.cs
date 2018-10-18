@@ -33,10 +33,10 @@ namespace TGC.Group.Model.GameStates
 
         private bool paused = false;
         private TgcText2D pauseMsg;
+        private bool endMatch = false;
 
         private readonly int matchInitialTime = 15; //en minutos
         private float matchTime; //en segundos
-
         private readonly string levelSong = "Twisted Metal Small Brawl - Now Slaying.mp3";
 
         public Partida(GameModel gameModel, Vehiculo vehiculoP1)
@@ -94,8 +94,13 @@ namespace TGC.Group.Model.GameStates
             // Manejar los inputs del teclado y joystick
             ManageInputs(gameModel);
 
-            // Si pausado no computo nada mas
-            if (paused)
+
+            // Condiciones de fin de partida (ademas de presionar ESC)
+            if (world.player1.hitPoints <= 0 || matchTime <= 0)
+                endMatch = true;
+
+            // Si pausado o match terminado no computo nada mas
+            if (paused || endMatch)
                 return;
 
             // Actualizar la posición y rotación de la cámara para que apunte a nuestro Player 1
@@ -140,6 +145,9 @@ namespace TGC.Group.Model.GameStates
 
             // Actualizar el HUD
             hud.Update(matchTime);
+
+            
+
         }
 
         public void Render()
@@ -148,39 +156,6 @@ namespace TGC.Group.Model.GameStates
             if (paused)
             {
                 pauseMsg.render();
-            }
-
-            // Acción cuando nuestro Player 1 pierde todos sus puntos de vida
-            if (world.player1.hitPoints <= 0 || matchTime <= 0)
-            {
-                gameModel.Exit();
-                return;
-            }
-
-            {
-                // Texto en pantalla sobre los comandos disponibles
-                //var DrawText = gameModel.DrawText;
-                //DrawText.drawText(world.player1.yawPitchRoll.ToString(), 3, 20, Color.Black);
-                //DrawText.drawText(world.player1.RigidBody.CenterOfMassPosition.ToString(), 3, 35, Color.Black);
-                //DrawText.drawText(world.player1.RigidBody.CenterOfMassTransform.Origin.ToString(), 3, 50, Color.Black);
-                //DrawText.drawText("Con la tecla F1 se dibuja el bounding box (Deprecado, las colisiones las maneja Bullet)", 3, 20, Color.YellowGreen);
-                //DrawText.drawText("Con la tecla F2 se rota el ángulo de la cámara", 3, 35, Color.YellowGreen);
-                //DrawText.drawText("Con la tecla F3 se dibuja el Vector UP del vehículo", 3, 50, Color.YellowGreen);
-                //DrawText.drawText("Con la tecla V se cambia el modo de cámara (NORMAL, LEJOS, CERCA)", 3, 65, Color.YellowGreen);
-                //DrawText.drawText("W A S D para el movimiento básico", 3, 80, Color.YellowGreen);
-                //DrawText.drawText("Control Izquierdo para frenar", 3, 95, Color.YellowGreen);
-                //DrawText.drawText("Tecla ESPACIO para saltar", 3, 110, Color.YellowGreen);
-                //DrawText.drawText("Tecla C para mirar hacia atrás", 3, 125, Color.YellowGreen);
-
-
-                // Texto en pantalla sobre el juego
-                //DrawText.drawText(player1.linealVelocity + " Km", (int)(screenWidth * 0.898f), (int)(screenHeight * 0.931f), Color.Black);
-
-
-                //if (player1.flippedTime > 0)
-                //{
-                //    DrawText.drawText("Tiempo dado vuelta: " + player1.flippedTime, 15, screenHeight - 35, Color.White);
-                //}
             }
 
             // Renderiza todo lo perteneciente al mundo físico
@@ -193,6 +168,13 @@ namespace TGC.Group.Model.GameStates
             if (drawUpVector)
             {
                 directionArrow.Render();
+            }
+
+            // Acción cuando se termina la partida 
+            if (endMatch)
+            {
+                gameModel.GameState = new MenuInicial(gameModel);
+                this.Dispose();
             }
         }
 
@@ -276,6 +258,11 @@ namespace TGC.Group.Model.GameStates
             {
                 paused = true;
                 sm.Mp3Player.pause();
+            }
+
+            if (gameModel.Input.keyPressed(Key.Escape))
+            {
+                endMatch = true;
             }
         }
     }

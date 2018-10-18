@@ -97,7 +97,10 @@ namespace TGC.Group.Model.GameStates
 
             var sm = gameModel.SoundManager;
             sm.LoadMp3(mainMenuSong);
-            sm.Mp3Player.play(true);
+            if(sm.Mp3Player.getStatus() != TgcMp3Player.States.Playing)
+            {
+                sm.Mp3Player.play(true);
+            }
         }
 
         public void Update()

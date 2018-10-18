@@ -26,7 +26,7 @@ namespace TGC.Group.Model.World
         private bool jumped = false;
         private bool flag = false;
         private bool afterJump = true;
-        private bool inflictDmg = false;
+        private bool inflictDmg = true;
         private float bulletFlag = 0;
         private float neg = 1f;
 
