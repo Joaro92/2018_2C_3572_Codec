@@ -193,9 +193,7 @@ namespace TGC.Group {
   <string>Minibus</string>
   <string>MPV</string>
   <string>Normal</string>
-  <string>Pickup-Small</string>
   <string>Pickup</string>
-  <string>Station</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection VehicleNames {
             get {

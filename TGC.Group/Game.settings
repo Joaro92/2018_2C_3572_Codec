@@ -56,9 +56,7 @@
   &lt;string&gt;Minibus&lt;/string&gt;
   &lt;string&gt;MPV&lt;/string&gt;
   &lt;string&gt;Normal&lt;/string&gt;
-  &lt;string&gt;Pickup-Small&lt;/string&gt;
   &lt;string&gt;Pickup&lt;/string&gt;
-  &lt;string&gt;Station&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="VehicleColors" Type="System.Collections.Specialized.StringCollection" Scope="User">
