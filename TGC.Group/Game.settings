@@ -38,5 +38,40 @@
     <Setting Name="ItemsDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)">Items\</Value>
     </Setting>
+    <Setting Name="Weapons" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;Bomb&lt;/string&gt;
+  &lt;string&gt;Rocket&lt;/string&gt;
+  &lt;string&gt;Ice-Bomb&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="VehicleNames" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;Coupe&lt;/string&gt;
+  &lt;string&gt;Hatchback&lt;/string&gt;
+  &lt;string&gt;Microcargo&lt;/string&gt;
+  &lt;string&gt;Micro&lt;/string&gt;
+  &lt;string&gt;Minibus&lt;/string&gt;
+  &lt;string&gt;MPV&lt;/string&gt;
+  &lt;string&gt;Normal&lt;/string&gt;
+  &lt;string&gt;Pickup-Small&lt;/string&gt;
+  &lt;string&gt;Pickup&lt;/string&gt;
+  &lt;string&gt;Station&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="VehicleColors" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;Blue&lt;/string&gt;
+  &lt;string&gt;Citrus&lt;/string&gt;
+  &lt;string&gt;Green&lt;/string&gt;
+  &lt;string&gt;Orange&lt;/string&gt;
+  &lt;string&gt;Red&lt;/string&gt;
+  &lt;string&gt;Silver&lt;/string&gt;
+  &lt;string&gt;Violet&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -16,8 +16,9 @@ namespace TGC.Group.Model
         private Player1 player1;
         private Drawer2D drawer2D;
         private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
+        private CustomSprite[] weapons;
         private TGCVector2 specialScale, hpScale;
-        private TgcText2D speed, km, actualWeapon, ammoQuantity, border, reloj, turbo;
+        private TgcText2D speed, km, weaponName, ammoQuantity, border, reloj, turbo;
         private readonly int scaling = GameModel.GetWindowsScaling(); // 96 es el 100%, 120 es el 125%
         private readonly int screenHeight = D3DDevice.Instance.Device.Viewport.Height;
         private readonly int screenWidth = D3DDevice.Instance.Device.Viewport.Width;
@@ -37,10 +38,24 @@ namespace TGC.Group.Model
             specialBar.Scaling = new TGCVector2(specialScale.X * (player1.specialPoints / player1.maxSpecialPoints), specialScale.Y);
             healthBar.Scaling = new TGCVector2(hpScale.X * (player1.hitPoints / player1.maxHitPoints), hpScale.Y);
 
-            // Actualizamos la munición y velocidad actual
+            // Actualizamos velocidad actual y el hud de armas
             speed.Text = player1.linealVelocity;
+
+            var selectedWeapon = player1.SelectedWeapon;
+            if (selectedWeapon != null)
+            {
+                weaponName.Text = "[ " + player1.SelectedWeapon.Name + " ]";
+                ammoQuantity.Text = player1.SelectedWeapon.Ammo.ToString();
+            }
+            else
+            {
+                weaponName.Text = "[ None ]";
+                ammoQuantity.Text = "-";
+
+            }
             border.Text = ammoQuantity.Text;
 
+            // Actualizamos el reloj
             reloj.Text = formatTime(matchTime);
         }
 
@@ -51,6 +66,8 @@ namespace TGC.Group.Model
             drawer2D.DrawSprite(healthBar);
             drawer2D.DrawSprite(specialBar);
             drawer2D.DrawSprite(weaponsHud);
+            if(player1.SelectedWeapon != null)
+                drawer2D.DrawSprite(weapons[player1.SelectedWeapon.Id - 1]);
             drawer2D.EndDrawSprite();
 
             if (speed.Text.Contains("-"))
@@ -69,7 +86,7 @@ namespace TGC.Group.Model
             if (player1.turbo)
                 turbo.render();
 
-            actualWeapon.render();
+            weaponName.render();
             border.render();
             ammoQuantity.render();
         }
@@ -80,7 +97,11 @@ namespace TGC.Group.Model
             healthBar.Dispose();
             specialBar.Dispose();
             weaponsHud.Dispose();
-            actualWeapon.Dispose();
+            foreach (CustomSprite w in weapons)
+            {
+                w.Dispose();
+            }
+            weaponName.Dispose();
             ammoQuantity.Dispose();
             border.Dispose();
             speed.Dispose();
@@ -113,7 +134,7 @@ namespace TGC.Group.Model
             // Sprite del HUD de las armas
             weaponsHud = new CustomSprite
             {
-                Bitmap = new CustomBitmap(imgDir + "weapons hud 2.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(imgDir + "weapons-hud-2.png", D3DDevice.Instance.Device),
                 Position = new TGCVector2(-15, screenHeight * 0.64f)
             };
 
@@ -121,6 +142,25 @@ namespace TGC.Group.Model
             scalingFactorY = (float)screenHeight / (float)weaponsHud.Bitmap.Height;
 
             weaponsHud.Scaling = new TGCVector2(0.6f, 0.6f) * (scalingFactorY / scalingFactorX);
+
+            // Sprites de armas
+            var weaponNames = Game.Default.Weapons;
+            var cant = weaponNames.Count;
+            weapons = new CustomSprite[cant];
+            for (int i = 0; i < cant; i++)
+            {
+                weapons[i] = new CustomSprite
+                {
+                    Bitmap = new CustomBitmap(imgDir + weaponNames[i].ToLower() + ".png", D3DDevice.Instance.Device),
+                    Position = new TGCVector2(screenWidth * 0.04f, screenHeight * 0.7f)
+                };
+
+                scalingFactorX = (float)screenWidth / (float)weapons[i].Bitmap.Width;
+                scalingFactorY = (float)screenHeight / (float)weapons[i].Bitmap.Height;
+
+                weapons[i].Scaling = new TGCVector2(1f, 1f) * (scalingFactorY / scalingFactorX);
+
+            }
 
             // Sprite que representa la vida
             healthBar = new CustomSprite
@@ -188,14 +228,14 @@ namespace TGC.Group.Model
             var actualWeaponFont = UtilMethods.createFont("Insanibc", 24);
             var ammoQuantityFont = UtilMethods.createFont("Insanibc", 22);
 
-            actualWeapon = new TgcText2D
+            weaponName = new TgcText2D
             {
                 Text = "[ None ]",
                 Color = Color.Black
             };
-            if (scaling == 96) actualWeapon.Position = new Point(-(int)(screenWidth * 0.421f), (int)(screenHeight * 0.87f));
-            else actualWeapon.Position = new Point(-(int)(screenWidth * 0.406f), (int)(screenHeight * 0.921f));
-            actualWeapon.changeFont(actualWeaponFont);
+            if (scaling == 96) weaponName.Position = new Point(-(int)(screenWidth * 0.421f), (int)(screenHeight * 0.87f));
+            else weaponName.Position = new Point(-(int)(screenWidth * 0.406f), (int)(screenHeight * 0.921f));
+            weaponName.changeFont(actualWeaponFont);
 
             ammoQuantity = new TgcText2D
             {
@@ -225,6 +265,7 @@ namespace TGC.Group.Model
             };
             turbo.Position = new Point(0, (int)(screenHeight * 0.15f));
             turbo.changeFont(turboFont);
+
         }
 
         private string formatTime(float time)

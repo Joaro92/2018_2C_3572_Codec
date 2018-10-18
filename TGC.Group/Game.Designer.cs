@@ -166,5 +166,65 @@ namespace TGC.Group {
                 this["ItemsDirectory"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>Bomb</string>\r\n  <string>Rocket</string>\r\n  <string>Ice-Bomb</string>\r\n</A" +
+            "rrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection Weapons {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["Weapons"]));
+            }
+            set {
+                this["Weapons"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>Coupe</string>
+  <string>Hatchback</string>
+  <string>Microcargo</string>
+  <string>Micro</string>
+  <string>Minibus</string>
+  <string>MPV</string>
+  <string>Normal</string>
+  <string>Pickup-Small</string>
+  <string>Pickup</string>
+  <string>Station</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection VehicleNames {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["VehicleNames"]));
+            }
+            set {
+                this["VehicleNames"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>Blue</string>
+  <string>Citrus</string>
+  <string>Green</string>
+  <string>Orange</string>
+  <string>Red</string>
+  <string>Silver</string>
+  <string>Violet</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection VehicleColors {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["VehicleColors"]));
+            }
+            set {
+                this["VehicleColors"] = value;
+            }
+        }
     }
 }

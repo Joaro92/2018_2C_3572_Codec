@@ -112,9 +112,13 @@
     <Compile Include="Model\HUD\HUD.cs" />
     <Compile Include="Model\Interfaces\IGameState.cs" />
     <Compile Include="Model\GameStates\MenuInicial.cs" />
+    <Compile Include="Model\Items\Bomba.cs" />
+    <Compile Include="Model\Items\BombaHielo.cs" />
+    <Compile Include="Model\Items\Cohete.cs" />
     <Compile Include="Model\Items\Corazon.cs" />
     <Compile Include="Model\Items\Energia.cs" />
     <Compile Include="Model\Items\Item.cs" />
+    <Compile Include="Model\Items\WeaponItem.cs" />
     <Compile Include="Model\JoystickHandler.cs" />
     <Compile Include="Model\SoundManager.cs" />
     <Compile Include="Model\Vehicles\Vehiculo.cs" />
@@ -129,6 +133,10 @@
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Model\World\Player1.cs" />
     <Compile Include="Model\World\Skybox.cs" />
+    <Compile Include="Model\World\Weapons\Bomba.cs" />
+    <Compile Include="Model\World\Weapons\BombaHielo.cs" />
+    <Compile Include="Model\World\Weapons\Cohete.cs" />
+    <Compile Include="Model\World\Weapons\Weapon.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form\GameForm.resx">

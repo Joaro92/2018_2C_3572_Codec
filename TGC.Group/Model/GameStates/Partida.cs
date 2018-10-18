@@ -253,6 +253,17 @@ namespace TGC.Group.Model.GameStates
             }
             else mirarHaciaAtras = false;
 
+
+            // Cambiar de arma especial
+            if (gameModel.Input.keyPressed(Key.Q) || jh.JoystickButtonPressed(5))
+            {
+                if(world.player1.Weapons.Count != 0)
+                {
+                    var arrayWeapons = world.player1.Weapons.ToArray();
+                    world.player1.SelectedWeapon = arrayWeapons.getNextOption(world.player1.SelectedWeapon);
+                }
+            }
+
             if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
             {
                 paused = true;

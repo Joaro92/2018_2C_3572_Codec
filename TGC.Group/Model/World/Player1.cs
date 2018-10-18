@@ -1,8 +1,12 @@
 ﻿using BulletSharp;
 using BulletSharp.Math;
+using System;
+using System.Collections.Generic;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Group.Model.Vehicles;
+using TGC.Group.Model.World.Weapons;
+using TGC.Group.Utils;
 using static TGC.Group.Utils.WheelContactInfo;
 
 namespace TGC.Group.Model.World
@@ -47,6 +51,10 @@ namespace TGC.Group.Model.World
         protected float DampingRelaxation = 0.93f * 0.9f;
         protected float FrictionSlip = 0.66f;
         protected float RollInfluence = 0.7f;
+
+        // Armas
+        public List<Weapon> Weapons { get; } = new List<Weapon>();
+        public Weapon SelectedWeapon { get; set; } = null;
 
         /// <summary>
         ///  Crea un Vehiculo con propiedades de Bullet y TgcMesh y lo agrega al mundo a partir de un archivo 'TgcScene.xml'
@@ -167,6 +175,41 @@ namespace TGC.Group.Model.World
             }
         }
 
+        // ----------------------------------------------------
+
+        public void AddWeapon(Weapon newWeapon)
+        {
+            var existingWeapon = Weapons.Find(w => w.Id == newWeapon.Id);
+            if (existingWeapon != null)
+            {
+                existingWeapon.Ammo += newWeapon.Ammo;
+            }
+            else
+            {
+                Weapons.Add(newWeapon);
+                if(SelectedWeapon == null)
+                    SelectedWeapon = newWeapon;
+            }
+        }
+
+        public void ReassignWeapon()
+        {
+            if(SelectedWeapon.Ammo == 0)
+            {
+                var wastedWeapon = SelectedWeapon;
+                if (Weapons.Count > 1)
+                {
+                    var arrayWeapons = Weapons.ToArray();
+                    SelectedWeapon = arrayWeapons.getNextOption(wastedWeapon);
+                }
+                else
+                {
+                    SelectedWeapon = null;
+                }
+                Weapons.Remove(wastedWeapon);
+            }
+        }
+
         // -----------------------------------------------------
 
         public void Render()
@@ -192,7 +235,7 @@ namespace TGC.Group.Model.World
             Wheel.Transform = wheelTransform;
             Wheel.Render();
         }
-        
+
         public RigidBody RigidBody
         {
             get { return rigidBody; }

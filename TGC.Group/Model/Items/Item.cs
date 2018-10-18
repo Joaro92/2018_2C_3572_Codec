@@ -6,15 +6,16 @@ namespace TGC.Group.Model.Items
 {
     public abstract class Item
     {
-        //public string Name { get; }
+        public string Name { get; protected set; }
         public TgcMesh Mesh { get; protected set; }
         public TGCVector3 Position { get; }
         protected float respawnTime;
         protected float timer;
         public bool IsPresent { get; protected set; }
 
-        public Item(TGCVector3 pos)
+        public Item(TGCVector3 pos, string name)
         {
+            Name = name;
             Position = pos;
             this.spawn();
         }
@@ -36,8 +37,9 @@ namespace TGC.Group.Model.Items
                 this.spawn();
         }
 
-        protected virtual void spawn()
+        protected void spawn()
         {
+            Mesh = LoadMesh(Name, Position);
             IsPresent = true;
         }
 
@@ -49,6 +51,11 @@ namespace TGC.Group.Model.Items
             var mesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + Game.Default.ItemsDirectory + name.ToLower() + "-item-TgcScene.xml").Meshes[0];
             mesh.Position = position;
             return mesh;
+        }
+
+        public virtual void Dispose()
+        {
+            Mesh.Dispose();
         }
     }
 }

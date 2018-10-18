@@ -11,9 +11,6 @@ namespace TGC.Group.Model
     {
         public IGameState GameState { get; set; }
 
-        public static readonly string[] VehicleNames = { "Coupe", "Hatchback", "Microcargo", "Micro", "Minibus", "MPV", "Normal", "Pickup-Small", "Pickup", "Station" };
-        public static readonly string[] VehicleColors = { "Blue", "Citrus", "Green", "Orange", "Red", "Silver", "Violet" };
-
         public JoystickHandler JoystickHandler { get; private set; }
         public SoundManager SoundManager { get; private set; }
 

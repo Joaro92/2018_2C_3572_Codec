@@ -137,11 +137,10 @@ namespace TGC.Group.Model.World
             player1.RigidBody.Dispose();
             escenario.Dispose();
             mBullets.ForEach(b => b.Dispose());
-            foreach (Item i in items)
-            {
+            items.ForEach(i => {
                 if (i.IsPresent)
-                    i.Mesh.Dispose();
-            }
+                    i.Dispose();
+                });
         }
 
 
@@ -267,7 +266,19 @@ namespace TGC.Group.Model.World
                 }
             }
 
-            // Saltar
+            // Disparar arma especial
+            if (gameModel.Input.keyPressed(Key.R) )//|| jh.JoystickL2Pressed())
+            {
+                if(player1.SelectedWeapon != null)
+                {
+                    player1.SelectedWeapon.Fire();
+                    player1.ReassignWeapon();
+                }
+
+            }
+
+
+                // Saltar
             if (gameModel.Input.keyDown(Key.Space) || jh.JoystickButtonPressed(1))
             {
                 jump = true;
@@ -480,6 +491,9 @@ namespace TGC.Group.Model.World
         {
             items.Add(new Corazon(new TGCVector3(144f, 4f, 24f)));
             items.Add(new Energia(new TGCVector3(168f, 4f, 36f)));
+            items.Add(new BombaItem(new TGCVector3(120f, 4f, 36f)));
+            items.Add(new CoheteItem(new TGCVector3(168f, 4f, 48f)));
+            items.Add(new BombaHieloItem(new TGCVector3(144f, 4f, 48f)));
         }
 
         private void ItemsHandler(GameModel gameModel)
