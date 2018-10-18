@@ -7,7 +7,7 @@ namespace TGC.Group.Model.Items
     {
         private readonly float healingRate = 0.5f;
 
-        public Corazon(TGCVector3 pos) : base(pos)
+        public Corazon(TGCVector3 pos) : base(pos, "Heart")
         {
             respawnTime = 10f;
         }
@@ -16,12 +16,6 @@ namespace TGC.Group.Model.Items
         {
             var hitPointsGained =  healingRate * player1.maxHitPoints;
             player1.hitPoints = FastMath.Min(player1.maxHitPoints, player1.hitPoints + hitPointsGained);
-        }
-
-        protected override void spawn()
-        {
-            Mesh = Item.LoadMesh("Heart", Position);
-            base.spawn();
         }
     }
 }

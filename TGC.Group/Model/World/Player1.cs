@@ -1,8 +1,12 @@
 ﻿using BulletSharp;
 using BulletSharp.Math;
+using System;
+using System.Collections.Generic;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Group.Model.Vehicles;
+using TGC.Group.Model.World.Weapons;
+using TGC.Group.Utils;
 using static TGC.Group.Utils.WheelContactInfo;
 
 namespace TGC.Group.Model.World
@@ -54,6 +58,10 @@ namespace TGC.Group.Model.World
         private readonly float meshRealHeight = 0.4f;
         private readonly float suspensionLength = 0.9f;
         private readonly Vector3 meshAxisRadius;
+
+        // Armas
+        public List<Weapon> Weapons { get; } = new List<Weapon>();
+        public Weapon SelectedWeapon { get; set; } = null;
 
         /// <summary>
         ///  Crea un Vehiculo con propiedades de Bullet y TgcMesh y lo agrega al mundo a partir de un archivo 'TgcScene.xml'
@@ -176,6 +184,42 @@ namespace TGC.Group.Model.World
                 wheel.WheelsDampingRelaxation = dampingRelaxation * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);
                 wheel.FrictionSlip = frictionSlip;
                 wheel.RollInfluence = rollInfluence;
+            }
+        }
+
+        // ----------------------------------------------------
+
+        public void AddWeapon(Weapon newWeapon)
+        {
+            var existingWeapon = Weapons.Find(w => w.Id == newWeapon.Id);
+            if (existingWeapon != null)
+            {
+                existingWeapon.Ammo += newWeapon.Ammo;
+            }
+            else
+            {
+                Weapons.Add(newWeapon);
+                if(SelectedWeapon == null)
+                    SelectedWeapon = newWeapon;
+            }
+        }
+
+        public void ReassignWeapon()
+        {
+            if(SelectedWeapon.Ammo == 0)
+            {
+                var wastedWeapon = SelectedWeapon;
+                if (Weapons.Count > 1)
+                {
+                    var arrayWeapons = Weapons.ToArray();
+                    SelectedWeapon = arrayWeapons.getNextOption(wastedWeapon);
+                }
+                else
+                {
+                    SelectedWeapon = null;
+                }
+                Weapons.Remove(wastedWeapon);
+                //wastedWeapon.Dispose();
             }
         }
 

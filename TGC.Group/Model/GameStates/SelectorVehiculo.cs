@@ -19,6 +19,7 @@ namespace TGC.Group.Model.GameStates
     {
         private GameModel gameModel;
         private List<Vehiculo> vehiculos = new List<Vehiculo>();
+        private string[] colors;
         private Vehiculo selected;
         private TgcScene background;
         private Drawer2D drawer2D;
@@ -39,12 +40,16 @@ namespace TGC.Group.Model.GameStates
             drawer2D = new Drawer2D();
 
             //cargo los vehiculos disponibles para seleccionar
-            foreach (string name in GameModel.VehicleNames) {
+            foreach (string name in Game.Default.VehicleNames) {
                 Vehiculo v = new Vehiculo(name);
                 v.SampleMesh.Scale = TGCVector3.One * 15f;
                 vehiculos.Add(v);
             }
             selected = vehiculos[0];
+
+            //cargo los colores
+            colors = new string[Game.Default.VehicleColors.Count];
+            Game.Default.VehicleColors.CopyTo(colors, 0);
 
             //cargo el fondo en 3D del selector
             var loader = new TgcSceneLoader();
@@ -107,8 +112,8 @@ namespace TGC.Group.Model.GameStates
             }
 
             if (gameModel.Input.keyPressed(Key.UpArrow) || jh.JoystickDpadPressed(JoystickDpad.UP))
-            {
-                var newColor = GameModel.VehicleColors.getNextOption(selected.Color);
+            {              
+                var newColor = colors.getNextOption(selected.Color);
                 selected.ChangeColor(newColor);
             }
 

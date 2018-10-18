@@ -7,8 +7,9 @@ namespace TGC.Group.Model.Items
     {
         private readonly float gainRate = 0.5f;
 
-        public Energia(TGCVector3 pos) : base(pos)
+        public Energia(TGCVector3 pos) : base(pos,"Energy")
         {
+            Name = "Energy";
             respawnTime = 5f;
         }
 
@@ -16,12 +17,6 @@ namespace TGC.Group.Model.Items
         {
             var specialPointsGained = gainRate * player1.maxSpecialPoints;
             player1.specialPoints = FastMath.Min(player1.maxSpecialPoints, player1.specialPoints + specialPointsGained);
-        }
-
-        protected override void spawn()
-        {
-            Mesh = Item.LoadMesh("Energy", Position);
-            base.spawn();
         }
     }
 }
