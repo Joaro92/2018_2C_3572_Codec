@@ -258,8 +258,12 @@ namespace TGC.Group.Model.World
                 {
                     var b = new MachinegunBullet(world);
 
-                    b.GhostObject.WorldTransform = Matrix.Translation(neg * player1.Mesh.BoundingBox.calculateAxisRadius().X * 0.8f, +0.22f, -player1.Mesh.BoundingBox.calculateAxisRadius().Z - player1.velocityVector.Length() * 0.01f - 0.47f) * player1.RigidBody.InterpolationWorldTransform;
-                    b.GhostObject.ApplyCentralImpulse(player1.frontVector.ToBsVector * 20);
+                    //b.GhostObject.WorldTransform = Matrix.Translation(neg * player1.meshAxisRadius.X * 0.8f, +0.22f, -player1.meshAxisRadius.Z - player1.velocityVector.Length() * 0.01f - 0.47f) * player1.RigidBody.InterpolationWorldTransform;
+
+                    b.GhostObject.WorldTransform = Matrix.Translation(neg * player1.meshAxisRadius.X * 0.8f, 0.24f, -player1.meshAxisRadius.Z - player1.velocityVector.Length() * 0.01f - 0.47f) * Matrix.RotationY(player1.yawPitchRoll.Y) * Matrix.Translation(player1.Mesh.Transform.Origin.ToBsVector);
+
+                    b.GhostObject.ApplyCentralImpulse(new Vector3(player1.frontVector.X, 0, player1.frontVector.Z) * (20 + (FastMath.Sqrt(int.Parse(player1.linealVelocity) / 2))));
+                    
                     mBullets.Add(b);
                     bulletFlag += gameModel.ElapsedTime;
                     neg *= -1f;
@@ -320,7 +324,7 @@ namespace TGC.Group.Model.World
         {
             player1.frontVector = new TGCVector3(Vector3.TransformNormal(-Vector3.UnitZ, player1.RigidBody.InterpolationWorldTransform));
             player1.velocityVector = new TGCVector3(player1.RigidBody.InterpolationLinearVelocity.X, 0, player1.RigidBody.InterpolationLinearVelocity.Z);
-
+            
             if (player1.velocityVector.Length() < 0.111f)
             {
                 player1.velocityVector = TGCVector3.Empty;
@@ -503,8 +507,9 @@ namespace TGC.Group.Model.World
         {
             //Obtengo BoundingBox de Player1 para determinar colision con items
             player1.RigidBody.GetAabb(out Vector3 min, out Vector3 max);
+            min.Y -= player1.meshAxisRadius.Y;
             var player1AABB = new TgcBoundingAxisAlignBox(new TGCVector3(min), new TGCVector3(max));
-
+            
             //Rotar items, desaparecerlos y hacer efecto si colisionan y contar el tiempo que falta para que vuelvan a aparecer los que no estan
             foreach (Item i in items)
             {

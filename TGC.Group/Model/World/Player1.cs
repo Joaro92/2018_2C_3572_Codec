@@ -40,6 +40,7 @@ namespace TGC.Group.Model.World
         protected readonly float mass = 200f;
 
         // Atributos importantes
+        public readonly Vector3 meshAxisRadius;
         public readonly float maxHitPoints;
         public readonly float engineForce; // [negativo]
         public readonly float brakeForce;
@@ -57,7 +58,7 @@ namespace TGC.Group.Model.World
 
         private readonly float meshRealHeight = 0.4f;
         private readonly float suspensionLength = 0.9f;
-        private readonly Vector3 meshAxisRadius;
+        
 
         // Armas
         public List<Weapon> Weapons { get; } = new List<Weapon>();
