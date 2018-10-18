@@ -9,5 +9,11 @@ namespace TGC.Group.Model.Items
         {
             Weapon = new Cohete();
         }
+
+        protected override void spawn()
+        {
+            base.spawn();
+            Weapon = new Cohete();
+        }
     }
 }

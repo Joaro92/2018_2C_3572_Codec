@@ -37,7 +37,7 @@ namespace TGC.Group.Model.Items
                 this.spawn();
         }
 
-        protected void spawn()
+        protected virtual void spawn()
         {
             Mesh = LoadMesh(Name, Position);
             IsPresent = true;

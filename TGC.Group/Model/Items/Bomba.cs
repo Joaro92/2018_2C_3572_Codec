@@ -9,5 +9,12 @@ namespace TGC.Group.Model.Items
         {
             Weapon = new Bomba();
         }
+
+        protected override void spawn()
+        {
+            base.spawn();
+            Weapon = new Bomba();
+        }
+
     }
 }

@@ -135,6 +135,7 @@ namespace TGC.Group.Model.World
             broadphase.Dispose();
             player1.Mesh.Dispose();
             player1.RigidBody.Dispose();
+            //player1.Weapons.ForEach(w => w.Dispose());
             escenario.Dispose();
             mBullets.ForEach(b => b.Dispose());
             items.ForEach(i => {

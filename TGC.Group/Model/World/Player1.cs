@@ -207,6 +207,7 @@ namespace TGC.Group.Model.World
                     SelectedWeapon = null;
                 }
                 Weapons.Remove(wastedWeapon);
+                //wastedWeapon.Dispose();
             }
         }
 

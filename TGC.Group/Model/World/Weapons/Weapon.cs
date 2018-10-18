@@ -20,5 +20,10 @@ namespace TGC.Group.Model.World.Weapons
             Ammo--;
         }
 
+        //public void Dispose()
+        //{
+
+        //}
+
     }
 }
