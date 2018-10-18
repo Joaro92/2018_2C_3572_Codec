@@ -105,7 +105,7 @@ namespace TGC.Group.Bullet.Physics
 
             var bodyInfo = new RigidBodyConstructionInfo(0, motionState, bulletShape, boxLocalInertia);
             var rigidBody = new RigidBody(bodyInfo);
-            rigidBody.Friction = 0.4f;
+            rigidBody.Friction = 0.9f;
             rigidBody.RollingFriction = 1;
             // ballBody.SetDamping(0.1f, 0.9f);
             rigidBody.Restitution = 1f;

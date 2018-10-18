@@ -64,7 +64,7 @@ namespace TGC.Group.Model.GameStates
                 BodyColor = Color.Red,
                 HeadColor = Color.Green,
                 Thickness = 0.1f,
-                HeadSize = new TGCVector2(0.5f, 1f)
+                HeadSize = new TGCVector2(0.6f, 1f)
             };
 
             var sm = gameModel.SoundManager;
@@ -108,11 +108,16 @@ namespace TGC.Group.Model.GameStates
             }
             camaraInterna.RotationY = Quat.ToEulerAngles(world.player1.RigidBody.Orientation).Y + anguloCamara + halfsPI + grades + (mirarHaciaAtras ? FastMath.PI : 0);
 
+            //world.player1.RigidBody.CenterOfMassTransform = Matrix.Translation(0,-0.020f,0) * world.player1.RigidBody.CenterOfMassTransform;
+
             // Actualizar el Vector UP si se dibuja
             if (drawUpVector)
             {
-                directionArrow.PStart = new TGCVector3(world.player1.RigidBody.CenterOfMassPosition);
-                directionArrow.PEnd = directionArrow.PStart + new TGCVector3(Vector3.TransformNormal(Vector3.UnitY, world.player1.RigidBody.InterpolationWorldTransform)) * 3.5f;
+                //directionArrow.PStart = new TGCVector3(world.player1.RigidBody.CenterOfMassPosition);
+                //directionArrow.PEnd = directionArrow.PStart + new TGCVector3(Vector3.TransformNormal(Vector3.UnitY, world.player1.RigidBody.InterpolationWorldTransform)) * 3.5f;
+                var asd = Matrix.Translation(-world.player1.Mesh.BoundingBox.calculateAxisRadius().X, 0, 0) * world.player1.RigidBody.CenterOfMassTransform;
+                directionArrow.PStart = new TGCVector3(asd.Origin);
+                directionArrow.PEnd = new TGCVector3(asd.Origin) + TGCVector3.Up * 3.5f;
                 directionArrow.updateValues();
             }
 
@@ -155,6 +160,9 @@ namespace TGC.Group.Model.GameStates
             {
                 // Texto en pantalla sobre los comandos disponibles
                 //var DrawText = gameModel.DrawText;
+                //DrawText.drawText(world.player1.yawPitchRoll.ToString(), 3, 20, Color.Black);
+                //DrawText.drawText(world.player1.RigidBody.CenterOfMassPosition.ToString(), 3, 35, Color.Black);
+                //DrawText.drawText(world.player1.RigidBody.CenterOfMassTransform.Origin.ToString(), 3, 50, Color.Black);
                 //DrawText.drawText("Con la tecla F1 se dibuja el bounding box (Deprecado, las colisiones las maneja Bullet)", 3, 20, Color.YellowGreen);
                 //DrawText.drawText("Con la tecla F2 se rota el ángulo de la cámara", 3, 35, Color.YellowGreen);
                 //DrawText.drawText("Con la tecla F3 se dibuja el Vector UP del vehículo", 3, 50, Color.YellowGreen);
@@ -237,7 +245,7 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Acercar la cámara
-            if (gameModel.Input.keyPressed(Key.F5) || jh.JoystickButtonPressed(6))
+            if (gameModel.Input.keyPressed(Key.F4) || jh.JoystickButtonPressed(6))
             {
                 modoCamara = modosCamara.getNextOption(modoCamara);
 

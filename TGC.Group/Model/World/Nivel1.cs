@@ -1,4 +1,4 @@
-﻿using BulletSharp;
+using BulletSharp;
 using BulletSharp.Math;
 using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
@@ -76,7 +76,8 @@ namespace TGC.Group.Model.World
             // Actualizar la inclinación del vehiculo
             player1.yawPitchRoll = Quat.ToEulerAngles(player1.RigidBody.Orientation);
 
-            // Si está lo suficientemente rotado en los ejes X o Z no se va a poder mover, por eso lo enderezamos
+
+            //Si está lo suficientemente rotado en los ejes X o Z no se va a poder mover, por eso lo enderezamos
             if (FastMath.Abs(player1.yawPitchRoll.X) > 1.39f || FastMath.Abs(player1.yawPitchRoll.Z) > 1.39f)
             {
                 player1.flippedTime += gameModel.ElapsedTime;
@@ -155,9 +156,11 @@ namespace TGC.Group.Model.World
             // Adelante
             if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || jh.JoystickButtonDown(0))
             {
+                //Pequeño impulso adicional cuando la velocidad es baja
                 var multi = 1f;
                 if ((player1.velocityVector * 2.5f).Length() < 15)
                     multi = 1.8f;
+
                 player1.Vehicle.ApplyEngineForce(player1.engineForce * multi, 2);
                 player1.Vehicle.ApplyEngineForce(player1.engineForce * multi, 3);
                 moving = true;
@@ -210,7 +213,7 @@ namespace TGC.Group.Model.World
                 player1.turbo = true;
                 player1.Vehicle.ApplyEngineForce(player1.engineForce * multiplier, 2);
                 player1.Vehicle.ApplyEngineForce(player1.engineForce * multiplier, 3);
-                player1.RigidBody.ApplyCentralForce(player1.frontVector.ToBsVector * 1200);
+                player1.RigidBody.ApplyCentralImpulse(player1.frontVector.ToBsVector * 17);
             }
             else
             {
@@ -221,10 +224,10 @@ namespace TGC.Group.Model.World
             // Frenar
             if (gameModel.Input.keyDown(Key.LeftControl) || jh.JoystickButtonDown(2))
             {
-                player1.Vehicle.SetBrake(42, 0); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(42, 1);
-                player1.Vehicle.SetBrake(42 * 0.66f, 2); //Puede ser una propiedad
-                player1.Vehicle.SetBrake(42 * 0.66f, 3);
+                player1.Vehicle.SetBrake(player1.brakeForce, 0);
+                player1.Vehicle.SetBrake(player1.brakeForce, 1);
+                player1.Vehicle.SetBrake(player1.brakeForce * 0.66f, 2);
+                player1.Vehicle.SetBrake(player1.brakeForce * 0.66f, 3);
                 braking = true;
             }
             
@@ -272,13 +275,13 @@ namespace TGC.Group.Model.World
             {
                 jump = true;
             }
-
+            
             // Realizar el salto
             if (jump && !jumped && !flag)
             {
                 if (player1.specialPoints > 12)
                 {
-                    player1.RigidBody.ApplyCentralImpulse(new Vector3(0, 900 * 4.3f, 0)); //Puede ser una propiedad
+                    player1.RigidBody.ApplyCentralImpulse(new Vector3(0, player1.jumpImpulse, 0));
                     player1.specialPoints -= 12;
                     afterJump = jumped = true;
                 }

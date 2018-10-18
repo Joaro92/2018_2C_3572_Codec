@@ -199,11 +199,32 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Media\cajaMadera4.jpg" />
-    <Content Include="Media\LogoTGC-TgcScene.xml" />
+    <Folder Include="Libs\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Libs\" />
+    <Content Include="Media\Vehicles\car-coupe-TgcScene.xml" />
+    <Content Include="Media\Vehicles\car-hatchback-TgcScene.xml" />
+    <Content Include="Media\Vehicles\car-micro-TgcScene.xml" />
+    <Content Include="Media\Vehicles\car-microcargo-TgcScene.xml" />
+    <Content Include="Media\Vehicles\car-minibus-TgcScene.xml" />
+    <Content Include="Media\Vehicles\car-mpv-TgcScene.xml" />
+    <Content Include="Media\Vehicles\car-normal-TgcScene.xml" />
+    <Content Include="Media\Vehicles\car-pickup-small-TgcScene.xml" />
+    <Content Include="Media\Vehicles\car-pickup-TgcScene.xml" />
+    <Content Include="Media\Vehicles\car-station-TgcScene.xml" />
+    <Content Include="Media\Vehicles\chassis-coupe-TgcScene.xml" />
+    <Content Include="Media\Vehicles\chassis-hatchback-TgcScene.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Media\Vehicles\chassis-micro-TgcScene.xml" />
+    <Content Include="Media\Vehicles\chassis-microcargo-TgcScene.xml" />
+    <Content Include="Media\Vehicles\chassis-minibus-TgcScene.xml" />
+    <Content Include="Media\Vehicles\chassis-mpv-TgcScene.xml" />
+    <Content Include="Media\Vehicles\chassis-normal-TgcScene.xml" />
+    <Content Include="Media\Vehicles\chassis-pickup-small-TgcScene.xml" />
+    <Content Include="Media\Vehicles\chassis-pickup-TgcScene.xml" />
+    <Content Include="Media\Vehicles\chassis-station-TgcScene.xml" />
+    <Content Include="Media\Vehicles\tires-common-TgcScene.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
