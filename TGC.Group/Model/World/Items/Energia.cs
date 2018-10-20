@@ -13,6 +13,8 @@ namespace TGC.Group.Model.Items
             respawnTime = 5f;
         }
 
+        public override float DesplazamientoY => 0.10f;
+
         public override void Effect(Player1 player1)
         {
             var specialPointsGained = gainRate * player1.maxSpecialPoints;

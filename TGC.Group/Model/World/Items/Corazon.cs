@@ -12,6 +12,8 @@ namespace TGC.Group.Model.Items
             respawnTime = 10f;
         }
 
+        public override float DesplazamientoY => 0.3f;
+
         public override void Effect(Player1 player1)
         {
             var hitPointsGained =  healingRate * player1.maxHitPoints;

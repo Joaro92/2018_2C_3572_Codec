@@ -373,7 +373,7 @@ namespace TGC.Group.Model.World
                 if (i.IsPresent)
                 {
                     i.Mesh.RotateY(FastMath.PI_HALF * gameModel.ElapsedTime);
-                    i.Mesh.Position = new TGCVector3(i.Mesh.Position.X, i.Mesh.Position.Y + FastMath.Cos(time * 2) * 0.004f, i.Mesh.Position.Z);
+                    i.Mesh.Position = new TGCVector3(i.Position.X, i.Position.Y + FastMath.Sin(time * FastMath.PI_HALF) * i.DesplazamientoY, i.Position.Z);
 
                     if (TgcCollisionUtils.testAABBAABB(player1AABB, i.Mesh.BoundingBox))
                     {
