@@ -116,99 +116,62 @@ namespace TGC.Group.Model.World
             // Adelante
             if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || jh.JoystickButtonDown(0))
             {
-                //Pequeño impulso adicional cuando la velocidad es baja
-                var multi = 1f;
-                if (player1.currentSpeed < 15)
-                    multi = 1.8f;
-
-                player1.Vehicle.ApplyEngineForce(player1.engineForce * multi, 2);
-                player1.Vehicle.ApplyEngineForce(player1.engineForce * multi, 3);
+                player1.Accelerate();
                 moving = true;
             }
 
             // Atras
             if (gameModel.Input.keyDown(Key.S) || gameModel.Input.keyDown(Key.DownArrow) || jh.JoystickButtonDown(3))
             {
-                //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 0);
-                //player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.1f, 1);
-                player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.4f, 2);
-                player1.Vehicle.ApplyEngineForce(-player1.engineForce * 0.4f, 3);
+                player1.Reverse();
                 moving = true;
             }
 
             // Derecha
             if (gameModel.Input.keyDown(Key.D) || gameModel.Input.keyDown(Key.RightArrow) || jh.JoystickDpadRight())
             {
-                player1.Vehicle.SetSteeringValue(player1.steeringAngle, 2);
-                player1.Vehicle.SetSteeringValue(player1.steeringAngle, 3);
+                player1.TurnRight();
                 rotating = true;
             }
 
             // Izquierda
             if (gameModel.Input.keyDown(Key.A) || gameModel.Input.keyDown(Key.LeftArrow) || jh.JoystickDpadLeft())
             {
-                player1.Vehicle.SetSteeringValue(-player1.steeringAngle, 2);
-                player1.Vehicle.SetSteeringValue(-player1.steeringAngle, 3);
+                player1.TurnLeft();
                 rotating = true;
             }
 
             // Si no se está moviendo
             if (!rotating)
             {
-                player1.Vehicle.SetSteeringValue(0, 2);
-                player1.Vehicle.SetSteeringValue(0, 3);
+                player1.ResetSteering();
             }
             if (!moving)
             {
-                player1.Vehicle.ApplyEngineForce(0, 0);
-                player1.Vehicle.ApplyEngineForce(0, 1);
-                player1.Vehicle.ApplyEngineForce(0, 2);
-                player1.Vehicle.ApplyEngineForce(0, 3);
+                player1.ResetEngineForce();
             }
 
             // Turbo
             if (player1.specialPoints >= player1.costTurbo && (gameModel.Input.keyDown(Key.LeftShift) || jh.JoystickButtonPressedDouble(0, gameModel.ElapsedTime)))
             {
-                multiplier = player1.turboMultiplier;
-                player1.turbo = true;
-                player1.Vehicle.ApplyEngineForce(player1.engineForce * multiplier, 2);
-                player1.Vehicle.ApplyEngineForce(player1.engineForce * multiplier, 3);
-                player1.RigidBody.ApplyCentralImpulse(player1.frontVector.ToBsVector * 17);
+                player1.TurboOn();
             }
             else
             {
-                multiplier = 1f;
-                player1.turbo = false;
+                player1.TurboOff();
             }
 
             // Frenar
             if (gameModel.Input.keyDown(Key.LeftControl) || jh.JoystickButtonDown(2))
             {
-                player1.Vehicle.SetBrake(player1.brakeForce, 0);
-                player1.Vehicle.SetBrake(player1.brakeForce, 1);
-                player1.Vehicle.SetBrake(player1.brakeForce * 0.66f, 2);
-                player1.Vehicle.SetBrake(player1.brakeForce * 0.66f, 3);
+                player1.Brake();
                 braking = true;
             }
             
             // Si no está frenando
             if (!braking)
             {
-                //Default braking force, always added otherwise there is no friction on the wheels
-                if (!moving)
-                {
-                    player1.Vehicle.SetBrake(1.05f, 0);
-                    player1.Vehicle.SetBrake(1.05f, 1);
-                    player1.Vehicle.SetBrake(1.05f, 2);
-                    player1.Vehicle.SetBrake(1.05f, 3);
-                }
-                else
-                {
-                    player1.Vehicle.SetBrake(0.05f, 0);
-                    player1.Vehicle.SetBrake(0.05f, 1);
-                    player1.Vehicle.SetBrake(0.05f, 2);
-                    player1.Vehicle.SetBrake(0.05f, 3);
-                }
+                player1.ResetBrake();
             }
 
             // Disparar Machinegun
@@ -387,72 +350,6 @@ namespace TGC.Group.Model.World
 
             return bullets2;
         }
-        //private void MachinegunHandler(GameModel gameModel)
-        //{
-        //    List<int> bulletsID = new List<int>();
-        //    if (world.Broadphase.OverlappingPairCache.OverlappingPairArray.Count > 0)
-        //    {
-        //        foreach (var overlappingPair in world.Broadphase.OverlappingPairCache.OverlappingPairArray)
-        //        {
-        //            RigidBody obj0 = (RigidBody)overlappingPair.Proxy0.ClientObject;
-        //            RigidBody obj1 = (RigidBody)overlappingPair.Proxy1.ClientObject;
-
-
-        //            if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
-        //            {
-        //                if (obj0.WorldArrayIndex != player1.RigidBody.WorldArrayIndex)
-        //                    bulletsID.Add(obj1.WorldArrayIndex);
-        //            }
-
-        //            if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
-        //            {
-        //                if (obj1.WorldArrayIndex != player1.RigidBody.WorldArrayIndex)
-        //                    bulletsID.Add(obj0.WorldArrayIndex);
-        //            }
-        //        }
-        //    }
-
-        //    var count = 0;
-        //    if (bulletsID.Count > 0)
-        //    {
-        //        var aux = mBullets.FindAll(b =>
-        //        {
-        //            if (bulletsID.Contains(b.GhostObject.WorldArrayIndex + count))
-        //            {
-        //                world.RemoveRigidBody(b.GhostObject);
-        //                b.Dispose();
-        //                count = count + bulletsID.Count + 2;
-        //                return false;
-        //            }
-        //            else return true;
-        //        });
-
-        //        mBullets = aux;
-        //    }
-
-        //    foreach(var b in mBullets)
-        //    {
-        //        b.LiveTime += gameModel.ElapsedTime;
-        //    }
-
-        //    count = 0;
-        //    var aux2 = mBullets.FindAll(b =>
-        //    {
-        //        if (b.LiveTime > 10)
-        //        {
-        //            world.RemoveRigidBody(b.GhostObject);
-        //            b.Dispose();
-        //            count = count + bulletsID.Count + 2;
-        //            return false;
-        //        }
-        //        else return true;
-        //    });
-
-        //    mBullets = aux2;
-
-        //    if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
-        //    if (bulletFlag > 0.25f) bulletFlag = 0;
-        //}
 
         private void SpawnItems()
         {

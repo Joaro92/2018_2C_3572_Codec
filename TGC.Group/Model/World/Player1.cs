@@ -266,6 +266,76 @@ namespace TGC.Group.Model.World
             flippedTime = 0;
         }
 
+        public void Accelerate()
+        {
+            //Pequeño impulso adicional cuando la velocidad es baja
+            var multi = 1f;
+            if (currentSpeed < 15)
+                multi = 1.8f;
+
+            vehicle.ApplyEngineForce(engineForce * multi, 2);
+            vehicle.ApplyEngineForce(engineForce * multi, 3);
+        }
+
+        public void Reverse()
+        {
+            vehicle.ApplyEngineForce(engineForce * -0.44f, 2);
+            vehicle.ApplyEngineForce(engineForce * -0.44f, 3);
+        }
+
+        public void TurnRight()
+        {
+            vehicle.SetSteeringValue(steeringAngle, 2);
+            vehicle.SetSteeringValue(steeringAngle, 3);
+        }
+
+        public void TurnLeft()
+        {
+            vehicle.SetSteeringValue(-steeringAngle, 2);
+            vehicle.SetSteeringValue(-steeringAngle, 3);
+        }
+
+        public void ResetSteering()
+        {
+            vehicle.SetSteeringValue(0, 2);
+            vehicle.SetSteeringValue(0, 3);
+        }
+
+        public void ResetEngineForce()
+        {
+            vehicle.ApplyEngineForce(0, 2);
+            vehicle.ApplyEngineForce(0, 3);
+        }
+
+        public void TurboOn()
+        {
+            turbo = true;
+            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 2);
+            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 3);
+            rigidBody.ApplyCentralImpulse(frontVector.ToBsVector * turboImpulse);
+        }
+
+        public void TurboOff()
+        {
+            turbo = false;
+        }
+
+        public void Brake()
+        {
+            vehicle.SetBrake(brakeForce, 0);
+            vehicle.SetBrake(brakeForce, 1);
+            vehicle.SetBrake(brakeForce * 0.66f, 2);
+            vehicle.SetBrake(brakeForce * 0.66f, 3);
+        }
+
+        public void ResetBrake()
+        {
+            vehicle.SetBrake(1.05f, 0);
+            vehicle.SetBrake(1.05f, 1);
+            vehicle.SetBrake(1.05f, 2);
+            vehicle.SetBrake(1.05f, 3);
+        }
+
         public void Render()
         {
             // Renderizar la malla del auto, en este caso solo el Chasis
