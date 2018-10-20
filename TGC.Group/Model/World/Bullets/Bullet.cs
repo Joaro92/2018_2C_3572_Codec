@@ -31,6 +31,8 @@ namespace TGC.Group.World
             rigidBody.Dispose();
         }
 
+        public abstract void Dispose(Device dsDevice);
+
         public RigidBody RigidBody
         {
             get { return rigidBody; }

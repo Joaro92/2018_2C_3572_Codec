@@ -36,11 +36,21 @@ namespace TGC.Group.World.Bullets
         public override void fireFrom(Player1 player1, Device dsDevice)
         {
             rigidBody.WorldTransform = Matrix.Translation(0, 0.5f, -player1.meshAxisRadius.Z - player1.currentSpeed * 0.01f - 1.8f) * Matrix.RotationY(player1.yawPitchRoll.Y) * Matrix.Translation(player1.Mesh.Transform.Origin.ToBsVector);
-            rigidBody.ApplyCentralImpulse(new Vector3(player1.frontVector.X, 0, player1.frontVector.Z) * (25 + (FastMath.Sqrt(player1.currentSpeed) / 2)));
+            rigidBody.ApplyCentralImpulse(new Vector3(player1.frontVector.X, 0, player1.frontVector.Z) * (30 + (FastMath.Sqrt(player1.currentSpeed) / 2)));
 
-            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\machinegun.wav", player1.Mesh.Transform.Origin, dsDevice);
+            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\power.wav", player1.Mesh.Transform.Origin, dsDevice);
             sound.MinDistance = 150f;
             sound.play(false);
+        }
+
+        public override void Dispose(Device dsDevice)
+        {
+            sound.stop();
+            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\explosion.wav", mesh.Transform.Origin, dsDevice);
+            sound.MinDistance = 80f;
+            sound.play(false);
+            mesh.Dispose();
+            rigidBody.Dispose();
         }
     }
 }

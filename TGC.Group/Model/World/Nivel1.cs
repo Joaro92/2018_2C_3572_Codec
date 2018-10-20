@@ -80,7 +80,7 @@ namespace TGC.Group.Model.World
             CollisionsHandler();
 
             // Actualizar la lista de balas con aquellas que todavía siguen en el mundo después de las colisiones
-            bullets = ObtainExistingBullets();
+            bullets = ObtainExistingBullets(gameModel);
 
             if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
             if (bulletFlag > 0.25f) bulletFlag = 0;
@@ -111,7 +111,6 @@ namespace TGC.Group.Model.World
         private void ManageInputs(GameModel gameModel)
         {
             var jh = gameModel.JoystickHandler;
-            float multiplier;
 
             // Adelante
             if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || jh.JoystickButtonDown(0))
@@ -339,13 +338,13 @@ namespace TGC.Group.Model.World
             toRemove.ForEach(rigid => world.RemoveRigidBody(rigid));
         }
 
-        private List<Bullet> ObtainExistingBullets()
+        private List<Bullet> ObtainExistingBullets(GameModel gameModel)
         {
             List<Bullet> bullets2 = new List<Bullet>();
             bullets.ForEach(bullet =>
             {
                 if (bullet.RigidBody.IsInWorld) bullets2.Add(bullet);
-                else bullet.Dispose();
+                else bullet.Dispose(gameModel.DirectSound.DsDevice);
             });
 
             return bullets2;

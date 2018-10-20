@@ -35,7 +35,7 @@ namespace TGC.Group.World.Weapons
         public void fireFrom(Player1 player1, int opposite, Device dsDevice)
         {
             rigidBody.WorldTransform = Matrix.Translation(opposite * player1.meshAxisRadius.X * 0.8f, 0.27f, -player1.meshAxisRadius.Z - player1.currentSpeed * 0.01f - 0.47f) * Matrix.RotationY(player1.yawPitchRoll.Y) * Matrix.Translation(player1.Mesh.Transform.Origin.ToBsVector);
-            rigidBody.ApplyCentralImpulse(new Vector3(player1.frontVector.X, 0, player1.frontVector.Z) * (20 + (FastMath.Sqrt(player1.currentSpeed) / 2)));
+            rigidBody.ApplyCentralImpulse(new Vector3(player1.frontVector.X, 0, player1.frontVector.Z) * (25 + (FastMath.Sqrt(player1.currentSpeed) / 2)));
 
             sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\machinegun.wav", player1.Mesh.Transform.Origin, dsDevice);
             sound.MinDistance = 150f;
@@ -43,5 +43,14 @@ namespace TGC.Group.World.Weapons
         }
 
         public override void fireFrom(Player1 player1, Device dsDevice) { }
+        
+        public override void Dispose(Device dsDevice)
+        {
+            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\machinegunDestroy.wav", mesh.Transform.Origin, dsDevice);
+            sound.MinDistance = 47f;
+            sound.play(false);
+            mesh.Dispose();
+            rigidBody.Dispose();
+        }
     }
 }
