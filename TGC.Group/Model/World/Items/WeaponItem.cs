@@ -4,7 +4,7 @@ using TGC.Group.Model.World.Weapons;
 
 namespace TGC.Group.Model.Items
 {
-    public class WeaponItem : Item
+    public abstract class WeaponItem : Item
     {
         public Weapon Weapon { get; protected set; }
 
@@ -23,5 +23,7 @@ namespace TGC.Group.Model.Items
         {
             player1.AddWeapon(Weapon);
         }
+
+        public override float DesplazamientoY => 0.2f;
     }
 }

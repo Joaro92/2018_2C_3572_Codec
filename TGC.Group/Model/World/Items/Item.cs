@@ -45,7 +45,9 @@ namespace TGC.Group.Model.Items
 
         public abstract void Effect(Player1 player1);
 
-        public static TgcMesh LoadMesh(string name, TGCVector3 position)
+        public abstract float DesplazamientoY { get; }
+
+        private static TgcMesh LoadMesh(string name, TGCVector3 position)
         {
             var loader = new TgcSceneLoader();
             var mesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + Game.Default.ItemsDirectory + name.ToLower() + "-item-TgcScene.xml").Meshes[0];
