@@ -1,4 +1,7 @@
-﻿using System;
+﻿using BulletSharp;
+using System;
+using TGC.Core.Mathematica;
+using TGC.Core.SceneLoader;
 
 namespace TGC.Group.Model.World.Weapons
 {
@@ -15,15 +18,10 @@ namespace TGC.Group.Model.World.Weapons
             Ammo = initialAmmo;
         }
 
-        public virtual void Fire()
+        public virtual void Fire(DiscreteDynamicsWorld world, Player1 player1)
         {
             Ammo--;
         }
-
-        //public void Dispose()
-        //{
-
-        //}
 
     }
 }

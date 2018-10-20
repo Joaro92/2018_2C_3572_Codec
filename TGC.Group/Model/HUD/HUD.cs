@@ -39,12 +39,12 @@ namespace TGC.Group.Model
             healthBar.Scaling = new TGCVector2(hpScale.X * (player1.hitPoints / player1.maxHitPoints), hpScale.Y);
 
             // Actualizamos velocidad actual y el hud de armas
-            speed.Text = player1.linealVelocity;
+            speed.Text = player1.currentSpeed.ToString();
 
             var selectedWeapon = player1.SelectedWeapon;
             if (selectedWeapon != null)
             {
-                weaponName.Text = "[ " + player1.SelectedWeapon.Name + " ]";
+                weaponName.Text = player1.SelectedWeapon.Name;
                 ammoQuantity.Text = player1.SelectedWeapon.Ammo.ToString();
             }
             else

@@ -5,7 +5,7 @@ namespace TGC.Group.Model.Items
 {
     public class CoheteItem : WeaponItem
     {
-        public CoheteItem(TGCVector3 pos) : base(pos, "Rocket")
+        public CoheteItem(TGCVector3 pos) : base(pos, "Power")
         {
         }
 

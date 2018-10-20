@@ -23,9 +23,10 @@ namespace TGC.Group.Model.World
         // Variables de Control
         public bool jumped = false;
         public Vector3 yawPitchRoll;
-        public TGCVector3 frontVector, velocityVector;
+        public TGCVector3 frontVector;
+        public int currentSpeed;
         public float flippedTime = 0;
-        public string linealVelocity;
+        //public string linealVelocity;
         public bool collision = false;
         public float hitPoints;
         public float specialPoints;
@@ -59,14 +60,10 @@ namespace TGC.Group.Model.World
         private readonly float meshRealHeight = 0.4f;
         private readonly float suspensionLength = 0.9f;
         
-
         // Armas
         public List<Weapon> Weapons { get; } = new List<Weapon>();
         public Weapon SelectedWeapon { get; set; } = null;
 
-        /// <summary>
-        ///  Crea un Vehiculo con propiedades de Bullet y TgcMesh y lo agrega al mundo a partir de un archivo 'TgcScene.xml'
-        /// </summary>
         public Player1(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position)
         {
             this.vehiculo = vehiculo;
@@ -224,7 +221,50 @@ namespace TGC.Group.Model.World
             }
         }
 
-        // -----------------------------------------------------
+        public void UpdateInternalValues()
+        {
+            frontVector = new TGCVector3(Vector3.TransformNormal(-Vector3.UnitZ, RigidBody.InterpolationWorldTransform));
+            var velocityVector = new TGCVector3(RigidBody.InterpolationLinearVelocity.X, 0, RigidBody.InterpolationLinearVelocity.Z);
+
+            if (velocityVector.Length() < 0.12f)
+            {
+                velocityVector = TGCVector3.Empty;
+            }
+            var speedAngle = FastMath.Acos(TGCVector3.Dot(frontVector, velocityVector) / (frontVector.Length() * velocityVector.Length()));
+            velocityVector.Multiply(2.5f);
+
+            currentSpeed = (int)velocityVector.Length();
+
+            if (speedAngle >= FastMath.PI_HALF)
+            {
+                currentSpeed *= -1;
+            }
+
+            yawPitchRoll = Quat.ToEulerAngles(RigidBody.Orientation);
+        }
+
+        public void Respawn(bool inflictDmg, TGCVector3 initialPos)
+        {
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
+            transformationMatrix.Origin = initialPos.ToBsVector;
+
+            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+            RigidBody.LinearVelocity = Vector3.Zero;
+            RigidBody.AngularVelocity = Vector3.Zero;
+
+            if (inflictDmg) hitPoints -= 30;
+        }
+
+        public void Straighten()
+        {
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
+            transformationMatrix.Origin = RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
+
+            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+            RigidBody.LinearVelocity = Vector3.Zero;
+            RigidBody.AngularVelocity = Vector3.Zero;
+            flippedTime = 0;
+        }
 
         public void Render()
         {
@@ -252,6 +292,12 @@ namespace TGC.Group.Model.World
             wheel.Render();
         }
         
+        public void Dispose()
+        {
+            mesh.Dispose();
+            rigidBody.Dispose();
+        }
+
         public RigidBody RigidBody
         {
             get { return rigidBody; }
@@ -267,16 +313,6 @@ namespace TGC.Group.Model.World
         public RaycastVehicle Vehicle
         {
             get { return vehicle; }
-        }
-
-        //public TgcMesh Wheel
-        //{
-        //    get { return wheel; }
-        //}
-
-        public int WorldID
-        {
-            get { return worldID; }
         }
     }
 }

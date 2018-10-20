@@ -129,7 +129,7 @@ namespace TGC.Group.Model.GameStates
                     showMenu = true;
                 }
 
-                if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
+                if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7) || jh.JoystickButtonPressed(0))
                 {
                     frecStart *= 2;
                     sm.PlaySound("menuEnter.wav");

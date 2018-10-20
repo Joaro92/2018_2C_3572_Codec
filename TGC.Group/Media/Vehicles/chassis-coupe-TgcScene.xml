@@ -70,7 +70,7 @@
         <rollInfluence>0,5</rollInfluence>
 				<rearWheelsHeight>0</rearWheelsHeight>
         <frontWheelsHeight>0</frontWheelsHeight>
-				<suspensionRestLength>0,9</suspensionRestLength>
+				<suspensionRestLength>1,03</suspensionRestLength>
 				<suspensionStiffness>41</suspensionStiffness>
 				<dampingCompression>0,12</dampingCompression>
 				<dampingRelaxation>0,91</dampingRelaxation>

@@ -13,6 +13,7 @@ namespace TGC.Group.Model
         private Joystick joystick;
 
         private bool[] joyFlag = { false, false, false, false, false, false, false, false, false, false };
+        private bool L2flag = false;
         private bool[] dpadFlag = { false, false, false, false };
         private int doubleTap = 0;
         private float elapsedTime = 0;
@@ -65,25 +66,27 @@ namespace TGC.Group.Model
 
             if (joyFlag[buttonID] == false)
             {
-                joyFlag[buttonID] = joystick.GetCurrentState().Buttons[buttonID];
-
+                if (joystick.GetCurrentState().Buttons[buttonID])
+                {
+                    joyFlag[buttonID] = true;
+                    return true;
+                }
                 return false;
             }
             else
             {
-                if (joystick.GetCurrentState().Buttons[buttonID] == false)
+                if (!joystick.GetCurrentState().Buttons[buttonID])
                 {
                     joyFlag[buttonID] = false;
-                    return true;
                 }
-                else return false;
+                return false;
             }
         }
+
         public bool JoystickButtonPressedDouble(int buttonID, float ElapsedTime)
         {
             if (joystick == null) return false;
             joystick.Poll();
-
 
             if (doubleTap == 1)
             {
@@ -197,6 +200,30 @@ namespace TGC.Group.Model
             joystick.Poll();
 
             return joystick.GetCurrentState().Z < 13000;
+        }
+
+        public bool JoystickL2Pressed()
+        {
+            if (joystick == null) return false;
+            joystick.Poll();
+
+            if (L2flag == false)
+            {
+                if (joystick.GetCurrentState().Z > 51000)
+                {
+                    L2flag = true;
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+                if (joystick.GetCurrentState().Z < 51000)
+                {
+                    L2flag = false;
+                }
+                return false;
+            }
         }
 
         public int JoystickRightStick()

@@ -7,32 +7,19 @@ using TGC.Core.Collision;
 using TGC.Core.Mathematica;
 using TGC.Core.Sound;
 using TGC.Examples.Camara;
-using TGC.Group.Bullet.Physics;
 using TGC.Group.Model.Items;
 using TGC.Group.Model.Vehicles;
-using TGC.Group.Model.World.Weapons;
+using TGC.Group.Physics;
 using TGC.Group.Utils;
+using TGC.Group.World;
+using TGC.Group.World.Bullets;
+using TGC.Group.World.Weapons;
 
 namespace TGC.Group.Model.World
 {
     public class NivelUno : PhysicsGame
     {
         private readonly TGCVector3 initialPos = new TGCVector3(144f, 7.5f, 0f);
-
-        private bool moving = false;
-        private bool rotating = false;
-        private bool braking = false;
-        private bool jump = false;
-        private bool jumped = false;
-        private bool flag = false;
-        private bool afterJump = true;
-        private bool inflictDmg = true;
-        private float bulletFlag = 0;
-        private float neg = 1f;
-
-        //private TGCVector3 currentCameraPosition;
-        private List<MachinegunBullet> mBullets = new List<MachinegunBullet>();
-        private List<Item> items = new List<Item>();
 
         public NivelUno(Vehiculo vehiculoP1)
         {
@@ -41,7 +28,7 @@ namespace TGC.Group.Model.World
             escenario = new Escenario(world, dir + "scene-level1a-TgcScene.xml");
             
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, vehiculoP1, initialPos);
+            player1 = new Player1(world, vehiculoP1, initialPos); // mover a Partida
 
             // Crear SkyBox
             skyBox = Skybox.InitSkybox();
@@ -54,6 +41,7 @@ namespace TGC.Group.Model.World
         {
             // Determinar que la simulación del mundo físico se va a procesar 60 veces por segundo
             world.StepSimulation(1 / 60f, 10);
+            time += gameModel.ElapsedTime;
 
             // Reiniciar variables de control
             moving = false;
@@ -61,21 +49,14 @@ namespace TGC.Group.Model.World
             jump = false;
             braking = false;
 
-            // Actualizar la velocidad lineal instantanea del vehiculo
-            UpdatePlayer1LinearVelocity();
+            // Actualizar variables que requieren calculos complejos una sola vez
+            player1.UpdateInternalValues();
 
             // Si el jugador cayó a más de 100 unidades en Y, se lo hace respawnear
             if (player1.RigidBody.CenterOfMassPosition.Y < -100)
             {
-                RespawnPlayer1(inflictDmg);
+                player1.Respawn(inflictDmg, initialPos);
             }
-
-            // Manejar los inputs del teclado y joystick
-            ManageInputs(gameModel);
-
-            // Actualizar la inclinación del vehiculo
-            player1.yawPitchRoll = Quat.ToEulerAngles(player1.RigidBody.Orientation);
-
 
             //Si está lo suficientemente rotado en los ejes X o Z no se va a poder mover, por eso lo enderezamos
             if (FastMath.Abs(player1.yawPitchRoll.X) > 1.39f || FastMath.Abs(player1.yawPitchRoll.Z) > 1.39f)
@@ -83,7 +64,8 @@ namespace TGC.Group.Model.World
                 player1.flippedTime += gameModel.ElapsedTime;
                 if (player1.flippedTime > 3)
                 {
-                    StraightenPlayer1();
+                    player1.Straighten();
+                    afterJump = true;
                 }
             }
             else
@@ -91,11 +73,20 @@ namespace TGC.Group.Model.World
                 player1.flippedTime = 0;
             }
 
+            // Manejar los inputs del teclado y joystick
+            ManageInputs(gameModel);
+
+            // Metodo que se encarga de manejar las colisiones según corresponda
+            CollisionsHandler();
+
+            // Actualizar la lista de balas con aquellas que todavía siguen en el mundo después de las colisiones
+            bullets = ObtainExistingBullets();
+
+            if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
+            if (bulletFlag > 0.25f) bulletFlag = 0;
+
             // Ajustar la posicion de la cámara segun la colisión con los objetos del escenario
             AdjustCameraPosition(camaraInterna, modoCamara);
-
-            // Método que se encarga de la administración completa de cada bala de la Machinegun
-            MachinegunHandler(gameModel);
 
             // Método que se encarga de la administración completa de cada item coleccionable del mundo
             ItemsHandler(gameModel);
@@ -103,48 +94,17 @@ namespace TGC.Group.Model.World
 
         public override void Render(GameModel gameModel)
         {
-            // Renderizar el Player 1
             player1.Render();
-
-            // Renderizar el Escenario
             escenario.Render();
-
-            // Renderizar cada bala de Machinegun
-            foreach (var b in mBullets)
-            {
-                b.TgcBox.Transform = new TGCMatrix(b.GhostObject.WorldTransform);
-                b.TgcBox.Render();
-            }
-
-            // Renderizar Items
-            foreach (Item i in items)
-            {
-                if (i.IsPresent)
-                    i.Mesh.Render();
-            }
-
-            // Renderizar el SkyBox
             skyBox.Render();
-        }
 
-        public override void Dispose()
-        {
-            world.Dispose();
-            dispatcher.Dispose();
-            collisionConfiguration.Dispose();
-            constraintSolver.Dispose();
-            broadphase.Dispose();
-            player1.Mesh.Dispose();
-            player1.RigidBody.Dispose();
-            //player1.Weapons.ForEach(w => w.Dispose());
-            escenario.Dispose();
-            mBullets.ForEach(b => b.Dispose());
-            items.ForEach(i => {
-                if (i.IsPresent)
-                    i.Dispose();
-            });
+            bullets.ForEach(bullet => bullet.Render());
+            foreach (Item item in items)
+            {
+                if (item.IsPresent)
+                    item.Mesh.Render();
+            }
         }
-
 
         // ------------------------------------------------------
 
@@ -158,7 +118,7 @@ namespace TGC.Group.Model.World
             {
                 //Pequeño impulso adicional cuando la velocidad es baja
                 var multi = 1f;
-                if ((player1.velocityVector * 2.5f).Length() < 15)
+                if (player1.currentSpeed < 15)
                     multi = 1.8f;
 
                 player1.Vehicle.ApplyEngineForce(player1.engineForce * multi, 2);
@@ -257,32 +217,31 @@ namespace TGC.Group.Model.World
                 if (bulletFlag == 0)
                 {
                     var b = new MachinegunBullet(world);
+                    b.fireFrom(player1, neg, gameModel.DirectSound.DsDevice);
+                    bullets.Add(b);
 
-                    //b.GhostObject.WorldTransform = Matrix.Translation(neg * player1.meshAxisRadius.X * 0.8f, +0.22f, -player1.meshAxisRadius.Z - player1.velocityVector.Length() * 0.01f - 0.47f) * player1.RigidBody.InterpolationWorldTransform;
-
-                    b.GhostObject.WorldTransform = Matrix.Translation(neg * player1.meshAxisRadius.X * 0.8f, 0.24f, -player1.meshAxisRadius.Z - player1.velocityVector.Length() * 0.01f - 0.47f) * Matrix.RotationY(player1.yawPitchRoll.Y) * Matrix.Translation(player1.Mesh.Transform.Origin.ToBsVector);
-
-                    b.GhostObject.ApplyCentralImpulse(new Vector3(player1.frontVector.X, 0, player1.frontVector.Z) * (20 + (FastMath.Sqrt(int.Parse(player1.linealVelocity) / 2))));
-                    
-                    mBullets.Add(b);
                     bulletFlag += gameModel.ElapsedTime;
-                    neg *= -1f;
-
-                    var sound = new Tgc3dSound(gameModel.MediaDir + "Sounds\\FX\\machinegun.wav", player1.Mesh.Transform.Origin, gameModel.DirectSound.DsDevice);
-                    sound.MinDistance = 150f;
-                    sound.play(false);
+                    neg *= -1;
                 }
             }
 
             // Disparar arma especial
-            if (gameModel.Input.keyPressed(Key.R))//|| jh.JoystickL2Pressed())
+            if (gameModel.Input.keyPressed(Key.R) || jh.JoystickL2Pressed())
             {
                 if (player1.SelectedWeapon != null)
                 {
-                    player1.SelectedWeapon.Fire();
+                    Bullet b = null;
+                    switch (player1.SelectedWeapon.Name)
+                    {
+                        case "Power Missile":
+                            b = new PowerMissile(world);
+                            break;
+                    }
+                    b.fireFrom(player1, gameModel.DirectSound.DsDevice);
+                    player1.SelectedWeapon.Ammo--;
+                    bullets.Add(b);
                     player1.ReassignWeapon();
                 }
-
             }
 
             // Saltar
@@ -320,52 +279,9 @@ namespace TGC.Group.Model.World
             }
         }
 
-        private void UpdatePlayer1LinearVelocity()
-        {
-            player1.frontVector = new TGCVector3(Vector3.TransformNormal(-Vector3.UnitZ, player1.RigidBody.InterpolationWorldTransform));
-            player1.velocityVector = new TGCVector3(player1.RigidBody.InterpolationLinearVelocity.X, 0, player1.RigidBody.InterpolationLinearVelocity.Z);
-            
-            if (player1.velocityVector.Length() < 0.111f)
-            {
-                player1.velocityVector = TGCVector3.Empty;
-            }
-            var speedAngle = FastMath.Acos(TGCVector3.Dot(player1.frontVector, player1.velocityVector) / (player1.frontVector.Length() * player1.velocityVector.Length()));
 
-            player1.velocityVector.Multiply(2.5f);
 
-            if (speedAngle > FastMath.PI_HALF)
-            {
-                player1.linealVelocity = "-" + ((int)player1.velocityVector.Length()).ToString();
-            }
-            else
-            {
-                player1.linealVelocity = ((int)player1.velocityVector.Length()).ToString();
-            }
-        }
 
-        private void RespawnPlayer1(bool InflictDmg)
-        {
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-            transformationMatrix.Origin = initialPos.ToBsVector;
-
-            player1.RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-            player1.RigidBody.LinearVelocity = Vector3.Zero;
-            player1.RigidBody.AngularVelocity = Vector3.Zero;
-
-            if (inflictDmg) player1.hitPoints -= 30;
-        }
-
-        private void StraightenPlayer1()
-        {
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-            transformationMatrix.Origin = player1.RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
-
-            player1.RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-            player1.RigidBody.LinearVelocity = Vector3.Zero;
-            player1.RigidBody.AngularVelocity = Vector3.Zero;
-            player1.flippedTime = 0;
-            afterJump = true;
-        }
 
         private void AdjustCameraPosition(TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
         {
@@ -427,80 +343,124 @@ namespace TGC.Group.Model.World
             camaraInterna.SetCamera(position, target);
         }
 
-        private void MachinegunHandler(GameModel gameModel)
+        private void CollisionsHandler()
         {
-            List<int> bulletsID = new List<int>();
-            if (world.Broadphase.OverlappingPairCache.OverlappingPairArray.Count > 0)
+            var overlappedPairs = world.Broadphase.OverlappingPairCache.OverlappingPairArray;
+            if (overlappedPairs.Count == 0) return;
+
+            RigidBody obj0, obj1;
+            BroadphaseNativeType shapeType;
+            List<RigidBody> toRemove = new List<RigidBody>();
+            foreach (var pair in overlappedPairs)
             {
-                foreach (var overlappingPair in world.Broadphase.OverlappingPairCache.OverlappingPairArray)
+                obj0 = (RigidBody)pair.Proxy0.ClientObject;
+                obj1 = (RigidBody)pair.Proxy1.ClientObject;
+
+                shapeType = obj0.CollisionShape.ShapeType;
+                if (shapeType == BroadphaseNativeType.BoxShape)
                 {
-                    RigidBody obj0 = (RigidBody)overlappingPair.Proxy0.ClientObject;
-                    RigidBody obj1 = (RigidBody)overlappingPair.Proxy1.ClientObject;
+                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape || obj1.Equals(player1.RigidBody)) continue;
+                    toRemove.Add(obj0);
+                    continue;
+                }
 
-
-                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
-                    {
-                        if (obj0.WorldArrayIndex != player1.RigidBody.WorldArrayIndex)
-                            bulletsID.Add(obj1.WorldArrayIndex);
-                    }
-
-                    if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
-                    {
-                        if (obj1.WorldArrayIndex != player1.RigidBody.WorldArrayIndex)
-                            bulletsID.Add(obj0.WorldArrayIndex);
-                    }
+                shapeType = obj1.CollisionShape.ShapeType;
+                if (shapeType == BroadphaseNativeType.BoxShape)
+                {
+                    if (obj0.Equals(player1.RigidBody)) continue;
+                    toRemove.Add(obj1);
+                    continue;
                 }
             }
 
-            var count = 0;
-            if (bulletsID.Count > 0)
-            {
-                var aux = mBullets.FindAll(b =>
-                {
-                    if (bulletsID.Contains(b.GhostObject.WorldArrayIndex + count))
-                    {
-                        world.RemoveRigidBody(b.GhostObject);
-                        b.Dispose();
-                        count = count + bulletsID.Count + 2;
-                        return false;
-                    }
-                    else return true;
-                });
+            toRemove.ForEach(rigid => world.RemoveRigidBody(rigid));
+        }
 
-                mBullets = aux;
-            }
-
-            foreach(var b in mBullets)
+        private List<Bullet> ObtainExistingBullets()
+        {
+            List<Bullet> bullets2 = new List<Bullet>();
+            bullets.ForEach(bullet =>
             {
-                b.LiveTime += gameModel.ElapsedTime;
-            }
-
-            count = 0;
-            var aux2 = mBullets.FindAll(b =>
-            {
-                if (b.LiveTime > 10)
-                {
-                    world.RemoveRigidBody(b.GhostObject);
-                    b.Dispose();
-                    count = count + bulletsID.Count + 2;
-                    return false;
-                }
-                else return true;
+                if (bullet.RigidBody.IsInWorld) bullets2.Add(bullet);
+                else bullet.Dispose();
             });
 
-            mBullets = aux2;
-
-            if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
-            if (bulletFlag > 0.25f) bulletFlag = 0;
+            return bullets2;
         }
+        //private void MachinegunHandler(GameModel gameModel)
+        //{
+        //    List<int> bulletsID = new List<int>();
+        //    if (world.Broadphase.OverlappingPairCache.OverlappingPairArray.Count > 0)
+        //    {
+        //        foreach (var overlappingPair in world.Broadphase.OverlappingPairCache.OverlappingPairArray)
+        //        {
+        //            RigidBody obj0 = (RigidBody)overlappingPair.Proxy0.ClientObject;
+        //            RigidBody obj1 = (RigidBody)overlappingPair.Proxy1.ClientObject;
+
+
+        //            if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
+        //            {
+        //                if (obj0.WorldArrayIndex != player1.RigidBody.WorldArrayIndex)
+        //                    bulletsID.Add(obj1.WorldArrayIndex);
+        //            }
+
+        //            if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
+        //            {
+        //                if (obj1.WorldArrayIndex != player1.RigidBody.WorldArrayIndex)
+        //                    bulletsID.Add(obj0.WorldArrayIndex);
+        //            }
+        //        }
+        //    }
+
+        //    var count = 0;
+        //    if (bulletsID.Count > 0)
+        //    {
+        //        var aux = mBullets.FindAll(b =>
+        //        {
+        //            if (bulletsID.Contains(b.GhostObject.WorldArrayIndex + count))
+        //            {
+        //                world.RemoveRigidBody(b.GhostObject);
+        //                b.Dispose();
+        //                count = count + bulletsID.Count + 2;
+        //                return false;
+        //            }
+        //            else return true;
+        //        });
+
+        //        mBullets = aux;
+        //    }
+
+        //    foreach(var b in mBullets)
+        //    {
+        //        b.LiveTime += gameModel.ElapsedTime;
+        //    }
+
+        //    count = 0;
+        //    var aux2 = mBullets.FindAll(b =>
+        //    {
+        //        if (b.LiveTime > 10)
+        //        {
+        //            world.RemoveRigidBody(b.GhostObject);
+        //            b.Dispose();
+        //            count = count + bulletsID.Count + 2;
+        //            return false;
+        //        }
+        //        else return true;
+        //    });
+
+        //    mBullets = aux2;
+
+        //    if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
+        //    if (bulletFlag > 0.25f) bulletFlag = 0;
+        //}
 
         private void SpawnItems()
         {
             items.Add(new Corazon(new TGCVector3(144f, 4f, 24f)));
             items.Add(new Energia(new TGCVector3(168f, 4f, 36f)));
-            items.Add(new BombaItem(new TGCVector3(120f, 4f, 36f)));
+            //items.Add(new BombaItem(new TGCVector3(120f, 4f, 36f)));
             items.Add(new CoheteItem(new TGCVector3(168f, 4f, 48f)));
-            items.Add(new BombaHieloItem(new TGCVector3(144f, 4f, 48f)));
+            //items.Add(new BombaHieloItem(new TGCVector3(144f, 4f, 48f)));
         }
 
         private void ItemsHandler(GameModel gameModel)
@@ -516,6 +476,7 @@ namespace TGC.Group.Model.World
                 if (i.IsPresent)
                 {
                     i.Mesh.RotateY(FastMath.PI_HALF * gameModel.ElapsedTime);
+                    i.Mesh.Position = new TGCVector3(i.Mesh.Position.X, i.Mesh.Position.Y + FastMath.Cos(time * 2) * 0.004f, i.Mesh.Position.Z);
 
                     if (TgcCollisionUtils.testAABBAABB(player1AABB, i.Mesh.BoundingBox))
                     {

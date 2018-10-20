@@ -2,7 +2,7 @@
 using TGC.Core.Geometry;
 using TGC.Core.Mathematica;
 using TGC.Examples.Camara;
-using TGC.Group.Bullet.Physics;
+using TGC.Group.Physics;
 using TGC.Group.Model.World;
 using TGC.Group.Utils;
 using TGC.Group.Model.Interfaces;

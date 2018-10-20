@@ -1,4 +1,6 @@
-﻿namespace TGC.Group.Model.World.Weapons
+﻿using BulletSharp;
+
+namespace TGC.Group.Model.World.Weapons
 {
     public class Bomba : Weapon
     {
@@ -7,10 +9,10 @@
             //Otras inicializaciones
         }
 
-        public override void Fire()
+        public override void Fire(DiscreteDynamicsWorld world, Player1 player1)
         {
             //Fisica del disparo
-            base.Fire();
+            base.Fire(world, player1);
         }
     }
 }

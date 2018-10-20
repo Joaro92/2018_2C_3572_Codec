@@ -55,7 +55,7 @@ namespace TGC.Group.Model.Items
 
         public virtual void Dispose()
         {
-            Mesh.Dispose();
+            if (IsPresent) Mesh.Dispose();
         }
     }
 }

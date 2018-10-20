@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using TGC.Core.SceneLoader;
-using TGC.Group.Bullet.Physics;
+using TGC.Group.Physics;
 
 namespace TGC.Group.Model.World
 {

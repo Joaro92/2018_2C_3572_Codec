@@ -1,6 +1,7 @@
 ﻿using BulletSharp.Math;
 using System.Drawing;
 using System.Drawing.Text;
+using TGC.Core.Mathematica;
 
 namespace TGC.Group.Utils
 {
@@ -95,5 +96,61 @@ namespace TGC.Group.Utils
         }
     }
 
+    public static class Quat
+    {
+        public static TGCVector3 rotate_vector_by_quaternion(TGCVector3 v, Quaternion q)
+        {
+            // Extract the vector part of the quaternion
+            TGCVector3 u = new TGCVector3(q.X, q.Y, q.Z);
+
+            // Extract the scalar part of the quaternion
+            float s = q.W;
+
+            // Do the math
+            var vprime = 2.0f * TGCVector3.Dot(u, v) * u
+                + (s * s - TGCVector3.Dot(u, u)) * v
+                + 2.0f * s * TGCVector3.Cross(u, v);
+
+            return vprime;
+        }
+
+        public static Vector3 ToEulerAngles(this Quaternion q)
+        {
+            // Store the Euler angles in radians
+            Vector3 pitchYawRoll = new Vector3();
+            float PI = FastMath.PI;
+            float sqw = q.W * q.W;
+            float sqx = q.X * q.X;
+            float sqy = q.Y * q.Y;
+            float sqz = q.Z * q.Z;
+
+            // If quaternion is normalised the unit is one, otherwise it is the correction factor
+            float unit = sqx + sqy + sqz + sqw;
+            float test = q.X * q.Y + q.Z * q.W;
+
+            if (test > 0.499f * unit)
+            {
+                // Singularity at north pole
+                pitchYawRoll.Y = 2f * FastMath.Atan2(q.X, q.W); // Yaw
+                pitchYawRoll.X = PI * 0.5f; // Pitch
+                pitchYawRoll.Z = 0f; // Roll
+                return pitchYawRoll;
+            }
+            else if (test < -0.499f * unit)
+            {
+                // Singularity at south pole
+                pitchYawRoll.Y = -2f * FastMath.Atan2(q.X, q.W); // Yaw
+                pitchYawRoll.X = -PI * 0.5f; // Pitch
+                pitchYawRoll.Z = 0f; // Roll
+                return pitchYawRoll;
+            }
+
+            pitchYawRoll.Y = FastMath.Atan2(2 * q.Y * q.W - 2 * q.X * q.Z, sqx - sqy - sqz + sqw); // Yaw
+            pitchYawRoll.X = FastMath.Asin(2 * test / unit); // Pitch
+            pitchYawRoll.Z = FastMath.Atan2(2 * q.X * q.W - 2 * q.Y * q.Z, -sqx + sqy - sqz + sqw); // Roll
+
+            return pitchYawRoll;
+        }
+    }
 
 }

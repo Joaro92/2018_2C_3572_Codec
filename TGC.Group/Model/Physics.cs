@@ -8,66 +8,12 @@ using TGC.Group.Utils;
 using TGC.Group.Model;
 using TGC.Group.Model.World;
 using TGC.Core.Terrain;
+using System.Collections.Generic;
+using TGC.Group.Model.Items;
+using TGC.Group.World;
 
-namespace TGC.Group.Bullet.Physics
+namespace TGC.Group.Physics
 {
-    public static class Quat
-    {
-        public static TGCVector3 rotate_vector_by_quaternion(TGCVector3 v, Quaternion q)
-        {
-            // Extract the vector part of the quaternion
-            TGCVector3 u = new TGCVector3(q.X, q.Y, q.Z);
-
-            // Extract the scalar part of the quaternion
-            float s = q.W;
-
-            // Do the math
-            var vprime = 2.0f * TGCVector3.Dot(u, v) * u
-                + (s * s - TGCVector3.Dot(u, u)) * v
-                + 2.0f * s * TGCVector3.Cross(u, v);
-
-            return vprime;
-        }
-
-        public static Vector3 ToEulerAngles(this Quaternion q)
-        {
-            // Store the Euler angles in radians
-            Vector3 pitchYawRoll = new Vector3();
-            float PI = FastMath.PI;
-            float sqw = q.W * q.W;
-            float sqx = q.X * q.X;
-            float sqy = q.Y * q.Y;
-            float sqz = q.Z * q.Z;
-
-            // If quaternion is normalised the unit is one, otherwise it is the correction factor
-            float unit = sqx + sqy + sqz + sqw;
-            float test = q.X * q.Y + q.Z * q.W;
-
-            if (test > 0.499f * unit)
-            {
-                // Singularity at north pole
-                pitchYawRoll.Y = 2f * FastMath.Atan2(q.X, q.W); // Yaw
-                pitchYawRoll.X = PI * 0.5f; // Pitch
-                pitchYawRoll.Z = 0f; // Roll
-                return pitchYawRoll;
-            }
-            else if (test < -0.499f * unit)
-            {
-                // Singularity at south pole
-                pitchYawRoll.Y = -2f * FastMath.Atan2(q.X, q.W); // Yaw
-                pitchYawRoll.X = -PI * 0.5f; // Pitch
-                pitchYawRoll.Z = 0f; // Roll
-                return pitchYawRoll;
-            }
-
-            pitchYawRoll.Y = FastMath.Atan2(2 * q.Y * q.W - 2 * q.X * q.Z, sqx - sqy - sqz + sqw); // Yaw
-            pitchYawRoll.X = FastMath.Asin(2 * test / unit); // Pitch
-            pitchYawRoll.Z = FastMath.Atan2(2 * q.X * q.W - 2 * q.Y * q.Z, -sqx + sqy - sqz + sqw); // Roll
-
-            return pitchYawRoll;
-        }
-    }
-
     public abstract class BulletRigidBodyConstructor
 
     {
@@ -332,9 +278,24 @@ namespace TGC.Group.Bullet.Physics
         protected SequentialImpulseConstraintSolver constraintSolver;
         protected BroadphaseInterface broadphase;
 
-        public Player1 player1 { get; set; }
+        public Player1 player1;
         protected Escenario escenario;
         protected TgcSkyBox skyBox;
+        protected List<Item> items;
+        protected List<Bullet> bullets;
+        protected List<Enemy> enemies;
+
+        protected bool moving = false;
+        protected bool rotating = false;
+        protected bool braking = false;
+        protected bool jump = false;
+        protected bool jumped = false;
+        protected bool flag = false;
+        protected bool afterJump = true;
+        protected bool inflictDmg = true;
+        protected float bulletFlag = 0;
+        protected int neg = 1;
+        protected float time;
 
         public PhysicsGame()
         {
@@ -349,12 +310,30 @@ namespace TGC.Group.Bullet.Physics
             {
                 Gravity = new TGCVector3(0, -9.8f, 0).ToBsVector
             };
+
+            items = new List<Item>();
+            bullets = new List<Bullet>();
+            enemies = new List<Enemy>();
         }
 
         public abstract void Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara);
 
         public abstract void Render(GameModel gameModel);
 
-        public abstract void Dispose();
+        public void Dispose()
+        {
+            world.Dispose();
+            dispatcher.Dispose();
+            collisionConfiguration.Dispose();
+            constraintSolver.Dispose();
+            broadphase.Dispose();
+
+            player1.Dispose();
+            escenario.Dispose();
+            skyBox.Dispose();
+
+            items.ForEach(item => item.Dispose());
+            bullets.ForEach(bullet => bullet.Dispose());
+        }
     }
 }
