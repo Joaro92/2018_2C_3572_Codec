@@ -234,6 +234,14 @@ namespace TGC.Group.Model
             return joystick.GetCurrentState().RotationX - 32768;
         }
 
+        public int JoystickLeftStick()
+        {
+            if (joystick == null) return 0;
+            joystick.Poll();
+
+            return joystick.GetCurrentState().X - 32768;
+        }
+
         public void Dispose()
         {
             if (joystick != null) joystick.Dispose();

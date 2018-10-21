@@ -111,6 +111,12 @@ namespace TGC.Group.Model.World
         private void ManageInputs(GameModel gameModel)
         {
             var jh = gameModel.JoystickHandler;
+            var rightStick = jh.JoystickLeftStick();
+            float grades = 0;
+            if (FastMath.Abs(rightStick) > 1800)
+            {
+                grades = ((FastMath.Abs(rightStick) - 1800f) / 30000f) * (FastMath.Abs(rightStick) / rightStick);
+            }
 
             // Adelante
             if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || jh.JoystickButtonDown(0))
@@ -124,6 +130,13 @@ namespace TGC.Group.Model.World
             {
                 player1.Reverse();
                 moving = true;
+            }
+
+            if (grades != 0)
+            {
+                player1.Vehicle.SetSteeringValue(player1.steeringAngle * grades, 2);
+                player1.Vehicle.SetSteeringValue(player1.steeringAngle * grades, 3);
+                rotating = true;
             }
 
             // Derecha
@@ -140,7 +153,6 @@ namespace TGC.Group.Model.World
                 rotating = true;
             }
 
-            // Si no se está moviendo
             if (!rotating)
             {
                 player1.ResetSteering();
