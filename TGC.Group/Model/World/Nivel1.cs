@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using TGC.Core.BoundingVolumes;
 using TGC.Core.Collision;
 using TGC.Core.Mathematica;
-using TGC.Core.Sound;
+using Button = TGC.Group.Model.Input.Button;
 using TGC.Examples.Camara;
 using TGC.Group.Model.Items;
 using TGC.Group.Model.Vehicles;
@@ -14,6 +14,7 @@ using TGC.Group.Utils;
 using TGC.Group.World;
 using TGC.Group.World.Bullets;
 using TGC.Group.World.Weapons;
+using TGC.Group.Model.World.Weapons;
 
 namespace TGC.Group.Model.World
 {
@@ -30,6 +31,10 @@ namespace TGC.Group.Model.World
             // Creamos a nuestro jugador y lo agregamos al mundo
             player1 = new Player1(world, vehiculoP1, initialPos); // mover a Partida
 
+            // Le damos unas armas a nuestro jugador
+            player1.AddWeapon(new Cohete());
+            player1.SelectedWeapon.Ammo += 1;
+
             // Crear SkyBox
             skyBox = Skybox.InitSkybox();
 
@@ -41,15 +46,11 @@ namespace TGC.Group.Model.World
         {
             // Determinar que la simulación del mundo físico se va a procesar 60 veces por segundo
             world.StepSimulation(1 / 60f, 10);
-            time += gameModel.ElapsedTime;
 
-            // Reiniciar variables de control
-            moving = false;
-            rotating = false;
-            jump = false;
-            braking = false;
+            // Actualizar variables de control
+            UpdateControlVariables(gameModel);
 
-            // Actualizar variables que requieren calculos complejos una sola vez
+            // Actualizar variables del jugador que requieren calculos complejos una sola vez
             player1.UpdateInternalValues();
 
             // Si el jugador cayó a más de 100 unidades en Y, se lo hace respawnear
@@ -65,7 +66,6 @@ namespace TGC.Group.Model.World
                 if (player1.flippedTime > 3)
                 {
                     player1.Straighten();
-                    afterJump = true;
                 }
             }
             else
@@ -74,16 +74,22 @@ namespace TGC.Group.Model.World
             }
 
             // Manejar los inputs del teclado y joystick
-            ManageInputs(gameModel);
+            player1.ReactToInputs(gameModel);
+
+            // Disparar Machinegun
+            if (gameModel.Input.keyDown(Key.E) || gameModel.Input.buttonDown(Button.R2))
+            {
+                FireMachinegun(gameModel);
+            }
+
+            // Disparar arma especial
+            if (gameModel.Input.keyPressed(Key.R) || gameModel.Input.buttonPressed(Button.L2))
+            {
+                FireWeapon(gameModel, player1.SelectedWeapon);
+            }
 
             // Metodo que se encarga de manejar las colisiones según corresponda
-            CollisionsHandler();
-
-            // Actualizar la lista de balas con aquellas que todavía siguen en el mundo después de las colisiones
-            bullets = ObtainExistingBullets(gameModel);
-
-            if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
-            if (bulletFlag > 0.25f) bulletFlag = 0;
+            CollisionsHandler(gameModel);
 
             // Ajustar la posicion de la cámara segun la colisión con los objetos del escenario
             AdjustCameraPosition(camaraInterna, modoCamara);
@@ -106,261 +112,7 @@ namespace TGC.Group.Model.World
             }
         }
 
-        // ------------------------------------------------------
-
-        private void ManageInputs(GameModel gameModel)
-        {
-            var jh = gameModel.JoystickHandler;
-            var rightStick = jh.JoystickLeftStick();
-            float grades = 0;
-            if (FastMath.Abs(rightStick) > 1800)
-            {
-                grades = ((FastMath.Abs(rightStick) - 1800f) / 30000f) * (FastMath.Abs(rightStick) / rightStick);
-            }
-
-            // Adelante
-            if (gameModel.Input.keyDown(Key.W) || gameModel.Input.keyDown(Key.UpArrow) || jh.JoystickButtonDown(0))
-            {
-                player1.Accelerate();
-                moving = true;
-            }
-
-            // Atras
-            if (gameModel.Input.keyDown(Key.S) || gameModel.Input.keyDown(Key.DownArrow) || jh.JoystickButtonDown(3))
-            {
-                player1.Reverse();
-                moving = true;
-            }
-
-            if (grades != 0)
-            {
-                player1.Vehicle.SetSteeringValue(player1.steeringAngle * grades, 2);
-                player1.Vehicle.SetSteeringValue(player1.steeringAngle * grades, 3);
-                rotating = true;
-            }
-
-            // Derecha
-            if (gameModel.Input.keyDown(Key.D) || gameModel.Input.keyDown(Key.RightArrow) || jh.JoystickDpadRight())
-            {
-                player1.TurnRight();
-                rotating = true;
-            }
-
-            // Izquierda
-            if (gameModel.Input.keyDown(Key.A) || gameModel.Input.keyDown(Key.LeftArrow) || jh.JoystickDpadLeft())
-            {
-                player1.TurnLeft();
-                rotating = true;
-            }
-
-            if (!rotating)
-            {
-                player1.ResetSteering();
-            }
-            if (!moving)
-            {
-                player1.ResetEngineForce();
-            }
-
-            // Turbo
-            if (player1.specialPoints >= player1.costTurbo && (gameModel.Input.keyDown(Key.LeftShift) || jh.JoystickButtonPressedDouble(0, gameModel.ElapsedTime)))
-            {
-                player1.TurboOn();
-            }
-            else
-            {
-                player1.TurboOff();
-            }
-
-            // Frenar
-            if (gameModel.Input.keyDown(Key.LeftControl) || jh.JoystickButtonDown(2))
-            {
-                player1.Brake();
-                braking = true;
-            }
-            
-            // Si no está frenando
-            if (!braking)
-            {
-                player1.ResetBrake();
-            }
-
-            // Disparar Machinegun
-            if (gameModel.Input.keyDown(Key.E) || jh.JoystickR2Down())
-            {
-                if (bulletFlag == 0)
-                {
-                    var b = new MachinegunBullet(world);
-                    b.fireFrom(player1, neg, gameModel.DirectSound.DsDevice);
-                    bullets.Add(b);
-
-                    bulletFlag += gameModel.ElapsedTime;
-                    neg *= -1;
-                }
-            }
-
-            // Disparar arma especial
-            if (gameModel.Input.keyPressed(Key.R) || jh.JoystickL2Pressed())
-            {
-                if (player1.SelectedWeapon != null)
-                {
-                    Bullet b = null;
-                    switch (player1.SelectedWeapon.Name)
-                    {
-                        case "Power Missile":
-                            b = new PowerMissile(world);
-                            break;
-                    }
-                    b.fireFrom(player1, gameModel.DirectSound.DsDevice);
-                    player1.SelectedWeapon.Ammo--;
-                    bullets.Add(b);
-                    player1.ReassignWeapon();
-                }
-            }
-
-            // Saltar
-            if (gameModel.Input.keyDown(Key.Space) || jh.JoystickButtonPressed(1))
-            {
-                jump = true;
-            }
-            
-            // Realizar el salto
-            if (jump && !jumped && !flag)
-            {
-                if (player1.specialPoints > 12)
-                {
-                    player1.RigidBody.ApplyCentralImpulse(new Vector3(0, player1.jumpImpulse, 0));
-                    player1.specialPoints -= 12;
-                    afterJump = jumped = true;
-                }
-            }
-            if (jumped && player1.RigidBody.LinearVelocity.Y < -0.1f)
-            {
-                flag = true;
-                jumped = false;
-            }
-            if (player1.RigidBody.LinearVelocity.Y > -0.05f)
-            {
-                flag = false;
-
-                if (afterJump && !jumped)
-                {
-                    var sound = new Tgc3dSound(gameModel.MediaDir + "Sounds\\FX\\afterJump.wav", player1.Mesh.Transform.Origin, gameModel.DirectSound.DsDevice);
-                    sound.MinDistance = 150f;
-                    sound.play(false);
-                    afterJump = false;
-                }
-            }
-        }
-
-
-
-
-
-        private void AdjustCameraPosition(TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
-        {
-            //if (!Player1.collision)
-            //{
-            //    currentCameraPosition = camaraInterna.Position;
-            //}
-
-            if (camaraInterna.OffsetHeight == 0.1f) return;
-
-            camaraInterna.OffsetHeight = 0.1f;
-            camaraInterna.OffsetForward = 30;
-
-            //Pedirle a la camara cual va a ser su proxima posicion
-            TGCVector3 position;
-            TGCVector3 target;
-            camaraInterna.CalculatePositionTarget(out position, out target);
-
-            //Detectar colisiones entre el segmento de recta camara-personaje y todos los objetos del escenario
-            TGCVector3 q;
-            var minDistSq = FastMath.Pow2(camaraInterna.OffsetForward);
-            foreach (var obstaculo in escenario.TgcScene.Meshes)
-            {
-                //Hay colision del segmento camara-personaje y el objeto
-                if (TgcCollisionUtils.intersectSegmentAABB(target, position, obstaculo.BoundingBox, out q))
-                {
-                    //Si hay colision, guardar la que tenga menor distancia
-                    var distSq = TGCVector3.Subtract(q, target).LengthSq();
-                    //Hay dos casos singulares, puede que tengamos mas de una colision hay que quedarse con el menor offset.
-                    //Si no dividimos la distancia por 2 se acerca mucho al target.
-                    minDistSq = FastMath.Min(distSq / 2, minDistSq);
-                }
-            }
-
-            //Acercar la camara hasta la minima distancia de colision encontrada (pero ponemos un umbral maximo de cercania)
-            var newOffsetForward = FastMath.Sqrt(minDistSq);
-
-            if (FastMath.Abs(newOffsetForward) < 10f)
-            {
-                newOffsetForward = 10f;
-            }
-            if (newOffsetForward > modoCamara.ProfundidadCamara())
-            {
-                newOffsetForward = modoCamara.ProfundidadCamara();
-            }
-            if (modoCamara.AlturaCamara() > 1)
-            {
-                camaraInterna.OffsetHeight = 1.1f;
-            }
-            else
-            {
-                camaraInterna.OffsetHeight = modoCamara.AlturaCamara();
-            }
-
-            camaraInterna.OffsetForward = newOffsetForward;
-
-            //Asignar la ViewMatrix haciendo un LookAt desde la posicion final anterior al centro de la camara
-            camaraInterna.CalculatePositionTarget(out position, out target);
-            camaraInterna.SetCamera(position, target);
-        }
-
-        private void CollisionsHandler()
-        {
-            var overlappedPairs = world.Broadphase.OverlappingPairCache.OverlappingPairArray;
-            if (overlappedPairs.Count == 0) return;
-
-            RigidBody obj0, obj1;
-            BroadphaseNativeType shapeType;
-            List<RigidBody> toRemove = new List<RigidBody>();
-            foreach (var pair in overlappedPairs)
-            {
-                obj0 = (RigidBody)pair.Proxy0.ClientObject;
-                obj1 = (RigidBody)pair.Proxy1.ClientObject;
-
-                shapeType = obj0.CollisionShape.ShapeType;
-                if (shapeType == BroadphaseNativeType.BoxShape)
-                {
-                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape || obj1.Equals(player1.RigidBody)) continue;
-                    toRemove.Add(obj0);
-                    continue;
-                }
-
-                shapeType = obj1.CollisionShape.ShapeType;
-                if (shapeType == BroadphaseNativeType.BoxShape)
-                {
-                    if (obj0.Equals(player1.RigidBody)) continue;
-                    toRemove.Add(obj1);
-                    continue;
-                }
-            }
-
-            toRemove.ForEach(rigid => world.RemoveRigidBody(rigid));
-        }
-
-        private List<Bullet> ObtainExistingBullets(GameModel gameModel)
-        {
-            List<Bullet> bullets2 = new List<Bullet>();
-            bullets.ForEach(bullet =>
-            {
-                if (bullet.RigidBody.IsInWorld) bullets2.Add(bullet);
-                else bullet.Dispose(gameModel.DirectSound.DsDevice);
-            });
-
-            return bullets2;
-        }
+        // ------- Métodos Privados -------
 
         private void SpawnItems()
         {

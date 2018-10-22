@@ -8,6 +8,7 @@ using TGC.Group.Utils;
 using TGC.Group.Model.Interfaces;
 using BulletSharp.Math;
 using Key = Microsoft.DirectX.DirectInput.Key;
+using Button = TGC.Group.Model.Input.Button;
 using TGC.Group.Model.Vehicles;
 using TGC.Core.Text;
 using TGC.Core.Direct3D;
@@ -105,7 +106,7 @@ namespace TGC.Group.Model.GameStates
 
             // Actualizar la posición y rotación de la cámara para que apunte a nuestro Player 1
             camaraInterna.Target = new TGCVector3(world.player1.RigidBody.CenterOfMassPosition);
-            var rightStick = gameModel.JoystickHandler.JoystickRightStick();
+            var rightStick = gameModel.Input.JoystickRightStick();
             float grades = 0;
             if (FastMath.Abs(rightStick) > 1800)
             {
@@ -145,9 +146,6 @@ namespace TGC.Group.Model.GameStates
 
             // Actualizar el HUD
             hud.Update(matchTime);
-
-            
-
         }
 
         public void Render()
@@ -187,13 +185,13 @@ namespace TGC.Group.Model.GameStates
 
         private void ManageInputs(GameModel gameModel)
         {
-            var jh = gameModel.JoystickHandler;
+            var Input = gameModel.Input;
             var sm = gameModel.SoundManager;
 
             // Si pausado me fijo si quitaron la pausa
             if (paused)
             {
-                if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
+                if (Input.keyPressed(Key.Return) || Input.buttonPressed(Button.START))
                 {
                     paused = false;
                     sm.Mp3Player.resume();
@@ -202,13 +200,13 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Dibujar el Vector UP
-            if (gameModel.Input.keyPressed(Key.F1))
+            if (Input.keyPressed(Key.F1))
             {
                 drawUpVector = !drawUpVector;
             }
 
             // Girar la cámara unos grados
-            if (gameModel.Input.keyPressed(Key.F2))
+            if (Input.keyPressed(Key.F2))
             {
                 if (anguloCamara == 0.33f)
                 {
@@ -221,13 +219,13 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Rotar 90° la cámara
-            if (gameModel.Input.keyPressed(Key.F3))
+            if (Input.keyPressed(Key.F3))
             {
                 halfsPI = (halfsPI + FastMath.PI_HALF) % FastMath.TWO_PI;
             }
 
             // Acercar la cámara
-            if (gameModel.Input.keyPressed(Key.F4) || jh.JoystickButtonPressed(6))
+            if (Input.keyPressed(Key.F4) || Input.buttonPressed(Button.R3))
             {
                 modoCamara = modosCamara.getNextOption(modoCamara);
 
@@ -236,7 +234,7 @@ namespace TGC.Group.Model.GameStates
             }
 
             // Mirar hacia atras
-            if (gameModel.Input.keyDown(Key.C) || jh.JoystickButtonDown(4))
+            if (Input.keyDown(Key.C) || Input.buttonDown(Button.L1))
             {
                 mirarHaciaAtras = true;
                 halfsPI = 0;
@@ -244,17 +242,7 @@ namespace TGC.Group.Model.GameStates
             else mirarHaciaAtras = false;
 
 
-            // Cambiar de arma especial
-            if (gameModel.Input.keyPressed(Key.Q) || jh.JoystickButtonPressed(5))
-            {
-                if(world.player1.Weapons.Count != 0)
-                {
-                    var arrayWeapons = world.player1.Weapons.ToArray();
-                    world.player1.SelectedWeapon = arrayWeapons.getNextOption(world.player1.SelectedWeapon);
-                }
-            }
-
-            if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7))
+            if (gameModel.Input.keyPressed(Key.Return) || Input.buttonPressed(Button.START))
             {
                 paused = true;
                 sm.Mp3Player.pause();

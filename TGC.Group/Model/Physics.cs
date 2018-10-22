@@ -11,6 +11,11 @@ using TGC.Core.Terrain;
 using System.Collections.Generic;
 using TGC.Group.Model.Items;
 using TGC.Group.World;
+using TGC.Core.Collision;
+using TGC.Group.World.Weapons;
+using TGC.Group.World.Bullets;
+using TGC.Group.Model.World.Weapons;
+using System.Drawing;
 
 namespace TGC.Group.Physics
 {
@@ -285,13 +290,6 @@ namespace TGC.Group.Physics
         protected List<Bullet> bullets;
         protected List<Enemy> enemies;
 
-        protected bool moving = false;
-        protected bool rotating = false;
-        protected bool braking = false;
-        protected bool jump = false;
-        protected bool jumped = false;
-        protected bool flag = false;
-        protected bool afterJump = true;
         protected bool inflictDmg = true;
         protected float bulletFlag = 0;
         protected int neg = 1;
@@ -304,8 +302,9 @@ namespace TGC.Group.Physics
             dispatcher = new CollisionDispatcher(collisionConfiguration);
             GImpactCollisionAlgorithm.RegisterAlgorithm(dispatcher);
             constraintSolver = new SequentialImpulseConstraintSolver();
-            broadphase = new DbvtBroadphase();
-
+            //broadphase = new DbvtBroadphase();
+            broadphase = new AxisSweep3(new Vector3(-15, -15, -15), new Vector3(600, 100, 1600));
+            
             world = new DiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfiguration)
             {
                 Gravity = new TGCVector3(0, -9.8f, 0).ToBsVector
@@ -335,5 +334,177 @@ namespace TGC.Group.Physics
             items.ForEach(item => item.Dispose());
             bullets.ForEach(bullet => bullet.Dispose());
         }
+
+        // ------- Métodos Privados -------
+
+        protected void UpdateControlVariables(GameModel gameModel)
+        {
+            time += gameModel.ElapsedTime;
+            if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
+            if (bulletFlag > 0.25f) bulletFlag = 0;
+        }
+
+        protected void AdjustCameraPosition(TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
+        {
+            //if (!Player1.collision)
+            //{
+            //    currentCameraPosition = camaraInterna.Position;
+            //}
+
+            if (camaraInterna.OffsetHeight == 0.1f) return;
+
+            camaraInterna.OffsetHeight = 0.1f;
+            camaraInterna.OffsetForward = 30;
+
+            //Pedirle a la camara cual va a ser su proxima posicion
+            TGCVector3 position;
+            TGCVector3 target;
+            camaraInterna.CalculatePositionTarget(out position, out target);
+
+            //Detectar colisiones entre el segmento de recta camara-personaje y todos los objetos del escenario
+            TGCVector3 q;
+            var minDistSq = FastMath.Pow2(camaraInterna.OffsetForward);
+            foreach (var obstaculo in escenario.TgcScene.Meshes)
+            {
+                //Hay colision del segmento camara-personaje y el objeto
+                if (TgcCollisionUtils.intersectSegmentAABB(target, position, obstaculo.BoundingBox, out q))
+                {
+                    //Si hay colision, guardar la que tenga menor distancia
+                    var distSq = TGCVector3.Subtract(q, target).LengthSq();
+                    //Hay dos casos singulares, puede que tengamos mas de una colision hay que quedarse con el menor offset.
+                    //Si no dividimos la distancia por 2 se acerca mucho al target.
+                    minDistSq = FastMath.Min(distSq / 2, minDistSq);
+                }
+            }
+
+            //Acercar la camara hasta la minima distancia de colision encontrada (pero ponemos un umbral maximo de cercania)
+            var newOffsetForward = FastMath.Sqrt(minDistSq);
+
+            if (FastMath.Abs(newOffsetForward) < 10f)
+            {
+                newOffsetForward = 10f;
+            }
+            if (newOffsetForward > modoCamara.ProfundidadCamara())
+            {
+                newOffsetForward = modoCamara.ProfundidadCamara();
+            }
+            if (modoCamara.AlturaCamara() > 1)
+            {
+                camaraInterna.OffsetHeight = 1.1f;
+            }
+            else
+            {
+                camaraInterna.OffsetHeight = modoCamara.AlturaCamara();
+            }
+
+            camaraInterna.OffsetForward = newOffsetForward;
+
+            //Asignar la ViewMatrix haciendo un LookAt desde la posicion final anterior al centro de la camara
+            camaraInterna.CalculatePositionTarget(out position, out target);
+            camaraInterna.SetCamera(position, target);
+        }
+
+        protected void CollisionsHandler(GameModel gameModel)
+        {
+            var overlappedPairs = world.Broadphase.OverlappingPairCache.OverlappingPairArray;
+            if (overlappedPairs.Count == 0) return;
+
+            RigidBody obj0, obj1;
+            BroadphaseNativeType shapeType;
+            List<RigidBody> toRemove = new List<RigidBody>();
+            foreach (var pair in overlappedPairs)
+            {
+                obj0 = (RigidBody)pair.Proxy0.ClientObject;
+                obj1 = (RigidBody)pair.Proxy1.ClientObject;
+
+                if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
+                {
+                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape || obj1.Equals(player1.RigidBody)) continue;
+                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape)
+                    {
+                        world.ContactTest(obj0, new BulletContactCallback(world, toRemove));
+                    }
+                    continue;
+                }
+
+                shapeType = obj1.CollisionShape.ShapeType;
+                if (shapeType == BroadphaseNativeType.BoxShape)
+                {
+                    if (obj0.Equals(player1.RigidBody)) continue;
+                    if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape)
+                    {
+                        world.ContactTest(obj1, new BulletContactCallback(world, toRemove));
+                    }
+                    continue;
+                }
+            }
+
+            toRemove.ForEach(rigid => world.RemoveRigidBody(rigid));
+
+            // Actualizar la lista de balas con aquellas que todavía siguen en el mundo después de las colisiones
+            bullets = ObtainExistingBullets(gameModel);
+        }
+
+        protected List<Bullet> ObtainExistingBullets(GameModel gameModel)
+        {
+            List<Bullet> bullets2 = new List<Bullet>();
+            bullets.ForEach(bullet =>
+            {
+                if (bullet.RigidBody.IsInWorld) bullets2.Add(bullet);
+                else bullet.Dispose(gameModel.DirectSound.DsDevice);
+            });
+
+            return bullets2;
+        }
+
+        protected void FireMachinegun(GameModel gameModel)
+        {
+            if (bulletFlag == 0)
+            {
+                var b = new MachinegunBullet(world);
+                b.fireFrom(player1, neg, gameModel.DirectSound.DsDevice);
+                bullets.Add(b);
+
+                bulletFlag += gameModel.ElapsedTime;
+                neg *= -1;
+            }
+        }
+
+        protected void FireWeapon(GameModel gameModel, Weapon SelectedWeapon)
+        {
+            if (SelectedWeapon != null)
+            {
+                Bullet b = null;
+                switch (SelectedWeapon.Name)
+                {
+                    case "Power Missile":
+                        b = new PowerMissile(world);
+                        break;
+                }
+                b.fireFrom(player1, gameModel.DirectSound.DsDevice);
+                SelectedWeapon.Ammo--;
+                bullets.Add(b);
+                player1.ReassignWeapon();
+            }
+        }
+
     }
+
+    class BulletContactCallback : ContactResultCallback
+    {
+        private DynamicsWorld _world;
+        private List<RigidBody> _toRemove;
+
+        public BulletContactCallback(DynamicsWorld world, List<RigidBody> toRemove)
+        {
+            _world = world;
+            _toRemove = toRemove;
+        }
+
+        public override float AddSingleResult(ManifoldPoint cp, CollisionObjectWrapper colObj0Wrap, int partId0, int index0, CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
+        {
+            _toRemove.Add((RigidBody)colObj0Wrap.CollisionObject);
+            return 0;
+        }
+    };
 }

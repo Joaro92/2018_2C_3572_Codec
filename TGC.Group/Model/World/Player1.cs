@@ -1,13 +1,19 @@
 ﻿using BulletSharp;
 using BulletSharp.Math;
-using System;
+using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Group.Model.Vehicles;
 using TGC.Group.Model.World.Weapons;
 using TGC.Group.Utils;
+using Button = TGC.Group.Model.Input.Button;
+using Dpad = TGC.Group.Model.Input.Dpad;
+using Device = Microsoft.DirectX.DirectSound.Device;
 using static TGC.Group.Utils.WheelContactInfo;
+using TGC.Group.World;
+using TGC.Group.World.Bullets;
+using TGC.Core.Sound;
 
 namespace TGC.Group.Model.World
 {
@@ -26,11 +32,13 @@ namespace TGC.Group.Model.World
         public TGCVector3 frontVector;
         public int currentSpeed;
         public float flippedTime = 0;
-        //public string linealVelocity;
         public bool collision = false;
         public float hitPoints;
         public float specialPoints;
         public bool turbo = false;
+        private bool canJump = false;
+        private bool onTheFloor = false;
+        private bool falling = false;
 
         // Atributos constantes
         public readonly float maxSpecialPoints = 100f;
@@ -134,58 +142,7 @@ namespace TGC.Group.Model.World
             specialPoints = maxSpecialPoints;
         }
 
-        private RigidBody createChassisRigidBodyFromShape(CollisionShape compound, TGCVector3 position)
-        {
-            //since it is dynamic, we calculate its local inertia
-            var localInertia = compound.CalculateLocalInertia(mass);
-
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-            transformationMatrix.Origin = position.ToBsVector;
-            DefaultMotionState motionState = new DefaultMotionState(transformationMatrix);
-            var bodyInfo = new RigidBodyConstructionInfo(mass, motionState, compound, localInertia);
-            var rigidBody = new RigidBody(bodyInfo);
-            
-            return rigidBody;
-        }
-
-        private void addWheels(Vector3 halfExtents, RaycastVehicle vehicle, VehicleTuning tuning, float wheelRadius)
-        {
-            //The direction of the raycast, the btRaycastVehicle uses raycasts instead of simiulating the wheels with rigid bodies
-            Vector3 wheelDirectionCS0 = new Vector3(0, -1, 0);
-
-            //The axis which the wheel rotates arround
-            Vector3 wheelAxleCS = new Vector3(-1, 0, 0);
-
-            //All the wheel configuration assumes the vehicle is centered at the origin and a right handed coordinate system is used
-            Vector4 points = contactInfoByChassis(mesh.Name);
-            points.Y += suspensionLength + meshAxisRadius.Y - (meshRealHeight / 2f);
-
-            //Adds the rear wheels
-            Vector3 wheelConnectionPoint = new Vector3(points.X, points.Y - rearWheelsHeight, points.Z);
-            vehicle.AddWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
-            vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
-
-            //Adds the front wheels
-            wheelConnectionPoint = new Vector3(points.X, points.Y - frontWheelsHeight, points.W);
-            vehicle.AddWheel(wheelConnectionPoint * new Vector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-            vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-
-            //Configures each wheel of our vehicle, setting its friction, damping compression, etc.
-            //For more details on what each parameter does, refer to the docs
-            for (int i = 0; i < vehicle.NumWheels; i++)
-            {
-                WheelInfo wheel = vehicle.GetWheelInfo(i);
-                wheel.MaxSuspensionForce = 700000;
-                //wheel.MaxSuspensionTravelCm = 80;
-                wheel.SuspensionStiffness = suspensionStiffness;
-                wheel.WheelsDampingCompression = dampingCompression * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);
-                wheel.WheelsDampingRelaxation = dampingRelaxation * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);
-                wheel.FrictionSlip = frictionSlip;
-                wheel.RollInfluence = rollInfluence;
-            }
-        }
-
-        // ----------------------------------------------------
+        // ------- Métodos Públicos -------
 
         public void AddWeapon(Weapon newWeapon)
         {
@@ -253,6 +210,7 @@ namespace TGC.Group.Model.World
             RigidBody.AngularVelocity = Vector3.Zero;
 
             if (inflictDmg) hitPoints -= 30;
+            canJump = onTheFloor = falling = false;
         }
 
         public void Straighten()
@@ -264,76 +222,111 @@ namespace TGC.Group.Model.World
             RigidBody.LinearVelocity = Vector3.Zero;
             RigidBody.AngularVelocity = Vector3.Zero;
             flippedTime = 0;
+            canJump = onTheFloor = falling = false;
         }
 
-        public void Accelerate()
+        public void ReactToInputs(GameModel gameModel)
         {
-            //Pequeño impulso adicional cuando la velocidad es baja
-            var multi = 1f;
-            if (currentSpeed < 15)
-                multi = 1.8f;
+            var Input = gameModel.Input;
 
-            vehicle.ApplyEngineForce(engineForce * multi, 2);
-            vehicle.ApplyEngineForce(engineForce * multi, 3);
-        }
+            var moving = false;
+            var rotating = false;
 
-        public void Reverse()
-        {
-            vehicle.ApplyEngineForce(engineForce * -0.44f, 2);
-            vehicle.ApplyEngineForce(engineForce * -0.44f, 3);
-        }
+            var rightStick = Input.JoystickLeftStick();
+            float grades = 0;
+            if (FastMath.Abs(rightStick) > 1800)
+            {
+                grades = ((FastMath.Abs(rightStick) - 1800f) / 30000f) * (FastMath.Abs(rightStick) / rightStick);
+            }
 
-        public void TurnRight()
-        {
-            vehicle.SetSteeringValue(steeringAngle, 2);
-            vehicle.SetSteeringValue(steeringAngle, 3);
-        }
+            // Adelante
+            if (Input.keyDown(Key.W) || Input.keyDown(Key.UpArrow) || Input.buttonDown(Button.X))
+            {
+                Accelerate();
+                moving = true;
+            }
 
-        public void TurnLeft()
-        {
-            vehicle.SetSteeringValue(-steeringAngle, 2);
-            vehicle.SetSteeringValue(-steeringAngle, 3);
-        }
+            // Atras
+            if (Input.keyDown(Key.S) || Input.keyDown(Key.DownArrow) || Input.buttonDown(Button.TRIANGLE))
+            {
+                Reverse();
+                moving = true;
+            }
 
-        public void ResetSteering()
-        {
-            vehicle.SetSteeringValue(0, 2);
-            vehicle.SetSteeringValue(0, 3);
-        }
+            if (grades != 0)
+            {
+                vehicle.SetSteeringValue(steeringAngle * grades, 2);
+                vehicle.SetSteeringValue(steeringAngle * grades, 3);
+                rotating = true;
+            }
 
-        public void ResetEngineForce()
-        {
-            vehicle.ApplyEngineForce(0, 2);
-            vehicle.ApplyEngineForce(0, 3);
-        }
+            // Derecha
+            if (Input.keyDown(Key.D) || Input.keyDown(Key.RightArrow) || Input.buttonDown(Dpad.RIGHT))
+            {
+                TurnRight();
+                rotating = true;
+            }
 
-        public void TurboOn()
-        {
-            turbo = true;
-            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 2);
-            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 3);
-            rigidBody.ApplyCentralImpulse(frontVector.ToBsVector * turboImpulse);
-        }
+            // Izquierda
+            if (Input.keyDown(Key.A) || Input.keyDown(Key.LeftArrow) || Input.buttonDown(Dpad.LEFT))
+            {
+                TurnLeft();
+                rotating = true;
+            }
 
-        public void TurboOff()
-        {
-            turbo = false;
-        }
+            if (!rotating)
+            {
+                ResetSteering();
+            }
+            if (!moving)
+            {
+                ResetEngineForce();
+            }
 
-        public void Brake()
-        {
-            vehicle.SetBrake(brakeForce, 0);
-            vehicle.SetBrake(brakeForce, 1);
-            vehicle.SetBrake(brakeForce * 0.66f, 2);
-            vehicle.SetBrake(brakeForce * 0.66f, 3);
-        }
+            // Turbo
+            if (specialPoints >= costTurbo && (Input.keyDown(Key.LeftShift) || Input.JoystickButtonPressedDouble(0, gameModel.ElapsedTime)))
+            {
+                TurboOn();
+            }
+            else
+            {
+                TurboOff();
+            }
 
-        public void ResetBrake()
-        {
-            vehicle.SetBrake(1.05f, 0);
-            vehicle.SetBrake(1.05f, 1);
-            vehicle.SetBrake(1.05f, 2);
-            vehicle.SetBrake(1.05f, 3);
+            // Frenar
+            if (Input.keyDown(Key.LeftControl) || Input.buttonDown(Button.SQUARE))
+            {
+                Brake();
+            }
+            else
+            {
+                ResetBrake();
+            }
+
+            // Chequea y actualiza el status del Salto
+            CheckJumpStatus(gameModel);
+
+            // Saltar
+            if (Input.keyPressed(Key.Space) || Input.buttonPressed(Button.CIRCLE))
+            {
+                if (specialPoints > 12 && canJump && onTheFloor)
+                {
+                    rigidBody.ApplyCentralImpulse(new Vector3(0, jumpImpulse, 0));
+                    specialPoints -= 12;
+                    canJump = false;
+                    onTheFloor = false;
+                }
+            }
+
+            // Cambiar de arma especial
+            if (Input.keyPressed(Key.Tab) || Input.buttonPressed(Button.R1))
+            {
+                if (Weapons.Count != 0)
+                {
+                    var arrayWeapons = Weapons.ToArray();
+                    SelectedWeapon = arrayWeapons.getNextOption(SelectedWeapon);
+                }
+            }
         }
 
         public void Render()
@@ -383,6 +376,157 @@ namespace TGC.Group.Model.World
         public RaycastVehicle Vehicle
         {
             get { return vehicle; }
+        }
+
+
+        // ------- Métodos Privados -------
+
+        private RigidBody createChassisRigidBodyFromShape(CollisionShape compound, TGCVector3 position)
+        {
+            //since it is dynamic, we calculate its local inertia
+            var localInertia = compound.CalculateLocalInertia(mass);
+
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
+            transformationMatrix.Origin = position.ToBsVector;
+            DefaultMotionState motionState = new DefaultMotionState(transformationMatrix);
+            var bodyInfo = new RigidBodyConstructionInfo(mass, motionState, compound, localInertia);
+            var rigidBody = new RigidBody(bodyInfo);
+
+            return rigidBody;
+        }
+
+        private void addWheels(Vector3 halfExtents, RaycastVehicle vehicle, VehicleTuning tuning, float wheelRadius)
+        {
+            //The direction of the raycast, the btRaycastVehicle uses raycasts instead of simiulating the wheels with rigid bodies
+            Vector3 wheelDirectionCS0 = new Vector3(0, -1, 0);
+
+            //The axis which the wheel rotates arround
+            Vector3 wheelAxleCS = new Vector3(-1, 0, 0);
+
+            //All the wheel configuration assumes the vehicle is centered at the origin and a right handed coordinate system is used
+            Vector4 points = contactInfoByChassis(mesh.Name);
+            points.Y += suspensionLength + meshAxisRadius.Y - (meshRealHeight / 2f);
+
+            //Adds the rear wheels
+            Vector3 wheelConnectionPoint = new Vector3(points.X, points.Y - rearWheelsHeight, points.Z);
+            vehicle.AddWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+            vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+
+            //Adds the front wheels
+            wheelConnectionPoint = new Vector3(points.X, points.Y - frontWheelsHeight, points.W);
+            vehicle.AddWheel(wheelConnectionPoint * new Vector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
+            vehicle.AddWheel(wheelConnectionPoint * new Vector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
+
+            //Configures each wheel of our vehicle, setting its friction, damping compression, etc.
+            //For more details on what each parameter does, refer to the docs
+            for (int i = 0; i < vehicle.NumWheels; i++)
+            {
+                WheelInfo wheel = vehicle.GetWheelInfo(i);
+                wheel.MaxSuspensionForce = 700000;
+                //wheel.MaxSuspensionTravelCm = 80;
+                wheel.SuspensionStiffness = suspensionStiffness;
+                wheel.WheelsDampingCompression = dampingCompression * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);
+                wheel.WheelsDampingRelaxation = dampingRelaxation * 2 * FastMath.Sqrt(wheel.SuspensionStiffness);
+                wheel.FrictionSlip = frictionSlip;
+                wheel.RollInfluence = rollInfluence;
+            }
+        }
+
+        private void CheckJumpStatus(GameModel gameModel)
+        {
+            if (rigidBody.InterpolationLinearVelocity.Y < -0.88f)
+            {
+                falling = true;
+                onTheFloor = false;
+                canJump = false;
+            }
+
+            if (falling)
+            {
+                if (rigidBody.InterpolationLinearVelocity.Y > -0.05f)
+                {
+                    falling = false;
+                    onTheFloor = true;
+                    var sound = new Tgc3dSound(gameModel.MediaDir + "Sounds\\FX\\afterJump.wav", mesh.Transform.Origin, gameModel.DirectSound.DsDevice);
+                    sound.MinDistance = 150f;
+                    sound.play(false);
+                }
+            }
+
+            if (onTheFloor && !falling)
+            {
+                canJump = true;
+            }
+        }
+
+        private void Accelerate()
+        {
+            //Pequeño impulso adicional cuando la velocidad es baja
+            var multi = 1f;
+            if (currentSpeed < 15)
+                multi = 1.8f;
+
+            vehicle.ApplyEngineForce(engineForce * multi, 2);
+            vehicle.ApplyEngineForce(engineForce * multi, 3);
+        }
+
+        private void Reverse()
+        {
+            vehicle.ApplyEngineForce(engineForce * -0.44f, 2);
+            vehicle.ApplyEngineForce(engineForce * -0.44f, 3);
+        }
+
+        private void TurnRight()
+        {
+            vehicle.SetSteeringValue(steeringAngle, 2);
+            vehicle.SetSteeringValue(steeringAngle, 3);
+        }
+
+        private void TurnLeft()
+        {
+            vehicle.SetSteeringValue(-steeringAngle, 2);
+            vehicle.SetSteeringValue(-steeringAngle, 3);
+        }
+
+        private void ResetSteering()
+        {
+            vehicle.SetSteeringValue(0, 2);
+            vehicle.SetSteeringValue(0, 3);
+        }
+
+        private void ResetEngineForce()
+        {
+            vehicle.ApplyEngineForce(0, 2);
+            vehicle.ApplyEngineForce(0, 3);
+        }
+
+        private void TurboOn()
+        {
+            turbo = true;
+            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 2);
+            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 3);
+            rigidBody.ApplyCentralImpulse(frontVector.ToBsVector * turboImpulse);
+        }
+
+        private void TurboOff()
+        {
+            turbo = false;
+        }
+
+        private void Brake()
+        {
+            vehicle.SetBrake(brakeForce, 0);
+            vehicle.SetBrake(brakeForce, 1);
+            vehicle.SetBrake(brakeForce * 0.66f, 2);
+            vehicle.SetBrake(brakeForce * 0.66f, 3);
+        }
+
+        private void ResetBrake()
+        {
+            vehicle.SetBrake(1.05f, 0);
+            vehicle.SetBrake(1.05f, 1);
+            vehicle.SetBrake(1.05f, 2);
+            vehicle.SetBrake(1.05f, 3);
         }
     }
 }

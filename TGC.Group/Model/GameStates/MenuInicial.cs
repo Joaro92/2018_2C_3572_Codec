@@ -8,6 +8,8 @@ using TGC.Group.Utils;
 using TGC.Group.Model.TGCUtils;
 using TGC.Group.Model.Interfaces;
 using TGC.Core.Sound;
+using Button = TGC.Group.Model.Input.Button;
+using Dpad = TGC.Group.Model.Input.Dpad;
 
 namespace TGC.Group.Model.GameStates
 {
@@ -105,7 +107,7 @@ namespace TGC.Group.Model.GameStates
 
         public void Update()
         {
-            var jh = gameModel.JoystickHandler;
+            var Input = gameModel.Input;
             var sm = gameModel.SoundManager;
 
             if (!showMenu)
@@ -129,7 +131,7 @@ namespace TGC.Group.Model.GameStates
                     showMenu = true;
                 }
 
-                if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(7) || jh.JoystickButtonPressed(0))
+                if (Input.keyPressed(Key.Return) || Input.buttonPressed(Button.START) || Input.buttonPressed(Button.X))
                 {
                     frecStart *= 2;
                     sm.PlaySound("menuEnter.wav");
@@ -138,19 +140,19 @@ namespace TGC.Group.Model.GameStates
             }
             else
             {
-                if (gameModel.Input.keyPressed(Key.DownArrow) || jh.JoystickDpadPressed(JoystickDpad.DOWN))
+                if (Input.keyPressed(Key.DownArrow) || Input.buttonPressed(Dpad.DOWN))
                 {
                     selectedOption = options.getNextOption(selectedOption);
                     sm.PlaySound("menuRight.wav");
                 }
 
-                if (gameModel.Input.keyPressed(Key.UpArrow) || jh.JoystickDpadPressed(JoystickDpad.UP))
+                if (Input.keyPressed(Key.UpArrow) || Input.buttonPressed(Dpad.UP))
                 {
                     selectedOption = options.getNextOption(selectedOption, -1);
                     sm.PlaySound("menuLeft.wav");
                 }
 
-                if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(0) || jh.JoystickButtonPressed(7))
+                if (Input.keyPressed(Key.Return) || Input.buttonPressed(Button.START) || Input.buttonPressed(Button.X))
                 {
                     sm.PlaySound("menuEnter.wav");
                     switch (selectedOption)

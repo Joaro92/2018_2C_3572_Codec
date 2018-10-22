@@ -5,7 +5,8 @@ using System.Threading;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using TGC.Core.Sound;
+using Button = TGC.Group.Model.Input.Button;
+using Dpad = TGC.Group.Model.Input.Dpad;
 using TGC.Core.Text;
 using TGC.Examples.Camara;
 using TGC.Group.Model.Interfaces;
@@ -107,28 +108,28 @@ namespace TGC.Group.Model.GameStates
 
         public void Update()
         {
-            var jh = gameModel.JoystickHandler;
+            var Input = gameModel.Input;
             var sm = gameModel.SoundManager;
 
-            if (gameModel.Input.keyPressed(Key.LeftArrow) || jh.JoystickDpadPressed(JoystickDpad.LEFT))
+            if (Input.keyPressed(Key.LeftArrow) || Input.buttonPressed(Dpad.LEFT))
             {
                 selected = vehiculos.ToArray().getNextOption(selected,-1);
                 sm.PlaySound("menuLeft.wav");
             }
 
-            if (gameModel.Input.keyPressed(Key.RightArrow) || jh.JoystickDpadPressed(JoystickDpad.RIGHT))
+            if (Input.keyPressed(Key.RightArrow) || Input.buttonPressed(Dpad.RIGHT))
             {
                 selected = vehiculos.ToArray().getNextOption(selected);
                 sm.PlaySound("menuRight.wav");
             }
 
-            if (gameModel.Input.keyPressed(Key.UpArrow) || jh.JoystickDpadPressed(JoystickDpad.UP))
+            if (Input.keyPressed(Key.UpArrow) || Input.buttonPressed(Dpad.UP))
             {              
                 var newColor = colors.getNextOption(selected.Color);
                 selected.ChangeColor(newColor);
             }
 
-            if (gameModel.Input.keyPressed(Key.Return) || jh.JoystickButtonPressed(0) || jh.JoystickButtonPressed(7))
+            if (Input.keyPressed(Key.Return) || Input.buttonPressed(Button.START) || Input.buttonPressed(Button.X))
             {
                 sm.Mp3Player.stop();
                 sm.PlaySound("menuEngine.wav");
@@ -139,7 +140,7 @@ namespace TGC.Group.Model.GameStates
             selected.SampleMesh.RotateY(FastMath.QUARTER_PI * gameModel.ElapsedTime);
             vehicleName.Text = selected.Name;
 
-            if (gameModel.Input.keyPressed(Key.Escape))
+            if (Input.keyPressed(Key.Escape))
             {
                 sm.PlaySound("menuEnter.wav");
                 back = true;

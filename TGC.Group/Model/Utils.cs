@@ -10,8 +10,6 @@ namespace TGC.Group.Utils
 
     public enum ModoCamara { NORMAL, CERCA, LEJOS };
 
-    public enum JoystickDpad { UP, RIGHT, DOWN, LEFT };
-
     public static class WheelContactInfo
     {
         public static Vector4 contactInfoByChassis(string meshName)

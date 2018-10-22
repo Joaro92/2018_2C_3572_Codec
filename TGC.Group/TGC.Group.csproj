@@ -110,6 +110,7 @@
     <Compile Include="Model\GameStates\Partida.cs" />
     <Compile Include="Model\GameStates\SelectorVehiculo.cs" />
     <Compile Include="Model\HUD\HUD.cs" />
+    <Compile Include="Model\Input.cs" />
     <Compile Include="Model\Interfaces\IGameState.cs" />
     <Compile Include="Model\GameStates\MenuInicial.cs" />
     <Compile Include="Model\World\Bullets\Power.cs" />
@@ -120,7 +121,6 @@
     <Compile Include="Model\World\Items\Energia.cs" />
     <Compile Include="Model\World\Items\Item.cs" />
     <Compile Include="Model\World\Items\WeaponItem.cs" />
-    <Compile Include="Model\JoystickHandler.cs" />
     <Compile Include="Model\SoundManager.cs" />
     <Compile Include="Model\Vehicles\Vehiculo.cs" />
     <Compile Include="Model\World\Bullets\Bullet.cs" />

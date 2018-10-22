@@ -1,4 +1,6 @@
 using Microsoft.Win32;
+using SharpDX.DirectInput;
+using System;
 using System.Windows.Forms;
 using TGC.Core.Example;
 using TGC.Group.Form;
@@ -11,8 +13,9 @@ namespace TGC.Group.Model
     {
         public IGameState GameState { get; set; }
 
-        public JoystickHandler JoystickHandler { get; private set; }
+        private Joystick joystick { get; set; }
         public SoundManager SoundManager { get; private set; }
+        public new Input Input { get; private set; }
 
         public GameModel(string mediaDir, string shadersDir) : base(mediaDir, shadersDir)
         {
@@ -30,13 +33,16 @@ namespace TGC.Group.Model
 
         public override void Init()
         {
-            //initialize Joystick
-            JoystickHandler = new JoystickHandler();
+            //Initialize Joystick
+            ObtainJoystickController();
 
-            //initialize Sound Manager
+            //New Input interface
+            Input = new Input(base.Input, joystick);
+
+            //Initialize Sound Manager
             SoundManager = new SoundManager(this.DirectSound.DsDevice);
 
-            //start the game
+            //Start the game
             GameState = new MenuInicial(this);
         }
 
@@ -61,9 +67,43 @@ namespace TGC.Group.Model
         public override void Dispose()
         {
             GameState.Dispose();
-            JoystickHandler.Dispose();
+            Input.Dispose();
             SoundManager.Dispose();
-            
+        }
+
+        private void ObtainJoystickController()
+        {
+            // Initialize DirectInput
+            var directInput = new DirectInput();
+
+            // Find a Joystick Guid
+            var joystickGuid = Guid.Empty;
+            foreach (var deviceInstance in directInput.GetDevices(DeviceType.Gamepad, DeviceEnumerationFlags.AllDevices))
+            {
+                joystickGuid = deviceInstance.InstanceGuid;
+            }
+
+            // If Gamepad not found, look for a Joystick
+            if (joystickGuid == Guid.Empty)
+                foreach (var deviceInstance in directInput.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AllDevices))
+                {
+                    joystickGuid = deviceInstance.InstanceGuid;
+                }
+
+            // Configure and set Joystick only if found
+            if (joystickGuid != Guid.Empty)
+            {
+                // Instantiate the joystick
+                joystick = new Joystick(directInput, joystickGuid);
+
+                Console.WriteLine("Found Joystick/Gamepad with GUID: {0}", joystickGuid);
+
+                // Set BufferSize in order to use buffered data.
+                joystick.Properties.BufferSize = 2048;
+
+                // Acquire the joystick
+                joystick.Acquire();
+            }
         }
 
         public void Exit()
