@@ -1,5 +1,7 @@
-﻿using TGC.Core.Mathematica;
+﻿using Microsoft.DirectX.DirectSound;
+using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
+using TGC.Core.Sound;
 using TGC.Group.Model.World;
 
 namespace TGC.Group.Model.Items
@@ -9,6 +11,7 @@ namespace TGC.Group.Model.Items
         public string Name { get; protected set; }
         public TgcMesh Mesh { get; protected set; }
         public TGCVector3 Position { get; }
+        protected Tgc3dSound sound { get; set; }
         protected float respawnTime;
         protected float timer;
         public bool IsPresent { get; protected set; }
@@ -20,7 +23,7 @@ namespace TGC.Group.Model.Items
             this.spawn();
         }
 
-        public void Dissapear()
+        public virtual void Dissapear(Device dsDevice)
         {
             if (IsPresent)
             {
@@ -29,6 +32,12 @@ namespace TGC.Group.Model.Items
                 timer = respawnTime;
             }
         } 
+
+        public void Update(GameModel gameModel, float time)
+        {
+            Mesh.RotateY(FastMath.PI_HALF * gameModel.ElapsedTime);
+            Mesh.Position = new TGCVector3(Position.X, Position.Y + FastMath.Sin(time * FastMath.PI_HALF) * DesplazamientoY, Position.Z);
+        }
 
         public void UpdateTimer(float elapsedTime)
         {

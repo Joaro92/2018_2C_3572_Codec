@@ -16,6 +16,7 @@ using TGC.Group.World.Weapons;
 using TGC.Group.World.Bullets;
 using TGC.Group.Model.World.Weapons;
 using System.Drawing;
+using TGC.Core.BoundingVolumes;
 
 namespace TGC.Group.Physics
 {
@@ -284,7 +285,7 @@ namespace TGC.Group.Physics
         protected BroadphaseInterface broadphase;
 
         public Player1 player1;
-        protected Escenario escenario;
+        protected Scenario escenario;
         protected TgcSkyBox skyBox;
         protected List<Item> items;
         protected List<Bullet> bullets;
@@ -406,6 +407,29 @@ namespace TGC.Group.Physics
 
         protected void CollisionsHandler(GameModel gameModel)
         {
+            // Items collisions
+            player1.RigidBody.GetAabb(out Vector3 min, out Vector3 max);
+            min.Y -= player1.meshAxisRadius.Y;
+            var player1AABB = new TgcBoundingAxisAlignBox(new TGCVector3(min), new TGCVector3(max));
+
+            // Rotar items, desaparecerlos y hacer efecto si colisionan y contar el tiempo que falta para que vuelvan a aparecer los que no estan
+            foreach (Item i in items)
+            {
+                if (i.IsPresent)
+                {
+                    i.Update(gameModel, time);
+
+                    if (TgcCollisionUtils.testAABBAABB(player1AABB, i.Mesh.BoundingBox))
+                    {
+                        i.Dissapear(gameModel.DirectSound.DsDevice);
+                        i.Effect(player1);
+                    }
+                }
+                else
+                    i.UpdateTimer(gameModel.ElapsedTime);
+            }
+
+            // Bullets collisions
             var overlappedPairs = world.Broadphase.OverlappingPairCache.OverlappingPairArray;
             if (overlappedPairs.Count == 0) return;
 

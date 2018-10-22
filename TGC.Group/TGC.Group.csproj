@@ -114,11 +114,9 @@
     <Compile Include="Model\Interfaces\IGameState.cs" />
     <Compile Include="Model\GameStates\MenuInicial.cs" />
     <Compile Include="Model\World\Bullets\Power.cs" />
-    <Compile Include="Model\World\Items\Bomba.cs" />
-    <Compile Include="Model\World\Items\BombaHielo.cs" />
-    <Compile Include="Model\World\Items\Cohete.cs" />
-    <Compile Include="Model\World\Items\Corazon.cs" />
-    <Compile Include="Model\World\Items\Energia.cs" />
+    <Compile Include="Model\World\Items\PowerItem.cs" />
+    <Compile Include="Model\World\Items\HealthItem.cs" />
+    <Compile Include="Model\World\Items\EnergyItem.cs" />
     <Compile Include="Model\World\Items\Item.cs" />
     <Compile Include="Model\World\Items\WeaponItem.cs" />
     <Compile Include="Model\SoundManager.cs" />
@@ -130,15 +128,13 @@
     <Compile Include="Model\TGCUtils\CustomSprite.cs" />
     <Compile Include="Model\TGCUtils\Drawer2D.cs" />
     <Compile Include="Model\Utils.cs" />
-    <Compile Include="Model\World\Escenario.cs" />
+    <Compile Include="Model\World\Scenario.cs" />
     <Compile Include="Model\World\Nivel1.cs" />
     <Compile Include="Model\Physics.cs" />
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Model\World\Player1.cs" />
     <Compile Include="Model\World\Skybox.cs" />
-    <Compile Include="Model\World\Weapons\Bomba.cs" />
-    <Compile Include="Model\World\Weapons\BombaHielo.cs" />
-    <Compile Include="Model\World\Weapons\Cohete.cs" />
+    <Compile Include="Model\World\Weapons\Power.cs" />
     <Compile Include="Model\World\Weapon.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -213,16 +209,6 @@
     <Folder Include="Libs\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Media\Vehicles\car-coupe-TgcScene.xml" />
-    <Content Include="Media\Vehicles\car-hatchback-TgcScene.xml" />
-    <Content Include="Media\Vehicles\car-micro-TgcScene.xml" />
-    <Content Include="Media\Vehicles\car-microcargo-TgcScene.xml" />
-    <Content Include="Media\Vehicles\car-minibus-TgcScene.xml" />
-    <Content Include="Media\Vehicles\car-mpv-TgcScene.xml" />
-    <Content Include="Media\Vehicles\car-normal-TgcScene.xml" />
-    <Content Include="Media\Vehicles\car-pickup-small-TgcScene.xml" />
-    <Content Include="Media\Vehicles\car-pickup-TgcScene.xml" />
-    <Content Include="Media\Vehicles\car-station-TgcScene.xml" />
     <Content Include="Media\Vehicles\chassis-coupe-TgcScene.xml" />
     <Content Include="Media\Vehicles\chassis-hatchback-TgcScene.xml">
       <SubType>Designer</SubType>
@@ -235,7 +221,6 @@
     <Content Include="Media\Vehicles\chassis-pickup-small-TgcScene.xml" />
     <Content Include="Media\Vehicles\chassis-pickup-TgcScene.xml" />
     <Content Include="Media\Vehicles\chassis-station-TgcScene.xml" />
-    <Content Include="Media\Vehicles\tires-common-TgcScene.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

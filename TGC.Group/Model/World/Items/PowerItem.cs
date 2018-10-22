@@ -3,16 +3,16 @@ using TGC.Group.Model.World.Weapons;
 
 namespace TGC.Group.Model.Items
 {
-    public class CoheteItem : WeaponItem
+    public class PowerItem : WeaponItem
     {
-        public CoheteItem(TGCVector3 pos) : base(pos, "Power")
+        public PowerItem(TGCVector3 pos) : base(pos, "Power")
         {
         }
 
         protected override void spawn()
         {
             base.spawn();
-            Weapon = new Cohete();
+            Weapon = new Power();
         }
     }
 }

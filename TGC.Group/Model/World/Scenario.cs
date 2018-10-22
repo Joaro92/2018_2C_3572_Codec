@@ -6,7 +6,7 @@ using TGC.Group.Physics;
 
 namespace TGC.Group.Model.World
 {
-    public class Escenario
+    public class Scenario
     {
         private TgcScene tgcScene;
         private List<RigidBody> rigidBodys;
@@ -14,7 +14,7 @@ namespace TGC.Group.Model.World
         /// <summary>
         ///  Se crea el escenario a partir del TgcScene y se crean todos los cuerpos rigidos estáticos por cada mesh
         /// </summary>
-        public Escenario(DiscreteDynamicsWorld world, String xmlPath)
+        public Scenario(DiscreteDynamicsWorld world, String xmlPath)
         {
             var loader = new TgcSceneLoader();
             this.tgcScene = loader.loadSceneFromFile(xmlPath);

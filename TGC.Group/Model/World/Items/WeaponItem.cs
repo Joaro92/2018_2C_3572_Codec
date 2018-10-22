@@ -1,4 +1,6 @@
-﻿using TGC.Core.Mathematica;
+﻿using Microsoft.DirectX.DirectSound;
+using TGC.Core.Mathematica;
+using TGC.Core.Sound;
 using TGC.Group.Model.World;
 using TGC.Group.Model.World.Weapons;
 
@@ -16,7 +18,15 @@ namespace TGC.Group.Model.Items
         public override void Dispose()
         {
             base.Dispose();
-            //weapon.Dispose();
+        }
+
+        public override void Dissapear(Device dsDevice)
+        {
+            base.Dissapear(dsDevice);
+
+            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\weaponPickup.wav", Position, dsDevice);
+            sound.MinDistance = 150f;
+            sound.play(false);
         }
 
         public override void Effect(Player1 player1)

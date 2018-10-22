@@ -26,13 +26,13 @@ namespace TGC.Group.Model.World
         {
             // Cargamos el escenario y lo agregamos al mundo
             var dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
-            escenario = new Escenario(world, dir + "scene-level1a-TgcScene.xml");
+            escenario = new Scenario(world, dir + "scene-level1a-TgcScene.xml");
             
             // Creamos a nuestro jugador y lo agregamos al mundo
             player1 = new Player1(world, vehiculoP1, initialPos); // mover a Partida
 
             // Le damos unas armas a nuestro jugador
-            player1.AddWeapon(new Cohete());
+            player1.AddWeapon(new Power());
             player1.SelectedWeapon.Ammo += 1;
 
             // Crear SkyBox
@@ -93,9 +93,6 @@ namespace TGC.Group.Model.World
 
             // Ajustar la posicion de la cámara segun la colisión con los objetos del escenario
             AdjustCameraPosition(camaraInterna, modoCamara);
-
-            // Método que se encarga de la administración completa de cada item coleccionable del mundo
-            ItemsHandler(gameModel);
         }
 
         public override void Render(GameModel gameModel)
@@ -116,37 +113,9 @@ namespace TGC.Group.Model.World
 
         private void SpawnItems()
         {
-            items.Add(new Corazon(new TGCVector3(144f, 4f, 24f)));
-            items.Add(new Energia(new TGCVector3(168f, 4f, 36f)));
-            //items.Add(new BombaItem(new TGCVector3(120f, 4f, 36f)));
-            items.Add(new CoheteItem(new TGCVector3(168f, 4f, 48f)));
-            //items.Add(new BombaHieloItem(new TGCVector3(144f, 4f, 48f)));
-        }
-
-        private void ItemsHandler(GameModel gameModel)
-        {
-            //Obtengo BoundingBox de Player1 para determinar colision con items
-            player1.RigidBody.GetAabb(out Vector3 min, out Vector3 max);
-            min.Y -= player1.meshAxisRadius.Y;
-            var player1AABB = new TgcBoundingAxisAlignBox(new TGCVector3(min), new TGCVector3(max));
-            
-            //Rotar items, desaparecerlos y hacer efecto si colisionan y contar el tiempo que falta para que vuelvan a aparecer los que no estan
-            foreach (Item i in items)
-            {
-                if (i.IsPresent)
-                {
-                    i.Mesh.RotateY(FastMath.PI_HALF * gameModel.ElapsedTime);
-                    i.Mesh.Position = new TGCVector3(i.Position.X, i.Position.Y + FastMath.Sin(time * FastMath.PI_HALF) * i.DesplazamientoY, i.Position.Z);
-
-                    if (TgcCollisionUtils.testAABBAABB(player1AABB, i.Mesh.BoundingBox))
-                    {
-                        i.Dissapear();
-                        i.Effect(player1);
-                    }
-                }
-                else
-                    i.UpdateTimer(gameModel.ElapsedTime);
-            }
+            items.Add(new Health(new TGCVector3(144f, 4f, 24f)));
+            items.Add(new Energy(new TGCVector3(168f, 4f, 36f)));
+            items.Add(new PowerItem(new TGCVector3(168f, 4f, 48f)));
         }
     }
 }
