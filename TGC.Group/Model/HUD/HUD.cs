@@ -94,7 +94,7 @@ namespace TGC.Group.Model
             //border.Text = ammoQuantity.Text;
 
             // Actualizamos el reloj
-            reloj.Text = "Time: " + formatTime(matchTime);
+            reloj.Text = formatTime(matchTime);
         }
 
         public void Render(GameModel gameModel)

@@ -105,9 +105,21 @@ namespace TGC.Group.Model.World
 
         private void SpawnItems()
         {
-            items.Add(new Health(new TGCVector3(144f, 4f, 24f)));
-            items.Add(new Energy(new TGCVector3(168f, 4f, 36f)));
-            items.Add(new PowerItem(new TGCVector3(168f, 4f, 48f)));
+            //base propia
+            items.Add(new Health(new TGCVector3(168f, 4f, 24f)));
+            items.Add(new Energy(new TGCVector3(72f, 4f, 24f)));
+            items.Add(new PowerItem(new TGCVector3(168f, 4f, 72f)));
+
+            //base enemiga
+            items.Add(new Health(new TGCVector3(-216f, 4f, 552f)));
+            items.Add(new Energy(new TGCVector3(-120f, 4f, 552f)));
+            items.Add(new PowerItem(new TGCVector3(-216f, 4f, 504f)));
+
+            //zonas dificiles
+            items.Add(new PowerItem(new TGCVector3(-72f, 4f, 240f)));
+            items.Add(new Health(new TGCVector3(216f, 10f, 264f)));
+            items.Add(new Energy(new TGCVector3(-120f, 10f, 240f)));
+            
         }
     }
 }
