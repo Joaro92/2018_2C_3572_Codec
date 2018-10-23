@@ -1,11 +1,18 @@
+using Microsoft.DirectX.Direct3D;
 using Microsoft.Win32;
 using SharpDX.DirectInput;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
+using TGC.Core.Camara;
+using TGC.Core.Direct3D;
 using TGC.Core.Example;
+using TGC.Core.Mathematica;
+using TGC.Core.SceneLoader;
 using TGC.Group.Form;
 using TGC.Group.Model.GameStates;
 using TGC.Group.Model.Interfaces;
+using DeviceType = SharpDX.DirectInput.DeviceType;
 
 namespace TGC.Group.Model
 {
@@ -59,6 +66,7 @@ namespace TGC.Group.Model
         {
             PreRender();
 
+            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.FromArgb(0, 1, 1, 1), 1, 0);
             GameState.Render();
           
             PostRender();

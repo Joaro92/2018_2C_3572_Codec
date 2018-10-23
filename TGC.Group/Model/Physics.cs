@@ -367,6 +367,9 @@ namespace TGC.Group.Physics
             var minDistSq = FastMath.Pow2(camaraInterna.OffsetForward);
             foreach (var obstaculo in escenario.TgcScene.Meshes)
             {
+                if (obstaculo.Name.Equals("Arbusto") || obstaculo.Name.Equals("Pasto") || obstaculo.Name.Equals("Flores"))
+                    continue;
+
                 //Hay colision del segmento camara-personaje y el objeto
                 if (TgcCollisionUtils.intersectSegmentAABB(target, position, obstaculo.BoundingBox, out q))
                 {

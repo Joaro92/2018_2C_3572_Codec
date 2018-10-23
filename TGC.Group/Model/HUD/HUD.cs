@@ -1,10 +1,15 @@
-﻿using System;
+﻿using Microsoft.DirectX.Direct3D;
+using System;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
+using TGC.Core.Camara;
 using TGC.Core.Direct3D;
+using TGC.Core.Geometry;
 using TGC.Core.Mathematica;
+using TGC.Core.SceneLoader;
 using TGC.Core.Text;
+using TGC.Examples.Camara;
 using TGC.Group.Model.TGCUtils;
 using TGC.Group.Model.World;
 using TGC.Group.Utils;
@@ -13,7 +18,13 @@ namespace TGC.Group.Model
 {
     public class HUD
     {
+        Device device = D3DDevice.Instance.Device;
+        Viewport view = new Viewport();
+        Viewport original_view;
+
         private Player1 player1;
+        private TgcMesh mesh, background;
+        private float time;
         private Drawer2D drawer2D;
         private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
         private CustomSprite[] weapons;
@@ -26,6 +37,29 @@ namespace TGC.Group.Model
         public HUD(Player1 p1, float time)
         {
             player1 = p1;
+
+            var loader = new TgcSceneLoader();
+            mesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + "Items\\power-item-TgcScene.xml").Meshes[0];
+
+            var boxRadius = new TGCVector3(8, 13, 0.1f);
+            var tgcBox = TGCBox.fromSize(boxRadius, Color.FromArgb(255, 211, 206, 170));
+            background = tgcBox.ToMesh("Background");
+            tgcBox.Dispose();
+            background.AutoTransform = true;
+
+            mesh.Position = new TGCVector3(144f, -4.5f, 5f);
+            mesh.Scale = new TGCVector3(2, 1.91f, 2);
+            background.Position = new TGCVector3(144f, -4.5f, 7f);
+
+
+            original_view = device.Viewport;
+
+            view.X = 0;
+            view.Y = (int)(screenHeight * 0.725f);
+            view.Width = (int)(screenWidth * 0.16f);
+            view.Height = (int)(screenHeight * 0.174f);
+            view.MinZ = 0;
+            view.MaxZ = 1;
 
             InitializeHUDSprites();
 
@@ -59,16 +93,44 @@ namespace TGC.Group.Model
             reloj.Text = formatTime(matchTime);
         }
 
-        public void Render()
+        public void Render(GameModel gameModel)
         {
+
             drawer2D.BeginDrawSprite();
             drawer2D.DrawSprite(statsBar);
             drawer2D.DrawSprite(healthBar);
             drawer2D.DrawSprite(specialBar);
             drawer2D.DrawSprite(weaponsHud);
-            if(player1.SelectedWeapon != null)
-                drawer2D.DrawSprite(weapons[player1.SelectedWeapon.Id - 1]);
             drawer2D.EndDrawSprite();
+
+            if (player1.SelectedWeapon != null)
+            {
+                device.Viewport = view;
+                
+                var posOriginal = mesh.Position;
+                var cam = (TgcThirdPersonCamera)gameModel.Camara;
+                time += gameModel.ElapsedTime;
+                var asd = gameModel.Camara.LookAt - gameModel.Camara.Position;
+                asd.Normalize();
+                asd *= 6;
+
+                mesh.Position = gameModel.Camara.Position + asd * 0.8f;
+                mesh.Rotation = new TGCVector3(0, cam.RotationY, 0);
+                mesh.RotateY(FastMath.Cos(time * 3));
+                mesh.Render();
+
+                background.Position = gameModel.Camara.Position + asd * 1.12f;
+                background.Rotation = new TGCVector3(-0.05f, cam.RotationY, 0);
+                background.Render();
+
+                device.Viewport = original_view;
+            }
+
+
+
+            //mesh.Render();
+            //drawer2D.DrawSprite(weapons[player1.SelectedWeapon.Id - 1]);
+
 
             if (speed.Text.Contains("-"))
             {

@@ -12,6 +12,7 @@ using Button = TGC.Group.Model.Input.Button;
 using TGC.Group.Model.Vehicles;
 using TGC.Core.Text;
 using TGC.Core.Direct3D;
+using TGC.Core.Example;
 
 namespace TGC.Group.Model.GameStates
 {
@@ -51,7 +52,7 @@ namespace TGC.Group.Model.GameStates
 
             //Configuramos el player para que sea el Listener
             gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
-
+            
             // Inicializo el HUD
             hud = new HUD(world.player1, matchTime);
 
@@ -156,12 +157,12 @@ namespace TGC.Group.Model.GameStates
                 pauseMsg.render();
             }
 
+            // Renderizar el HUD
+            hud.Render(gameModel);
+
             // Renderiza todo lo perteneciente al mundo físico
             world.Render(gameModel);
-
-            // Renderizar el HUD
-            hud.Render();
-
+            
             // Renderizar el Vector UP
             if (drawUpVector)
             {
