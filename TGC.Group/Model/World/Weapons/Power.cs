@@ -1,6 +1,4 @@
-﻿using BulletSharp;
-
-namespace TGC.Group.Model.World.Weapons
+﻿namespace TGC.Group.Model.World.Weapons
 {
     public class Power : Weapon
     {

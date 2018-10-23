@@ -1,9 +1,5 @@
 ﻿using Microsoft.DirectX.Direct3D;
-using System;
 using System.Drawing;
-using System.Windows;
-using System.Windows.Forms;
-using TGC.Core.Camara;
 using TGC.Core.Direct3D;
 using TGC.Core.Geometry;
 using TGC.Core.Mathematica;
@@ -103,33 +99,28 @@ namespace TGC.Group.Model
             drawer2D.DrawSprite(weaponsHud);
             drawer2D.EndDrawSprite();
 
+            device.Viewport = view;
+
+            var posOriginal = mesh.Position;
+            var cam = (TgcThirdPersonCamera)gameModel.Camara;
+            time += gameModel.ElapsedTime;
+            var asd = gameModel.Camara.LookAt - gameModel.Camara.Position;
+            asd.Normalize();
+            asd *= 6;
+
+            background.Position = gameModel.Camara.Position + asd * 1.12f;
+            background.Rotation = new TGCVector3(-0.05f, cam.RotationY, 0);
+            background.Render();
+
             if (player1.SelectedWeapon != null)
             {
-                device.Viewport = view;
-                
-                var posOriginal = mesh.Position;
-                var cam = (TgcThirdPersonCamera)gameModel.Camara;
-                time += gameModel.ElapsedTime;
-                var asd = gameModel.Camara.LookAt - gameModel.Camara.Position;
-                asd.Normalize();
-                asd *= 6;
-
                 mesh.Position = gameModel.Camara.Position + asd * 0.8f;
                 mesh.Rotation = new TGCVector3(0, cam.RotationY, 0);
                 mesh.RotateY(FastMath.Cos(time * 3));
                 mesh.Render();
-
-                background.Position = gameModel.Camara.Position + asd * 1.12f;
-                background.Rotation = new TGCVector3(-0.05f, cam.RotationY, 0);
-                background.Render();
-
-                device.Viewport = original_view;
             }
 
-
-
-            //mesh.Render();
-            //drawer2D.DrawSprite(weapons[player1.SelectedWeapon.Id - 1]);
+            device.Viewport = original_view;
 
 
             if (speed.Text.Contains("-"))

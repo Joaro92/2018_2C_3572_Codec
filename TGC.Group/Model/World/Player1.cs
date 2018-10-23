@@ -4,16 +4,13 @@ using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
+using TGC.Core.Sound;
 using TGC.Group.Model.Vehicles;
 using TGC.Group.Model.World.Weapons;
 using TGC.Group.Utils;
+using static TGC.Group.Utils.WheelContactInfo;
 using Button = TGC.Group.Model.Input.Button;
 using Dpad = TGC.Group.Model.Input.Dpad;
-using Device = Microsoft.DirectX.DirectSound.Device;
-using static TGC.Group.Utils.WheelContactInfo;
-using TGC.Group.World;
-using TGC.Group.World.Bullets;
-using TGC.Core.Sound;
 
 namespace TGC.Group.Model.World
 {

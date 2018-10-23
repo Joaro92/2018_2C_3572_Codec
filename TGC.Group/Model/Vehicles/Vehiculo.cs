@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TGC.Core.Direct3D;
+﻿using TGC.Core.Direct3D;
 using TGC.Core.SceneLoader;
 using TGC.Core.Textures;
 

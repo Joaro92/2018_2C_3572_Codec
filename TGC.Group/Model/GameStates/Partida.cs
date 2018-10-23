@@ -1,18 +1,17 @@
-﻿using System.Drawing;
+﻿using BulletSharp.Math;
+using System.Drawing;
+using TGC.Core.Direct3D;
 using TGC.Core.Geometry;
 using TGC.Core.Mathematica;
-using TGC.Examples.Camara;
-using TGC.Group.Physics;
-using TGC.Group.Model.World;
-using TGC.Group.Utils;
-using TGC.Group.Model.Interfaces;
-using BulletSharp.Math;
-using Key = Microsoft.DirectX.DirectInput.Key;
-using Button = TGC.Group.Model.Input.Button;
-using TGC.Group.Model.Vehicles;
 using TGC.Core.Text;
-using TGC.Core.Direct3D;
-using TGC.Core.Example;
+using TGC.Examples.Camara;
+using TGC.Group.Model.Interfaces;
+using TGC.Group.Model.Vehicles;
+using TGC.Group.Model.World;
+using TGC.Group.Physics;
+using TGC.Group.Utils;
+using Button = TGC.Group.Model.Input.Button;
+using Key = Microsoft.DirectX.DirectInput.Key;
 
 namespace TGC.Group.Model.GameStates
 {

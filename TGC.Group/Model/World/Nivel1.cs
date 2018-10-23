@@ -1,20 +1,12 @@
-using BulletSharp;
-using BulletSharp.Math;
 using Microsoft.DirectX.DirectInput;
-using System.Collections.Generic;
-using TGC.Core.BoundingVolumes;
-using TGC.Core.Collision;
 using TGC.Core.Mathematica;
-using Button = TGC.Group.Model.Input.Button;
 using TGC.Examples.Camara;
 using TGC.Group.Model.Items;
 using TGC.Group.Model.Vehicles;
+using TGC.Group.Model.World.Weapons;
 using TGC.Group.Physics;
 using TGC.Group.Utils;
-using TGC.Group.World;
-using TGC.Group.World.Bullets;
-using TGC.Group.World.Weapons;
-using TGC.Group.Model.World.Weapons;
+using Button = TGC.Group.Model.Input.Button;
 
 namespace TGC.Group.Model.World
 {
@@ -26,7 +18,7 @@ namespace TGC.Group.Model.World
         {
             // Cargamos el escenario y lo agregamos al mundo
             var dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
-            escenario = new Scenario(world, dir + "scene-level1a-TgcScene.xml");
+            escenario = new Scenario(world, dir + "scene-level1b-TgcScene.xml");
             
             // Creamos a nuestro jugador y lo agregamos al mundo
             player1 = new Player1(world, vehiculoP1, initialPos); // mover a Partida

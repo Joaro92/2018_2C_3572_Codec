@@ -1,22 +1,21 @@
 ﻿using BulletSharp;
 using BulletSharp.Math;
 using Microsoft.DirectX.Direct3D;
+using System.Collections.Generic;
+using TGC.Core.BoundingVolumes;
+using TGC.Core.Collision;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using TGC.Examples.Camara;
-using TGC.Group.Utils;
-using TGC.Group.Model;
-using TGC.Group.Model.World;
 using TGC.Core.Terrain;
-using System.Collections.Generic;
+using TGC.Examples.Camara;
+using TGC.Group.Model;
 using TGC.Group.Model.Items;
-using TGC.Group.World;
-using TGC.Core.Collision;
-using TGC.Group.World.Weapons;
-using TGC.Group.World.Bullets;
+using TGC.Group.Model.World;
 using TGC.Group.Model.World.Weapons;
-using System.Drawing;
-using TGC.Core.BoundingVolumes;
+using TGC.Group.Utils;
+using TGC.Group.World;
+using TGC.Group.World.Bullets;
+using TGC.Group.World.Weapons;
 
 namespace TGC.Group.Physics
 {
@@ -304,7 +303,7 @@ namespace TGC.Group.Physics
             GImpactCollisionAlgorithm.RegisterAlgorithm(dispatcher);
             constraintSolver = new SequentialImpulseConstraintSolver();
             //broadphase = new DbvtBroadphase();
-            broadphase = new AxisSweep3(new Vector3(-15, -15, -15), new Vector3(600, 100, 1600));
+            broadphase = new AxisSweep3(new Vector3(-250, -12, -15), new Vector3(250, 70, 600));
             
             world = new DiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfiguration)
             {
