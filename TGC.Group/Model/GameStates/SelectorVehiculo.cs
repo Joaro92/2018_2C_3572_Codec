@@ -68,7 +68,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Bitmap = new CustomBitmap(imgDir + "left-arrow.png", D3DDevice.Instance.Device),
                 Scaling = TGCVector2.One * 0.25f,
-                Position = new TGCVector2(screenWidth * 0.25f, screenHeight * 0.4f)
+                Position = new TGCVector2(screenWidth * 0.236f, screenHeight * 0.4f)
             };
 
             //flecha derecha
@@ -84,7 +84,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Bitmap = new CustomBitmap(imgDir + "up-arrow.png", D3DDevice.Instance.Device),
                 Scaling = TGCVector2.One * 0.25f,
-                Position = new TGCVector2(screenWidth * 0.475f, screenHeight * 0.05f)
+                Position = new TGCVector2(screenWidth * 0.464f, screenHeight * 0.05f)
             };
 
             //Nombre vehiculo
@@ -92,7 +92,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = selected.Name,
                 Color = Color.Gold,
-                Position = new Point(0, (int)(screenHeight * 0.65f)),
+                Position = new Point(0, (int)(screenHeight * 0.7f)),
             };
             vehicleName.changeFont(UtilMethods.createFont("Twisted Stallions", 45));
 
@@ -101,7 +101,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = "SELECT VEHICLE",
                 Color = Color.DarkOrange,
-                Position = new Point(0, (int)(screenHeight * 0.75f)),
+                Position = new Point(0, (int)(screenHeight * 0.78f)),
             };
             select.changeFont(UtilMethods.createFont("Twisted Stallions",75));
         }

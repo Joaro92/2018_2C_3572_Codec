@@ -64,7 +64,7 @@ namespace TGC.Group.Model.GameStates
             start.Bitmap = new CustomBitmap(imgDir + "press-start.png", D3DDevice.Instance.Device);
             //La ubico en la pantalla
             start.Scaling = TGCVector2.One * (scalingFactorY / scalingFactorX);
-            start.Position = new TGCVector2(screenWidth * 0.083f , screenHeight * 0.67f);
+            start.Position = new TGCVector2(screenWidth * 0.159f , screenHeight * 0.61f);
 
             //Cargo el menu
             
@@ -75,7 +75,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = "Play",
                 Color = Color.Silver,
-                Position = new Point(-screenWidth / 4, screenHeight / 2),
+                Position = new Point(-(int)(screenWidth * 0.202f), screenHeight / 2 + 10),
             };
             play.changeFont(menuFont);
             //Controls
@@ -83,7 +83,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = "Controls",
                 Color = Color.Silver,
-                Position = new Point(-screenWidth / 4, screenHeight / 2 + 150)
+                Position = new Point(-(int)(screenWidth * 0.202f), screenHeight / 2 + 160)
             };
             controls.changeFont(menuFont);
             //Exit
@@ -91,7 +91,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = "Exit",
                 Color = Color.Silver,
-                Position = new Point(-screenWidth / 4, screenHeight / 2 + 300)
+                Position = new Point(-(int)(screenWidth * 0.202f), screenHeight / 2 + 310)
             };
             exit.changeFont(menuFont);
 

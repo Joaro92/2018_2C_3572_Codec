@@ -62,8 +62,7 @@ namespace TGC.Group.Model
         public override void Render()
         {
             PreRender();
-
-            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.FromArgb(0, 1, 1, 1), 1, 0);
+            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.FromArgb(1, 211/2, 206/2, 170/2), 1, 0);
             GameState.Render();
           
             PostRender();

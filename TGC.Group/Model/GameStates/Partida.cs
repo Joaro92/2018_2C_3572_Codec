@@ -84,7 +84,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = "PAUSE",
                 Color = Color.White,
-                Position = new Point(0, screenHeight / 2),
+                Position = new Point(0, (int)(screenHeight * 0.46f)),
             };
             pauseMsg.changeFont(pauseFont);
 
@@ -94,7 +94,6 @@ namespace TGC.Group.Model.GameStates
         {
             // Manejar los inputs del teclado y joystick
             ManageInputs(gameModel);
-
 
             // Condiciones de fin de partida (ademas de presionar ESC)
             if (world.player1.hitPoints <= 0 || matchTime <= 0)
