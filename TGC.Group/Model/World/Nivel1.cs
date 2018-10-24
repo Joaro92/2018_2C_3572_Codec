@@ -18,7 +18,7 @@ namespace TGC.Group.Model.World
         {
             // Cargamos el escenario y lo agregamos al mundo
             var dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
-            escenario = new Scenario(world, dir + "scene-level1b-TgcScene.xml");
+            escenario = new Scenario(world, dir + "scene-level1c-TgcScene.xml");
             
             // Creamos a nuestro jugador y lo agregamos al mundo
             player1 = new Player1(world, vehiculoP1, initialPos); // mover a Partida
@@ -90,7 +90,18 @@ namespace TGC.Group.Model.World
         public override void Render(GameModel gameModel)
         {
             player1.Render();
+
+            //foreach (var mesh in escenario.TgcScene.Meshes)
+            //{
+            //    var r = TgcCollisionUtils.classifyFrustumAABB(gameModel.Frustum, mesh.BoundingBox);
+            //    if (r != TgcCollisionUtils.FrustumResult.OUTSIDE)
+            //    {
+            //        mesh.Render();
+            //    }
+            //}
+
             escenario.Render();
+
             skyBox.Render();
 
             bullets.ForEach(bullet => bullet.Render());

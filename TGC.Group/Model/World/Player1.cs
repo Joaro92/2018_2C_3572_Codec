@@ -329,7 +329,7 @@ namespace TGC.Group.Model.World
         public void Render()
         {
             // Renderizar la malla del auto, en este caso solo el Chasis
-            Mesh.Transform = TGCMatrix.Translation(new TGCVector3(0, meshAxisRadius.Y - (meshRealHeight / 2f), 0)) * new TGCMatrix(rigidBody.MotionState.WorldTransform);
+            Mesh.Transform = TGCMatrix.Translation(new TGCVector3(0, meshAxisRadius.Y - (meshRealHeight / 2f), 0)) * new TGCMatrix(rigidBody.InterpolationWorldTransform);
             Mesh.Render();
 
             TGCMatrix wheelTransform;

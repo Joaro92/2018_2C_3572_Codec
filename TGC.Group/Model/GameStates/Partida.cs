@@ -111,10 +111,9 @@ namespace TGC.Group.Model.GameStates
             {
                 grades = ((FastMath.Abs(rightStick) - 1800f) / 81000f) * (FastMath.Abs(rightStick) / rightStick);
             }
-            camaraInterna.RotationY = Quat.ToEulerAngles(world.player1.RigidBody.Orientation).Y + anguloCamara + halfsPI + grades + (mirarHaciaAtras ? FastMath.PI : 0);
 
-            //world.player1.RigidBody.CenterOfMassTransform = Matrix.Translation(0,-0.020f,0) * world.player1.RigidBody.CenterOfMassTransform;
-
+            camaraInterna.RotationY = world.player1.yawPitchRoll.Y + anguloCamara + halfsPI + grades - world.player1.RigidBody.InterpolationAngularVelocity.Y * 0.07f + (mirarHaciaAtras ? FastMath.PI : 0);
+ 
             // Actualizar el Vector UP si se dibuja
             if (drawUpVector)
             {
