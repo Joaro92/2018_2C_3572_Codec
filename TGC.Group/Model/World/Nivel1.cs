@@ -37,7 +37,7 @@ namespace TGC.Group.Model.World
         public override void Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
         {
             // Determinar que la simulación del mundo físico se va a procesar 60 veces por segundo
-            world.StepSimulation(1 / 60f, 10);
+            world.StepSimulation(1 / 60f, 30);
 
             // Actualizar variables de control
             UpdateControlVariables(gameModel);

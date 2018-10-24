@@ -112,7 +112,7 @@ namespace TGC.Group.Model.GameStates
                 grades = ((FastMath.Abs(rightStick) - 1800f) / 81000f) * (FastMath.Abs(rightStick) / rightStick);
             }
 
-            camaraInterna.RotationY = world.player1.yawPitchRoll.Y + anguloCamara + halfsPI + grades - world.player1.RigidBody.InterpolationAngularVelocity.Y * 0.07f + (mirarHaciaAtras ? FastMath.PI : 0);
+            camaraInterna.RotationY = world.player1.yawPitchRoll.Y + anguloCamara + halfsPI + grades - world.player1.RigidBody.InterpolationAngularVelocity.Y * 0.066f + (mirarHaciaAtras ? FastMath.PI : 0);
  
             // Actualizar el Vector UP si se dibuja
             if (drawUpVector)
