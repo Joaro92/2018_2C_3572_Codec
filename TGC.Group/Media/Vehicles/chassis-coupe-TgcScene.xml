@@ -64,16 +64,16 @@
 				<maxHitPoints>100</maxHitPoints>
 				<engineForce>800</engineForce>
 				<brakeForce>42</brakeForce>
-        <steeringAngle>0,29</steeringAngle>
+        <steeringAngle>0.29</steeringAngle>
         <turboImpulse>17</turboImpulse>
-        <frictionSlip>0,75</frictionSlip>
-        <rollInfluence>0,33</rollInfluence>
+        <frictionSlip>0.75</frictionSlip>
+        <rollInfluence>0.33</rollInfluence>
 				<rearWheelsHeight>0</rearWheelsHeight>
         <frontWheelsHeight>0</frontWheelsHeight>
-				<suspensionRestLength>1,03</suspensionRestLength>
+				<suspensionRestLength>1.03</suspensionRestLength>
 				<suspensionStiffness>41</suspensionStiffness>
-				<dampingCompression>0,12</dampingCompression>
-				<dampingRelaxation>0,91</dampingRelaxation>
+				<dampingCompression>0.12</dampingCompression>
+				<dampingRelaxation>0.91</dampingRelaxation>
 			</userProps>
 		</mesh>
 	</meshes>
