@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
+using TGC.Core.Textures;
 using TGC.Group.Form;
 using TGC.Group.Model.GameStates;
 using TGC.Group.Model.Interfaces;
@@ -62,9 +63,9 @@ namespace TGC.Group.Model
         public override void Render()
         {
             PreRender();
-            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.FromArgb(1, 211/2, 206/2, 170/2), 1, 0);
+
             GameState.Render();
-          
+
             PostRender();
         }
 
@@ -73,6 +74,33 @@ namespace TGC.Group.Model
             GameState.Dispose();
             Input.Dispose();
             SoundManager.Dispose();
+        }
+
+        public void Exit()
+        {
+            var formEnumerator = Application.OpenForms.GetEnumerator();
+            formEnumerator.MoveNext();
+            var gameForm = (GameForm)formEnumerator.Current;
+            gameForm.ShutDown();
+            gameForm.Close();
+        }
+
+
+        // --------------------------------------------
+
+
+        protected override void PreRender()
+        {
+            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.FromArgb(1, 211 / 2, 206 / 2, 170 / 2), 1, 0);
+            D3DDevice.Instance.Device.BeginScene();
+            TexturesManager.Instance.clearAll();
+        }
+
+        protected override void PostRender()
+        {
+            RenderFPS();
+            D3DDevice.Instance.Device.EndScene();
+            D3DDevice.Instance.Device.Present();
         }
 
         private void ObtainJoystickController()
@@ -110,13 +138,5 @@ namespace TGC.Group.Model
             }
         }
 
-        public void Exit()
-        {
-            var formEnumerator = Application.OpenForms.GetEnumerator();
-            formEnumerator.MoveNext();
-            var gameForm = (GameForm) formEnumerator.Current;
-            gameForm.ShutDown();
-            gameForm.Close();
-        }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using BulletSharp.Math;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using TGC.Core.Direct3D;
 using TGC.Core.Geometry;
 using TGC.Core.Mathematica;
@@ -31,6 +34,7 @@ namespace TGC.Group.Model.GameStates
         private bool mirarHaciaAtras = false;
         private float anguloCamara = 0f;
         private float halfsPI = 0f;
+        private Func<double, float> sma;
 
         private bool paused = false;
         private TgcText2D pauseMsg;
@@ -43,6 +47,8 @@ namespace TGC.Group.Model.GameStates
         public Partida(GameModel gameModel, Vehiculo vehiculoP1)
         {
             this.gameModel = gameModel;
+
+            sma = SMA(30);
 
             matchTime = matchInitialTime * 60;
 
@@ -112,7 +118,9 @@ namespace TGC.Group.Model.GameStates
                 grades = ((FastMath.Abs(rightStick) - 1800f) / 81000f) * (FastMath.Abs(rightStick) / rightStick);
             }
 
-            camaraInterna.RotationY = world.player1.yawPitchRoll.Y + anguloCamara + halfsPI + grades - world.player1.RigidBody.InterpolationAngularVelocity.Y * 0.066f + (mirarHaciaAtras ? FastMath.PI : 0);
+            var angular = sma(world.player1.RigidBody.InterpolationAngularVelocity.Y) * 0.055f;
+
+            camaraInterna.RotationY = world.player1.yawPitchRoll.Y + anguloCamara + halfsPI + grades - angular + (mirarHaciaAtras ? FastMath.PI : 0);
  
             // Actualizar el Vector UP si se dibuja
             if (drawUpVector)
@@ -180,6 +188,21 @@ namespace TGC.Group.Model.GameStates
             directionArrow.Dispose();
             hud.Dispose();
         }
+
+
+        private static Func<double, float> SMA(int p)
+        {
+            Queue<double> s = new Queue<double>(p);
+            return (x) => {
+                if (s.Count >= p)
+                {
+                    s.Dequeue();
+                }
+                s.Enqueue(x);
+                return (float)s.Average();
+            };
+        }
+
 
         private void ManageInputs(GameModel gameModel)
         {

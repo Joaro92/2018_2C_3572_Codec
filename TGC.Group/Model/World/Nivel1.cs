@@ -1,5 +1,9 @@
+using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
+using System.Drawing;
+using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
+using TGC.Core.Shaders;
 using TGC.Examples.Camara;
 using TGC.Group.Model.Items;
 using TGC.Group.Model.Vehicles;
@@ -7,12 +11,15 @@ using TGC.Group.Model.World.Weapons;
 using TGC.Group.Physics;
 using TGC.Group.Utils;
 using Button = TGC.Group.Model.Input.Button;
+using Effect = Microsoft.DirectX.Direct3D.Effect;
 
 namespace TGC.Group.Model.World
 {
     public class NivelUno : PhysicsGame
     {
         private readonly TGCVector3 initialPos = new TGCVector3(144f, 7.5f, 0f);
+
+        private Effect effect;
 
         public NivelUno(Vehiculo vehiculoP1)
         {
@@ -32,6 +39,15 @@ namespace TGC.Group.Model.World
 
             // Spawneamos algunos items
             SpawnItems();
+
+            //Cargar Shader personalizado
+            effect = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShading.fx");
+
+            // le asigno el efecto a la malla
+            player1.Mesh.Effect = effect;
+            player1.Mesh.Technique = "RenderScene";
+            
+
         }
 
         public override void Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
@@ -90,7 +106,7 @@ namespace TGC.Group.Model.World
         public override void Render(GameModel gameModel)
         {
             player1.Render();
-
+            
             //foreach (var mesh in escenario.TgcScene.Meshes)
             //{
             //    var r = TgcCollisionUtils.classifyFrustumAABB(gameModel.Frustum, mesh.BoundingBox);
