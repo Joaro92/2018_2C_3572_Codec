@@ -26,13 +26,13 @@ sampler2D diffuseMap = sampler_state
 
 //--------------------------- DIFFUSE LIGHT PROPERTIES ------------------------------
 // The direction of the diffuse light
-float3 DiffuseLightDirection = float3(-100, 250, 80);
+float3 DiffuseLightDirection = float3(98, 400, -100);
  
 // The color of the diffuse light
-float4 DiffuseColor = float4(0.99, 0.99, 0.99, 1);
+float4 DiffuseColor = float4(1, 1, 1, 1);
  
 // The intensity of the diffuse light
-float DiffuseIntensity = 1.21;
+float DiffuseIntensity = 1.06;
  
 //--------------------------- TOON SHADER PROPERTIES ------------------------------
 // The color to draw the lines in.  Black is a good default.
@@ -40,7 +40,7 @@ float4 LineColor = float4(0, 0, 0, 1);
  
 // The thickness of the lines.  This may need to change, depending on the scale of
 // the objects you are drawing.
-float LineThickness = .018;
+float LineThickness = .015;
 
 
 //--------------------------- DATA STRUCTURES ------------------------------
@@ -58,6 +58,7 @@ struct VS_OUTPUT
     float4 Position : POSITION0;
     float2 Texcoord : TEXCOORD0;
     float3 Normal : TEXCOORD1;
+    float3 WorldPos : TEXCOORD2;
 };
 
 
@@ -80,6 +81,8 @@ VS_OUTPUT CelVertexShader(VS_INPUT input)
  
     // Copy over the texture coordinate
     output.Texcoord = input.Texcoord;
+
+    output.WorldPos = mul(input.Position, matWorld);
  
     return output;
 }
@@ -89,24 +92,29 @@ VS_OUTPUT CelVertexShader(VS_INPUT input)
 // one of four colors.
 float4 CelPixelShader(VS_OUTPUT input) : COLOR0
 {
+    float3 light = mul(DiffuseLightDirection, matWorld) - mul(input.WorldPos, matWorld);
     // Calculate diffuse light amount
-    float intensity = dot(normalize(DiffuseLightDirection), input.Normal);
+    float intensity = dot(normalize(light), input.Normal);
     if (intensity < 0)
         intensity = 0;
  
     // Calculate what would normally be the final color, including texturing and diffuse lighting
     float4 color = tex2D(diffuseMap, input.Texcoord) * DiffuseColor * DiffuseIntensity;
-    color.a = 1;
+    color.w = 1;
  
     // Discretize the intensity, based on a few cutoff points
-    if (intensity > 0.95)
-        color = float4(0.99, 0.99, 0.99, 1.0) * color;
-    else if (intensity > 0.5)
-        color = float4(0.81, 0.81, 0.81, 1.0) * color;
-    else if (intensity > 0.05)
-        color = float4(0.52, 0.52, 0.52, 1.0) * color;
+    if (intensity > 0.9)
+        color = float4(0.991 * color.xyz, color.w);
+    else if (intensity > 0.56)
+        color = float4(0.9 * color.xyz, color.w);
+    else if (intensity > 0.24)
+        color = float4(0.83 * color.xyz, color.w);
+    else if (intensity > 0.11)
+        color = float4(0.76 * color.xyz, color.w);
+    else if (intensity > 0.03)
+        color = float4(0.67 * color.xyz, color.w);
     else
-        color = float4(0.38, 0.38, 0.38, 1.0) * color;
+        color = float4(0.54 * color.xyz, color.w);
  
     return color;
 }
@@ -148,7 +156,7 @@ technique RenderScene
     {
         VertexShader = compile vs_3_0 CelVertexShader();
         PixelShader = compile ps_3_0 CelPixelShader();
-        CullMode = NONE;
+        CullMode = CW;
     }
 
     pass Pass_1

@@ -19,7 +19,7 @@ namespace TGC.Group.Model.World
     {
         private readonly TGCVector3 initialPos = new TGCVector3(144f, 7.5f, 0f);
 
-        private Effect effect;
+        private Effect effectScene, effectVehicle;
 
         public NivelUno(Vehiculo vehiculoP1)
         {
@@ -41,13 +41,28 @@ namespace TGC.Group.Model.World
             SpawnItems();
 
             //Cargar Shader personalizado
-            effect = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShading.fx");
+            effectScene = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShadingScene.fx");
+            effectVehicle = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShadingVehicle.fx");
 
             // le asigno el efecto a la malla
-            player1.Mesh.Effect = effect;
+            player1.Mesh.Effect = effectVehicle;
             player1.Mesh.Technique = "RenderScene";
-            
+            //player1.Mesh.D3dMesh.ComputeNormals();
 
+            foreach (var block in escenario.TgcScene.Meshes)
+            {
+                if (block.Name.Equals("Arbusto") || block.Name.Equals("Pasto") || block.Name.Equals("Flores"))
+                    continue;
+
+                if (char.IsLower(block.Name[0]) || block.Name.Equals("Roca") || block.Name.Equals("ParedCastillo") || block.Name.Equals("PilarEgipcio"))
+                {
+                    block.D3dMesh.ComputeNormals();
+                    block.Effect = effectScene;
+                    block.Technique = "RenderScene";
+                }
+
+
+            }
         }
 
         public override void Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
@@ -105,8 +120,9 @@ namespace TGC.Group.Model.World
 
         public override void Render(GameModel gameModel)
         {
+            //effect.SetValue("mCamPos", TGCVector3.Vector3ToFloat3Array(gameModel.Camara.Position));
             player1.Render();
-            
+
             //foreach (var mesh in escenario.TgcScene.Meshes)
             //{
             //    var r = TgcCollisionUtils.classifyFrustumAABB(gameModel.Frustum, mesh.BoundingBox);

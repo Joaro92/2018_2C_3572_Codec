@@ -162,12 +162,12 @@ namespace TGC.Group.Model.GameStates
                 pauseMsg.render();
             }
 
+            // Renderiza todo lo perteneciente al mundo físico
+            world.Render(gameModel);
+
             // Renderizar el HUD
             hud.Render(gameModel);
 
-            // Renderiza todo lo perteneciente al mundo físico
-            world.Render(gameModel);
-            
             // Renderizar el Vector UP
             if (drawUpVector)
             {
