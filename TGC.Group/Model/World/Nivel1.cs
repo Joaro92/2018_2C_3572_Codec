@@ -1,3 +1,4 @@
+using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
 using System.Drawing;
@@ -42,7 +43,34 @@ namespace TGC.Group.Model.World
 
             //Cargar Shader personalizado
             effectScene = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShadingScene.fx");
-            effectVehicle = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShadingVehicle.fx");
+            effectVehicle = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShadingVehicle2.fx");
+
+            //Configurar los valores de cada luz
+            var lightColors = new ColorValue[1];
+            var pointLightPositions = new Vector4[1];
+            var pointLightIntensity = new float[1];
+            var pointLightAttenuation = new float[1];
+            for (var i = 0; i < 1; i++)
+            {
+                lightColors[i] = ColorValue.FromColor(Color.White);
+                pointLightPositions[i] = TGCVector3.Vector3ToVector4(new TGCVector3(400, 900, -80));
+                pointLightIntensity[i] = 165;
+                pointLightAttenuation[i] = 0.29f;
+            }
+
+            effectScene.SetValue("materialEmissiveColor", TGCVector3.Vector3ToVector4(new TGCVector3(0.51f, 0.51f, 0.51f)));
+            effectScene.SetValue("materialDiffuseColor", TGCVector3.Vector3ToVector4(new TGCVector3(1, 1, 0.999f)));
+            effectScene.SetValue("lightColor", lightColors);
+            effectScene.SetValue("lightPosition", pointLightPositions);
+            effectScene.SetValue("lightIntensity", pointLightIntensity);
+            effectScene.SetValue("lightAttenuation", pointLightAttenuation);
+
+            effectVehicle.SetValue("materialEmissiveColor", TGCVector3.Vector3ToVector4(new TGCVector3(0.51f, 0.51f, 0.51f)));
+            effectVehicle.SetValue("materialDiffuseColor", TGCVector3.Vector3ToVector4(new TGCVector3(1, 1, 0.999f)));
+            effectVehicle.SetValue("lightColor", lightColors);
+            effectVehicle.SetValue("lightPosition", pointLightPositions);
+            effectVehicle.SetValue("lightIntensity", pointLightIntensity);
+            effectVehicle.SetValue("lightAttenuation", pointLightAttenuation);
 
             // le asigno el efecto a la malla
             player1.Mesh.Effect = effectVehicle;
@@ -51,8 +79,15 @@ namespace TGC.Group.Model.World
 
             foreach (var block in escenario.TgcScene.Meshes)
             {
-                if (block.Name.Equals("Arbusto") || block.Name.Equals("Pasto") || block.Name.Equals("Flores"))
-                    continue;
+                //if ( || block.Name.Equals("Arbusto") || block.Name.Equals("Pasto") || block.Name.Equals("Flores"))
+                //    continue;
+                if (block.Name.Contains("Arbol") || block.Name.Contains("Palmera"))
+                {
+                    block.D3dMesh.ComputeNormals();
+                    block.Effect = effectScene;
+                    block.Technique = "RenderScene";
+                }
+
 
                 if (char.IsLower(block.Name[0]) || block.Name.Equals("Roca") || block.Name.Equals("ParedCastillo") || block.Name.Equals("PilarEgipcio"))
                 {
@@ -132,6 +167,7 @@ namespace TGC.Group.Model.World
             //    }
             //}
 
+            gameModel.DrawText.drawText(player1.RigidBody.WorldTransform.Origin.ToString(), 5, 30, Color.Black);
             escenario.Render();
 
             skyBox.Render();

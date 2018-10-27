@@ -108,7 +108,7 @@ float3 computeDiffuseComponent(float3 surfacePosition, float3 N, int i)
     float intensity = lightIntensity[i] / distAtten; //Dividimos intensidad sobre distancia
 
 	//Calcular Diffuse (N dot L)
-    float LdotN = max(0.0, dot(N, -Ln));
+    float LdotN = max(0.0, dot(N, Ln));
     float aux;
 
     if(LdotN > 0.942)
@@ -119,8 +119,6 @@ float3 computeDiffuseComponent(float3 surfacePosition, float3 N, int i)
         aux = 1.62;
     else if(LdotN > 0.5)
         aux = 1.57;
-    //else if(LdotN > 0.56)
-    //    aux = 1.51;
     else if (LdotN > 0.2998)
         aux = 1.46;
     else if(LdotN > 0.2985)
@@ -142,7 +140,7 @@ float3 computeDiffuseComponent(float3 surfacePosition, float3 N, int i)
     else
         aux = 1.07;
 
-    return intensity * lightColor[i].rgb * materialDiffuseColor * aux;
+    return intensity * lightColor[i].rgb * materialDiffuseColor * aux * 1.17;
 }
 
 //Pixel Shader para Point Light
@@ -172,9 +170,41 @@ float4 point_light_ps(PS_INPUT input) : COLOR0
     return texelColor;
 }
 
-/*
-* Technique con iluminacion
-*/
+// SEGUNDA PASADA
+float4 LineColor = float4(0, 0, 0, 1);
+float LineThickness = .008;
+
+// The vertex shader that does the outlines
+VS_OUTPUT OutlineVertexShader(VS_INPUT input)
+{
+    VS_OUTPUT output = (VS_OUTPUT) 0;
+ 
+    // Calculate where the vertex ought to be.  This line is equivalent
+    // to the transformations in the CelVertexShader.
+    float4 original = mul(input.Position, matWorldViewProj);
+ 
+    // Calculates the normal of the vertex like it ought to be.
+    float4 normal = mul(input.Normal, matWorldViewProj);
+ 
+    // Take the correct "original" location and translate the vertex a little
+    // bit in the direction of the normal to draw a slightly expanded object.
+    // Later, we will draw over most of this with the right color, except the expanded
+    // part, which will leave the outline that we want.
+    output.Position = original + (mul(LineThickness, normal));
+ 
+    return output;
+}
+ 
+// The pixel shader for the outline.  It is pretty simple:  draw everything with the
+// correct line color.
+float4 OutlinePixelShader(VS_OUTPUT input) : COLOR0
+{
+    return LineColor;
+}
+
+
+// ------------------------------------------------------------------
+
 technique RenderScene
 {
     pass Pass_0
@@ -182,5 +212,11 @@ technique RenderScene
         VertexShader = compile vs_3_0 vs_general();
         PixelShader = compile ps_3_0 point_light_ps();
         CullMode = CW;
+    }
+    pass Pass_1
+    {
+        VertexShader = compile vs_3_0 OutlineVertexShader();
+        PixelShader = compile ps_3_0 OutlinePixelShader();
+        CullMode = CCW;
     }
 }
