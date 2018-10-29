@@ -1,5 +1,3 @@
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
 using System.Drawing;
 using TGC.Core.Direct3D;
@@ -46,28 +44,15 @@ namespace TGC.Group.Model.World
 
             player1.Mesh.Effect = toonFX;
             player1.Mesh.Technique = "ToonShadingWithBorder";
-            //player1.Mesh.D3dMesh.ComputeNormals();
 
             foreach (var block in escenario.TgcScene.Meshes)
             {
-                //if ( || block.Name.Equals("Arbusto") || block.Name.Equals("Pasto") || block.Name.Equals("Flores"))
-                //    continue;
-                if (block.Name.Contains("Arbol") || block.Name.Contains("Palmera"))
+                if (block.Name.Contains("Arbol") || block.Name.Contains("Palmera") || char.IsLower(block.Name[0]) || block.Name.Equals("Roca") || block.Name.Equals("ParedCastillo") || block.Name.Equals("PilarEgipcio"))
                 {
                     block.D3dMesh.ComputeNormals();
                     block.Effect = toonFX;
                     block.Technique = "ToonShading";
                 }
-
-
-                if (char.IsLower(block.Name[0]) || block.Name.Equals("Roca") || block.Name.Equals("ParedCastillo") || block.Name.Equals("PilarEgipcio"))
-                {
-                    block.D3dMesh.ComputeNormals();
-                    block.Effect = toonFX;
-                    block.Technique = "ToonShading";
-                }
-
-
             }
         }
 
@@ -126,17 +111,7 @@ namespace TGC.Group.Model.World
 
         public override void Render(GameModel gameModel)
         {
-            //effect.SetValue("mCamPos", TGCVector3.Vector3ToFloat3Array(gameModel.Camara.Position));
             player1.Render();
-
-            //foreach (var mesh in escenario.TgcScene.Meshes)
-            //{
-            //    var r = TgcCollisionUtils.classifyFrustumAABB(gameModel.Frustum, mesh.BoundingBox);
-            //    if (r != TgcCollisionUtils.FrustumResult.OUTSIDE)
-            //    {
-            //        mesh.Render();
-            //    }
-            //}
 
             gameModel.DrawText.drawText(D3DDevice.Instance.Device.Viewport.Width + " + " + D3DDevice.Instance.Device.Viewport.Height, 5, 30, Color.Black);
             gameModel.DrawText.drawText(gameModel.Input.Xpos() + " + " + gameModel.Input.Ypos(), 5, 45, Color.Black);
