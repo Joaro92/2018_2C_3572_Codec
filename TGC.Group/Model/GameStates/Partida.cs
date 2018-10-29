@@ -53,7 +53,7 @@ namespace TGC.Group.Model.GameStates
             matchTime = matchInitialTime * 60;
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
-            world = new NivelUno(vehiculoP1);
+            world = new NivelUno(vehiculoP1, gameModel);
 
             //Configuramos el player para que sea el Listener
             gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
@@ -93,7 +93,6 @@ namespace TGC.Group.Model.GameStates
                 Position = new Point(0, (int)(screenHeight * 0.46f)),
             };
             pauseMsg.changeFont(pauseFont);
-
         }
 
         public void Update()
@@ -162,7 +161,6 @@ namespace TGC.Group.Model.GameStates
                 pauseMsg.render();
             }
 
-            
             // Renderiza todo lo perteneciente al mundo físico
             world.Render(gameModel);
 
@@ -191,6 +189,8 @@ namespace TGC.Group.Model.GameStates
         }
 
 
+        // ----------------------------------
+
         private static Func<double, float> SMA(int p)
         {
             Queue<double> s = new Queue<double>(p);
@@ -203,7 +203,6 @@ namespace TGC.Group.Model.GameStates
                 return (float)s.Average();
             };
         }
-
 
         private void ManageInputs(GameModel gameModel)
         {

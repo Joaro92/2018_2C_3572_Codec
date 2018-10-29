@@ -1,12 +1,3 @@
-/*
-* Shader utilizado por el ejemplo "Lights/EjemploMultiDiffuseLights.cs"
-* Permite aplicar iluminación dinámica con PhongShading a nivel de pixel.
-* Soporta hasta 4 luces por objeto en la misma pasada.
-* Las luces tienen atenuación por distancia.
-* Solo se calcula el componente Diffuse para acelerar los cálculos. Se ignora
-* el Specular.
-*/
-
 /**************************************************************************************/
 /* Variables comunes */
 /**************************************************************************************/
@@ -36,18 +27,98 @@ sampler2D lightMap = sampler_state
     Texture = (texLightMap);
 };
 
-//Material del mesh
-float3 materialEmissiveColor; //Color RGB
-float3 materialDiffuseColor; //Color RGB
-
-//Variables de las 4 luces
-float3 lightColor[4]; //Color RGB de las 4 luces
-float4 lightPosition[4]; //Posicion de las 4 luces
-float lightIntensity[4]; //Intensidad de las 4 luces
-float lightAttenuation[4]; //Factor de atenuacion de las 4 luces
+float3 materialDiffuseColor = float3(1, 1, 0.999); //Color RGB
+float3 lightColor = float3(1, 1, 1); //Color RGB
+float3 lightPosition = float3(400, 900, -80); //Posicion de la luz
+float lightIntensity = 165; //Intensidad de la luz
+float lightAttenuation = 0.29; //Factor de atenuacion de la luz
 
 /**************************************************************************************/
-/* MultiDiffuseLightsTechnique */
+/* Función auxiliar */
+/**************************************************************************************/
+
+float3 computeDiffuseComponent1(float3 surfacePosition, float3 N)
+{
+    float distAtten = length(lightPosition.xyz - surfacePosition);
+    float3 Ln = (lightPosition.xyz - surfacePosition) / distAtten;
+    distAtten = distAtten * lightAttenuation;
+    float intensity = lightIntensity / distAtten;
+
+    float LdotN = max(0.0, dot(N, Ln));
+    float aux;
+
+    if (LdotN > 0.942)
+        aux = 1.69;
+    else if (LdotN > 0.896)
+        aux = 1.65;
+    else if (LdotN > 0.816)
+        aux = 1.62;
+    else if (LdotN > 0.5)
+        aux = 1.57;
+    else if (LdotN > 0.2998)
+        aux = 1.46;
+    else if (LdotN > 0.2985)
+        aux = 1.41;
+    else if (LdotN > 0.281)
+        aux = 1.37;
+    else if (LdotN > 0.277)
+        aux = 1.33;
+    else if (LdotN > 0.255)
+        aux = 1.299;
+    else if (LdotN > 0.20)
+        aux = 1.26;
+    else if (LdotN > 0.1)
+        aux = 1.21;
+    else if (LdotN > 0.03)
+        aux = 1.15;
+    else
+        aux = 1.07;
+
+    return intensity * lightColor.rgb * materialDiffuseColor * aux * 1.17;
+}
+
+float3 computeDiffuseComponent2(float3 surfacePosition, float3 N)
+{
+    float distAtten = length(lightPosition.xyz - surfacePosition);
+    float3 Ln = (lightPosition.xyz - surfacePosition) / distAtten;
+    distAtten = distAtten * lightAttenuation;
+    float intensity = lightIntensity / distAtten;
+
+    float LdotN = max(0.0, dot(N, -Ln));
+    float aux;
+
+    if (LdotN > 0.942)
+        aux = 1.69;
+    else if (LdotN > 0.896)
+        aux = 1.65;
+    else if (LdotN > 0.816)
+        aux = 1.62;
+    else if (LdotN > 0.5)
+        aux = 1.57;
+    else if (LdotN > 0.2998)
+        aux = 1.46;
+    else if (LdotN > 0.2985)
+        aux = 1.41;
+    else if (LdotN > 0.281)
+        aux = 1.37;
+    else if (LdotN > 0.277)
+        aux = 1.33;
+    else if (LdotN > 0.255)
+        aux = 1.299;
+    else if (LdotN > 0.20)
+        aux = 1.26;
+    else if (LdotN > 0.1)
+        aux = 1.21;
+    else if (LdotN > 0.03)
+        aux = 1.15;
+    else
+        aux = 1.07;
+
+    return intensity * lightColor.rgb * materialDiffuseColor * aux;
+}
+
+/**************************************************************************************/
+/* Definición Vertex Shader y Pixel Shader */
 /**************************************************************************************/
 
 //Input del Vertex Shader
@@ -73,18 +144,9 @@ VS_OUTPUT vs_general(VS_INPUT input)
 {
     VS_OUTPUT output;
 
-	//Proyectar posicion
     output.Position = mul(input.Position, matWorldViewProj);
-
-	//Enviar Texcoord directamente
     output.Texcoord = input.Texcoord;
-
-	//Posicion pasada a World-Space (necesaria para atenuación por distancia)
     output.WorldPosition = mul(input.Position, matWorld);
-
-	/* Pasar normal a World-Space
-	Solo queremos rotarla, no trasladarla ni escalarla.
-	Por eso usamos matInverseTransposeWorld en vez de matWorld */
     output.WorldNormal = mul(input.Normal, matInverseTransposeWorld).xyz;
 
     return output;
@@ -98,72 +160,28 @@ struct PS_INPUT
     float3 WorldNormal : TEXCOORD2;
 };
 
-//Funcion para calcular color RGB de Diffuse
-float3 computeDiffuseComponent(float3 surfacePosition, float3 N, int i)
-{
-	//Calcular intensidad de luz, con atenuacion por distancia
-    float distAtten = length(lightPosition[i].xyz - surfacePosition);
-    float3 Ln = (lightPosition[i].xyz - surfacePosition) / distAtten;
-    distAtten = distAtten * lightAttenuation[i];
-    float intensity = lightIntensity[i] / distAtten; //Dividimos intensidad sobre distancia
-
-	//Calcular Diffuse (N dot L)
-    float LdotN = max(0.0, dot(N, Ln));
-    float aux;
-
-    if(LdotN > 0.942)
-        aux = 1.69;
-    else if(LdotN > 0.896)
-        aux = 1.65;
-    else if(LdotN > 0.816)
-        aux = 1.62;
-    else if(LdotN > 0.5)
-        aux = 1.57;
-    else if (LdotN > 0.2998)
-        aux = 1.46;
-    else if(LdotN > 0.2985)
-        aux = 1.41;
-    else if (LdotN > 0.281)
-        aux = 1.37;
-    else if (LdotN > 0.277)
-        aux = 1.33;
-    else if (LdotN > 0.255)
-        aux = 1.299;
-    else if (LdotN > 0.20)
-        aux = 1.26;
-    else if (LdotN > 0.1)
-        aux = 1.21;
-    else if (LdotN > 0.03)
-        aux = 1.15;
-    //else if (LdotN > 0.000001)
-    //    aux = 0.7;
-    else
-        aux = 1.07;
-
-    return intensity * lightColor[i].rgb * materialDiffuseColor * aux * 1.17;
-}
-
-//Pixel Shader para Point Light
-float4 point_light_ps(PS_INPUT input) : COLOR0
+//Pixel Shader para el Vehiculo
+float4 ps_toon_vehicle(PS_INPUT input) : COLOR0
 {
     float3 Nn = normalize(input.WorldNormal);
+    float3 diffuseLighting = float3(0, 0, 0);
 
-	//Emissive + Diffuse de 4 luces PointLight
-    float3 diffuseLighting = float3(0, 0, 0); //materialEmissiveColor;
+    diffuseLighting += computeDiffuseComponent1(input.WorldPosition, Nn);
 
-	//Diffuse 0
-    diffuseLighting += computeDiffuseComponent(input.WorldPosition, Nn, 0);
+    float4 texelColor = tex2D(diffuseMap, input.Texcoord);
+    texelColor.rgb *= diffuseLighting;
 
-	////Diffuse 1
-    //diffuseLighting += computeDiffuseComponent(input.WorldPosition, Nn, 1);
+    return texelColor;
+}
 
-	////Diffuse 2
-    //diffuseLighting += computeDiffuseComponent(input.WorldPosition, Nn, 2);
+//Pixel Shader para todo lo demas
+float4 ps_toon(PS_INPUT input) : COLOR0
+{
+    float3 Nn = normalize(input.WorldNormal);
+    float3 diffuseLighting = float3(0, 0, 0);
 
-	////Diffuse 3
-    //diffuseLighting += computeDiffuseComponent(input.WorldPosition, Nn, 3);
+    diffuseLighting += computeDiffuseComponent2(input.WorldPosition, Nn);
 
-	//Obtener texel de la textura
     float4 texelColor = tex2D(diffuseMap, input.Texcoord);
     texelColor.rgb *= diffuseLighting;
 
@@ -202,21 +220,31 @@ float4 OutlinePixelShader(VS_OUTPUT input) : COLOR0
     return LineColor;
 }
 
-
 // ------------------------------------------------------------------
 
-technique RenderScene
+technique ToonShadingWithBorder
 {
     pass Pass_0
     {
         VertexShader = compile vs_3_0 vs_general();
-        PixelShader = compile ps_3_0 point_light_ps();
+        PixelShader = compile ps_3_0 ps_toon_vehicle();
         CullMode = CW;
     }
+
     pass Pass_1
     {
         VertexShader = compile vs_3_0 OutlineVertexShader();
         PixelShader = compile ps_3_0 OutlinePixelShader();
         CullMode = CCW;
+    }
+}
+
+technique ToonShading
+{
+    pass Pass_0
+    {
+        VertexShader = compile vs_3_0 vs_general();
+        PixelShader = compile ps_3_0 ps_toon();
+        CullMode = CW;
     }
 }

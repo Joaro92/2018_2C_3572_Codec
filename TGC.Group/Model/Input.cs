@@ -165,6 +165,16 @@ namespace TGC.Group.Model
             if (joystick != null) joystick.Dispose();
         }
 
+        public float Xpos()
+        {
+            return keyboard.Xpos;
+        }
+
+        public float Ypos()
+        {
+            return keyboard.Ypos;
+        }
+
 
         // ------- Metodos Privados -------
 

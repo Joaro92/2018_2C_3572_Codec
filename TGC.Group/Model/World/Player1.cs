@@ -3,6 +3,7 @@ using BulletSharp.Math;
 using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
@@ -45,8 +46,8 @@ namespace TGC.Group.Model.World
         public readonly float maxSpecialPoints = 100f;
         public readonly float costTurbo = 6f; //por segundo
         public readonly float specialPointsGain = 1f; //por segundo
-        public readonly float turboMultiplier = 15f;
-        public readonly float jumpImpulse = 1900;
+        public readonly float turboMultiplier = 20f;
+        public readonly float jumpImpulse = 1800;
         protected readonly float mass = 200f;
 
         // Atributos importantes
@@ -68,13 +69,19 @@ namespace TGC.Group.Model.World
 
         private readonly float meshRealHeight = 0.4f;
         private readonly float suspensionLength = 0.9f;
+
+        public TgcStaticSound turboSound;
         
         // Armas
         public List<Weapon> Weapons { get; } = new List<Weapon>();
         public Weapon SelectedWeapon { get; set; } = null;
 
-        public Player1(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position)
+        public Player1(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position, GameModel gameModel)
         {
+            //Cargar sonido
+            turboSound = new TgcStaticSound();
+            turboSound.loadSound(Game.Default.MediaDirectory + "Sounds\\FX\\turbo.wav", gameModel.DirectSound.DsDevice);
+
             this.vehiculo = vehiculo;
 
             var loader = new TgcSceneLoader();
@@ -189,7 +196,7 @@ namespace TGC.Group.Model.World
                 velocityVector = TGCVector3.Empty;
             }
             var speedAngle = FastMath.Acos(TGCVector3.Dot(frontVector, velocityVector) / (frontVector.Length() * velocityVector.Length()));
-            velocityVector.Multiply(2.5f);
+            velocityVector.Multiply(2f);
 
             currentSpeed = (int)velocityVector.Length();
 
@@ -284,14 +291,26 @@ namespace TGC.Group.Model.World
                 ResetEngineForce();
             }
 
+          
+
             // Turbo
             if (specialPoints >= costTurbo && (Input.keyDown(Key.LeftShift) || Input.JoystickButtonPressedDouble(0, gameModel.ElapsedTime)))
             {
                 TurboOn();
+                if (!turboSound.SoundBuffer.Status.Playing)
+                {
+                    turboSound.play(true); // 26.532
+                }
+                if (turboSound.SoundBuffer.PlayPosition > 25208)
+                {
+                    turboSound.SoundBuffer.SetCurrentPosition(18036);
+                }
             }
             else
             {
                 TurboOff();
+                turboSound.stop();
+                turboSound.SoundBuffer.SetCurrentPosition(0);
             }
 
             // Frenar
@@ -463,12 +482,15 @@ namespace TGC.Group.Model.World
         private void Accelerate()
         {
             //Pequeño impulso adicional cuando la velocidad es baja
-            var multi = 1f;
-            if (currentSpeed < 15)
-                multi = 1.8f;
+            var x = currentSpeed;
+            float f;
+            if (x < 0)
+                f = 7;
+            else
+                f = -FastMath.Log(0.00001f * (x + 0.15f)) - 6.3f;
 
-            vehicle.ApplyEngineForce(engineForce * multi, 2);
-            vehicle.ApplyEngineForce(engineForce * multi, 3);
+            vehicle.ApplyEngineForce(engineForce * f, 2);
+            vehicle.ApplyEngineForce(engineForce * f, 3);
         }
 
         private void Reverse()

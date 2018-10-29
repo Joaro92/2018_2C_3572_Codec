@@ -46,7 +46,7 @@ namespace TGC.Group.World.Bullets
         public override void Dispose(Device dsDevice)
         {
             sound.stop();
-            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\explosion.wav", mesh.Transform.Origin, dsDevice);
+            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\explosionStrong.wav", mesh.Transform.Origin, dsDevice);
             sound.MinDistance = 80f;
             sound.play(false);
             mesh.Dispose();

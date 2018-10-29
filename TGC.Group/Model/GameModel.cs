@@ -91,7 +91,8 @@ namespace TGC.Group.Model
 
         protected override void PreRender()
         {
-            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.FromArgb(1, 211 / 2, 206 / 2, 170 / 2), 1, 0);
+            //D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.FromArgb(1, 211 / 2, 206 / 2, 170 / 2), 1, 0);
+            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1, 0);
             D3DDevice.Instance.Device.BeginScene();
             TexturesManager.Instance.clearAll();
         }
