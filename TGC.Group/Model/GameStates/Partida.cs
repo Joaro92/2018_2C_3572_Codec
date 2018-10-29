@@ -53,7 +53,7 @@ namespace TGC.Group.Model.GameStates
             matchTime = matchInitialTime * 60;
 
             // Preparamos el mundo físico con todos los elementos que pertenecen a el
-            world = new NivelUno(vehiculoP1);
+            world = new NivelUno(vehiculoP1, gameModel);
 
             //Configuramos el player para que sea el Listener
             gameModel.DirectSound.ListenerTracking = world.player1.Mesh;

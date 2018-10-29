@@ -9,6 +9,7 @@ using TGC.Examples.Camara;
 using TGC.Group.Model.TGCUtils;
 using TGC.Group.Model.World;
 using TGC.Group.Utils;
+using Font = System.Drawing.Font;
 
 namespace TGC.Group.Model
 {
@@ -22,17 +23,18 @@ namespace TGC.Group.Model
         private TgcMesh mesh, background;
         private float time;
         private Drawer2D drawer2D;
-        private CustomSprite statsBar, healthBar, specialBar, weaponsHud;
-        private CustomSprite[] weapons;
+        private CustomSprite hudSprites, healthBar, specialBar;
+        //private CustomSprite[] weapons;
         private TGCVector2 specialScale, hpScale;
         private TgcText2D speed, km, weaponName, ammoQuantity, reloj, turbo;
         private readonly int scaling = GameModel.GetWindowsScaling(); // 96 es el 100%, 120 es el 125%
         private readonly int screenHeight = D3DDevice.Instance.Device.Viewport.Height;
         private readonly int screenWidth = D3DDevice.Instance.Device.Viewport.Width;
-
+ 
         public HUD(Player1 p1, float time)
         {
             player1 = p1;
+
 
             var loader = new TgcSceneLoader();
             mesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + "Items\\power-item-TgcScene.xml").Meshes[0];
@@ -99,13 +101,6 @@ namespace TGC.Group.Model
 
         public void Render(GameModel gameModel)
         {
-            drawer2D.BeginDrawSprite();
-            drawer2D.DrawSprite(statsBar);
-            drawer2D.DrawSprite(healthBar);
-            drawer2D.DrawSprite(specialBar);
-            drawer2D.DrawSprite(weaponsHud);
-            drawer2D.EndDrawSprite();
-
             device.Viewport = view;
 
             var posOriginal = mesh.Position;
@@ -115,9 +110,9 @@ namespace TGC.Group.Model
             asd.Normalize();
             asd *= 6;
 
-            background.Position = gameModel.Camara.Position + asd * 1.12f;
-            background.Rotation = new TGCVector3(-0.05f, cam.RotationY, 0);
-            background.Render();
+            //background.Position = gameModel.Camara.Position + asd * 1.12f;
+            //background.Rotation = new TGCVector3(-0.05f, cam.RotationY, 0);
+            //background.Render();
 
             if (player1.SelectedWeapon != null)
             {
@@ -128,6 +123,15 @@ namespace TGC.Group.Model
             }
 
             device.Viewport = original_view;
+
+            drawer2D.BeginDrawSprite();
+            drawer2D.DrawSprite(hudSprites);
+            drawer2D.DrawSprite(healthBar);
+            drawer2D.DrawSprite(specialBar);
+            //drawer2D.DrawSprite(weaponsHud);
+            drawer2D.EndDrawSprite();
+
+
 
 
             if (speed.Text.Contains("-"))
@@ -153,10 +157,10 @@ namespace TGC.Group.Model
 
         public void Dispose()
         {
-            statsBar.Dispose();
+            hudSprites.Dispose();
             healthBar.Dispose();
             specialBar.Dispose();
-            weaponsHud.Dispose();
+            //weaponsHud.Dispose();
             //foreach (CustomSprite w in weapons)
             //{
             //    w.Dispose();
@@ -175,33 +179,41 @@ namespace TGC.Group.Model
         private void InitializeHUDSprites()
         {
             var imgDir = Game.Default.MediaDirectory + Game.Default.ImagesDirectory;
+            int imgW, imgH;
 
             // Inicializamos la interface para dibujar sprites 2D
             drawer2D = new Drawer2D();
 
             // Sprite del HUD de la velocidad y stats del jugador
-            statsBar = new CustomSprite
+            hudSprites = new CustomSprite
             {
-                Bitmap = new CustomBitmap(imgDir + "stats.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(imgDir + "HUD.png", D3DDevice.Instance.Device),
+                Position = TGCVector2.Zero
             };
-            if (scaling == 96) statsBar.Position = new TGCVector2(screenWidth * 0.842f, screenHeight * 0.750f); // 100%
-            else statsBar.Position = new TGCVector2(screenWidth * 0.81f, screenHeight * 0.695f); // 125%
+            imgW = hudSprites.Bitmap.ImageInformation.Width;
+            imgH = hudSprites.Bitmap.ImageInformation.Height;
+            hudSprites.Scaling = new TGCVector2((screenWidth / (float)hudSprites.Bitmap.Width), (screenHeight / (float)hudSprites.Bitmap.Height));
+            
+            //if (scaling == 96) statsBar.Position = new TGCVector2(screenWidth * 0.842f, screenHeight * 0.750f); // 100%
+            //else statsBar.Position = new TGCVector2(screenWidth * 0.81f, screenHeight * 0.695f); // 125%
 
-            var scalingFactorX = (float)screenWidth / (float)statsBar.Bitmap.Width;
-            var scalingFactorY = (float)screenHeight / (float)statsBar.Bitmap.Height;
+            //var scalingFactorX = (float)screenWidth / (float)statsBar.Bitmap.Width;
+            //var scalingFactorY = (float)screenHeight / (float)statsBar.Bitmap.Height;
 
-            statsBar.Scaling = new TGCVector2(0.25f, 0.42f) * (scalingFactorY / scalingFactorX);
+            //statsBar.Scaling = new TGCVector2(0.25f, 0.42f) * (scalingFactorY / scalingFactorX) * scale;
 
             // Sprite que representa la vida
             healthBar = new CustomSprite
             {
-                Bitmap = new CustomBitmap(imgDir + "healthBar.png", D3DDevice.Instance.Device)
+                Bitmap = new CustomBitmap(imgDir + "healthBar.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(screenWidth * 0.8828f, screenHeight * 0.7762f)
             };
-            if (scaling == 96) healthBar.Position = new TGCVector2(screenWidth * 0.8828f, screenHeight * 0.7762f); // 100%
-            else healthBar.Position = new TGCVector2(screenWidth * 0.8605f, screenHeight * 0.728f); // 125%
+            
+            //if (scaling == 96) healthBar.Position = new TGCVector2(screenWidth * 0.8828f, screenHeight * 0.7762f); // 100%
+            //else healthBar.Position = new TGCVector2(screenWidth * 0.8605f, screenHeight * 0.728f); // 125%
 
-            scalingFactorX = (float)screenWidth / (float)healthBar.Bitmap.Width;
-            scalingFactorY = (float)screenHeight / (float)healthBar.Bitmap.Height;
+            var scalingFactorX = (float)screenWidth / (float)healthBar.Bitmap.Width;
+            var scalingFactorY = (float)screenHeight / (float)healthBar.Bitmap.Height;
 
             healthBar.Scaling = new TGCVector2(0.079f, 0.08f) * (scalingFactorY / scalingFactorX);
             hpScale = healthBar.Scaling;
@@ -209,10 +221,11 @@ namespace TGC.Group.Model
             // Sprite de la barra de especiales
             specialBar = new CustomSprite
             {
-                Bitmap = new CustomBitmap(imgDir + "specialBar.png", D3DDevice.Instance.Device)
+                Bitmap = new CustomBitmap(imgDir + "specialBar.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(screenWidth * 0.883f, screenHeight * 0.858f)
             };
-            if (scaling == 96) specialBar.Position = new TGCVector2(screenWidth * 0.883f, screenHeight * 0.858f); // 100%
-            else specialBar.Position = new TGCVector2(screenWidth * 0.861f, screenHeight * 0.83f); // 125%
+            //if (scaling == 96) specialBar.Position = new TGCVector2(screenWidth * 0.883f, screenHeight * 0.858f); // 100%
+            //else specialBar.Position = new TGCVector2(screenWidth * 0.861f, screenHeight * 0.83f); // 125%
 
             scalingFactorX = (float)screenWidth / (float)specialBar.Bitmap.Width;
             scalingFactorY = (float)screenHeight / (float)specialBar.Bitmap.Height;
@@ -220,18 +233,19 @@ namespace TGC.Group.Model
             specialBar.Scaling = new TGCVector2(0.079f, 0.08f) * (scalingFactorY / scalingFactorX);
             specialScale = specialBar.Scaling;
 
-            // Sprite del HUD de las armas
-            weaponsHud = new CustomSprite
-            {
-                Bitmap = new CustomBitmap(imgDir + "weapons-hud-2.png", D3DDevice.Instance.Device),
-            };
-            if (scaling == 96) weaponsHud.Position = new TGCVector2(-13, screenHeight * 0.703f); // 100%
-            else weaponsHud.Position = new TGCVector2(-15, screenHeight * 0.64f); // 125%
+            //// Sprite del HUD de las armas
+            //weaponsHud = new CustomSprite
+            //{
+            //    Bitmap = new CustomBitmap(imgDir + "weapons-hud-2.png", D3DDevice.Instance.Device),
+            //    Position = new TGCVector2(-13, screenHeight * 0.703f / arMultiplier)
+            //};
+            ////if (scaling == 96) weaponsHud.Position = new TGCVector2(-13, screenHeight * 0.703f); // 100%
+            ////else weaponsHud.Position = new TGCVector2(-15, screenHeight * 0.64f); // 125%
 
-            scalingFactorX = (float)screenWidth / (float)weaponsHud.Bitmap.Width;
-            scalingFactorY = (float)screenHeight / (float)weaponsHud.Bitmap.Height;
+            //scalingFactorX = (float)screenWidth / (float)weaponsHud.Bitmap.Width;
+            //scalingFactorY = (float)screenHeight / (float)weaponsHud.Bitmap.Height;
 
-            weaponsHud.Scaling = new TGCVector2(0.6f, 0.6f) * (scalingFactorY / scalingFactorX);
+            //weaponsHud.Scaling = new TGCVector2(0.6f, 0.6f) * (scalingFactorY / scalingFactorX) * scale;
 
             //// Sprites de armas
             //var weaponNames = Game.Default.Weapons;
@@ -257,80 +271,72 @@ namespace TGC.Group.Model
 
         private void InitializeHUDTexts(float time)
         {
-            // Fuente para mostrar la velocidad y el reloj
-            var speedFont = UtilMethods.createFont("Open 24 Display St", 32);
-            var kmFont = UtilMethods.createFont("Open 24 Display St", 20);
-            var relojFont = UtilMethods.createFont("appleberry", 40);
+            Font speedFont, kmFont, relojFont, actualWeaponFont, ammoQuantityFont, turboFont;
+            var scale = screenWidth / 1920f;
 
-            speed = new TgcText2D
-            {
-                Text = "0",
-                Color = Color.Green
-            };
-            if (scaling == 96) speed.Position = new Point((int)(screenWidth * 0.412f), (int)(screenHeight * 0.9195f)); // 100%
-            else speed.Position = new Point((int)(screenWidth * 0.397f), (int)(screenHeight * 0.906f)); // 125%
-            speed.changeFont(speedFont);
+            speedFont = UtilMethods.createFont("Open 24 Display St", (int)(32 * scale));
+            kmFont = UtilMethods.createFont("Open 24 Display St", (int)(20 * scale));
+            relojFont = UtilMethods.createFont("appleberry", (int)(40 * scale));
+            actualWeaponFont = UtilMethods.createFont("Insanibc", (int)(23 * scale));
+            ammoQuantityFont = UtilMethods.createFont("Insanibc", (int)(26 * scale));
+            turboFont = UtilMethods.createFont("Speed", (int)(30 * scale));
 
-            km = new TgcText2D
-            {
-                Text = "km",
-                Color = Color.Black
-            };
-            if (scaling == 96) km.Position = new Point((int)(screenWidth * 0.442f), (int)(screenHeight * 0.936f)); // 100%
-            else km.Position = new Point((int)(screenWidth * 0.431f), (int)(screenHeight * 0.927f)); // 125%
-            km.changeFont(kmFont);
-
-            reloj = new TgcText2D
-            {
-                Text = formatTime(time),
-                Color = Color.Black
-            };
-            reloj.Position = new Point(0, 0);
-            reloj.changeFont(relojFont);
-
-            // Fuentes para mostrar la munición y armas
-            //var borderFont = UtilMethods.createFont("Insanibc", 26);
-            var actualWeaponFont = UtilMethods.createFont("Insanibc", 23);
-            var ammoQuantityFont = UtilMethods.createFont("Insanibc", 26);
-
+            // Nombre del Arma
             weaponName = new TgcText2D
             {
                 Text = "[ None ]",
-                Color = Color.Black
+                Color = Color.Black,
+                Format = DrawTextFormat.Bottom | DrawTextFormat.Center,
+                Position = new Point(-(int)(screenWidth * 0.4230f), -(int)(screenHeight * 0.0345f))
             };
-            if (scaling == 96) weaponName.Position = new Point(-(int)(screenWidth * 0.423f), (int)(screenHeight * 0.932f)); // 100%
-            else weaponName.Position = new Point(-(int)(screenWidth * 0.406f), (int)(screenHeight * 0.921f)); // 125%
             weaponName.changeFont(actualWeaponFont);
 
+            // Cantidad de balas
             ammoQuantity = new TgcText2D
             {
                 Text = "-",
-                Color = Color.Black
+                Color = Color.Black,
+                Format = DrawTextFormat.Bottom | DrawTextFormat.Center,
+                Position = new Point(-(int)(screenWidth * 0.3755f), -(int)(screenHeight * 0.0875f))
             };
-            ammoQuantity.Align = TgcText2D.TextAlign.CENTER;
-            if (scaling == 96) ammoQuantity.Position = new Point(-(int)(screenWidth * 0.3727f), (int)(screenHeight * 0.8724f)); // 100%
-            else ammoQuantity.Position = new Point(-(int)(screenWidth * 0.345f), (int)(screenHeight * 0.856f)); // 125%
             ammoQuantity.changeFont(ammoQuantityFont);
 
-            //border = new TgcText2D // El borde es para que tenga un color blanco de fondo para que se distinga más
-            //{
-            //    Text = "-",
-            //    Color = Color.White
-            //};
-            //border.Align = TgcText2D.TextAlign.CENTER;
-            //if (scaling == 96) border.Position = new Point(-(int)(screenWidth * 0.3727f), (int)(screenHeight * 0.8727f)); // 100%
-            //else border.Position = new Point(-(int)(screenWidth * 0.3453f), (int)(screenHeight * 0.8535f)); // 125%
-            //border.changeFont(borderFont);
+            // Velocidad del Player 1
+            speed = new TgcText2D
+            {
+                Text = "0",
+                Color = Color.Green,
+                Format = DrawTextFormat.Bottom | DrawTextFormat.Center,
+                Position = new Point((int)(screenWidth * 0.4105f), -(int)(screenHeight * 0.0310f))
+            };
+            speed.changeFont(speedFont);
 
-            //Fuente para TURBO
-            var turboFont = UtilMethods.createFont("Speed", 30);
+            // KM
+            km = new TgcText2D
+            {
+                Text = "km",
+                Color = Color.Black,
+                Format = DrawTextFormat.Bottom | DrawTextFormat.Center,
+                Position = new Point((int)(screenWidth * 0.4405f), -(int)(screenHeight * 0.0320f))
+            };
+            km.changeFont(kmFont);
 
+            // Reloj
+            reloj = new TgcText2D
+            {
+                Text = formatTime(time),
+                Color = Color.Black,
+                Position = new Point(0, 0)
+            };
+            reloj.changeFont(relojFont);
+
+            // Turbo
             turbo = new TgcText2D
             {
                 Text = "TURBO MODE",
-                Color = Color.Blue
+                Color = Color.Blue,
+                Position = new Point(0, (int)(screenHeight * 0.15f))
             };
-            turbo.Position = new Point(0, (int)(screenHeight * 0.15f));
             turbo.changeFont(turboFont);
 
         }

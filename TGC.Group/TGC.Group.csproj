@@ -221,7 +221,7 @@
     <Content Include="Media\Vehicles\chassis-pickup-small-TgcScene.xml" />
     <Content Include="Media\Vehicles\chassis-pickup-TgcScene.xml" />
     <Content Include="Media\Vehicles\chassis-station-TgcScene.xml" />
-    <Content Include="Shaders\ToonShadingVehicle2.fx" />
+    <Content Include="Shaders\ToonShading.fx" />
     <Content Include="Shaders\ToonShadingVehicle.fx" />
     <Content Include="Shaders\ToonShadingScene.fx" />
   </ItemGroup>

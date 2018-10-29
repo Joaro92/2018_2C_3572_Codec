@@ -20,16 +20,16 @@ namespace TGC.Group.Model.World
     {
         private readonly TGCVector3 initialPos = new TGCVector3(144f, 7.5f, 0f);
 
-        private Effect effectScene, effectVehicle;
+        private Effect toonFX;
 
-        public NivelUno(Vehiculo vehiculoP1)
+        public NivelUno(Vehiculo vehiculoP1, GameModel gameModel)
         {
             // Cargamos el escenario y lo agregamos al mundo
             var dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
-            escenario = new Scenario(world, dir + "scene-level1c-TgcScene.xml");
+            escenario = new Scenario(world, dir + "scene-level1final-TgcScene.xml");
             
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, vehiculoP1, initialPos); // mover a Partida
+            player1 = new Player1(world, vehiculoP1, initialPos, gameModel); // mover a Partida
 
             // Le damos unas armas a nuestro jugador
             player1.AddWeapon(new Power());
@@ -38,43 +38,14 @@ namespace TGC.Group.Model.World
             // Crear SkyBox
             skyBox = Skybox.InitSkybox();
 
+            //Cargar Shader personalizado
+            toonFX = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShading.fx");
+
             // Spawneamos algunos items
             SpawnItems();
 
-            //Cargar Shader personalizado
-            effectScene = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShadingScene.fx");
-            effectVehicle = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShadingVehicle2.fx");
-
-            //Configurar los valores de cada luz
-            var lightColors = new ColorValue[1];
-            var pointLightPositions = new Vector4[1];
-            var pointLightIntensity = new float[1];
-            var pointLightAttenuation = new float[1];
-            for (var i = 0; i < 1; i++)
-            {
-                lightColors[i] = ColorValue.FromColor(Color.White);
-                pointLightPositions[i] = TGCVector3.Vector3ToVector4(new TGCVector3(400, 900, -80));
-                pointLightIntensity[i] = 165;
-                pointLightAttenuation[i] = 0.29f;
-            }
-
-            effectScene.SetValue("materialEmissiveColor", TGCVector3.Vector3ToVector4(new TGCVector3(0.51f, 0.51f, 0.51f)));
-            effectScene.SetValue("materialDiffuseColor", TGCVector3.Vector3ToVector4(new TGCVector3(1, 1, 0.999f)));
-            effectScene.SetValue("lightColor", lightColors);
-            effectScene.SetValue("lightPosition", pointLightPositions);
-            effectScene.SetValue("lightIntensity", pointLightIntensity);
-            effectScene.SetValue("lightAttenuation", pointLightAttenuation);
-
-            effectVehicle.SetValue("materialEmissiveColor", TGCVector3.Vector3ToVector4(new TGCVector3(0.51f, 0.51f, 0.51f)));
-            effectVehicle.SetValue("materialDiffuseColor", TGCVector3.Vector3ToVector4(new TGCVector3(1, 1, 0.999f)));
-            effectVehicle.SetValue("lightColor", lightColors);
-            effectVehicle.SetValue("lightPosition", pointLightPositions);
-            effectVehicle.SetValue("lightIntensity", pointLightIntensity);
-            effectVehicle.SetValue("lightAttenuation", pointLightAttenuation);
-
-            // le asigno el efecto a la malla
-            player1.Mesh.Effect = effectVehicle;
-            player1.Mesh.Technique = "RenderScene";
+            player1.Mesh.Effect = toonFX;
+            player1.Mesh.Technique = "ToonShadingWithBorder";
             //player1.Mesh.D3dMesh.ComputeNormals();
 
             foreach (var block in escenario.TgcScene.Meshes)
@@ -84,16 +55,16 @@ namespace TGC.Group.Model.World
                 if (block.Name.Contains("Arbol") || block.Name.Contains("Palmera"))
                 {
                     block.D3dMesh.ComputeNormals();
-                    block.Effect = effectScene;
-                    block.Technique = "RenderScene";
+                    block.Effect = toonFX;
+                    block.Technique = "ToonShading";
                 }
 
 
                 if (char.IsLower(block.Name[0]) || block.Name.Equals("Roca") || block.Name.Equals("ParedCastillo") || block.Name.Equals("PilarEgipcio"))
                 {
                     block.D3dMesh.ComputeNormals();
-                    block.Effect = effectScene;
-                    block.Technique = "RenderScene";
+                    block.Effect = toonFX;
+                    block.Technique = "ToonShading";
                 }
 
 
@@ -167,7 +138,8 @@ namespace TGC.Group.Model.World
             //    }
             //}
 
-            gameModel.DrawText.drawText(player1.RigidBody.WorldTransform.Origin.ToString(), 5, 30, Color.Black);
+            gameModel.DrawText.drawText(D3DDevice.Instance.Device.Viewport.Width + " + " + D3DDevice.Instance.Device.Viewport.Height, 5, 30, Color.Black);
+            gameModel.DrawText.drawText(gameModel.Input.Xpos() + " + " + gameModel.Input.Ypos(), 5, 45, Color.Black);
             escenario.Render();
 
             skyBox.Render();
@@ -199,6 +171,11 @@ namespace TGC.Group.Model.World
             items.Add(new Health(new TGCVector3(216f, 10f, 264f)));
             items.Add(new Energy(new TGCVector3(-120f, 10f, 240f)));
             
+            foreach(var item in items)
+            {
+                item.Mesh.Effect = toonFX;
+                item.Mesh.Technique = "ToonShadingWithBorder";
+            }
         }
     }
 }
