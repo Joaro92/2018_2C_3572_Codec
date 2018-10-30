@@ -48,6 +48,7 @@ namespace TGC.Group.Model.GameStates
             //Leo las dimensiones de la ventana
             var screenHeight = D3DDevice.Instance.Device.Viewport.Height;
             var screenWidth = D3DDevice.Instance.Device.Viewport.Width;
+            Size maxSize = new Size(1920, 1017);
 
             var imgDir = Game.Default.MediaDirectory + Game.Default.ImagesDirectory;
 
@@ -63,19 +64,19 @@ namespace TGC.Group.Model.GameStates
             start = new CustomSprite();
             start.Bitmap = new CustomBitmap(imgDir + "press-start.png", D3DDevice.Instance.Device);
             //La ubico en la pantalla
-            start.Scaling = TGCVector2.One * (scalingFactorY / scalingFactorX);
+            start.Scaling = new TGCVector2(start.Scaling.X * 0.55f * (screenWidth / (float)maxSize.Width), start.Scaling.Y * 0.55f * (screenHeight / (float)maxSize.Height));
             start.Position = new TGCVector2(screenWidth * 0.159f , screenHeight * 0.61f);
 
             //Cargo el menu
             
-            var menuFont = UtilMethods.createFont("Twisted Stallions", 75);
+            var menuFont = UtilMethods.createFont("Twisted Stallions", (int)(75 * (screenHeight / (float)maxSize.Height)));
 
             //Play
             play = new TgcText2D
             {
                 Text = "Play",
                 Color = Color.Silver,
-                Position = new Point(-(int)(screenWidth * 0.202f), screenHeight / 2 + 10),
+                Position = new Point(-(int)(screenWidth * 0.194f), (int)(screenHeight * 0.52f))
             };
             play.changeFont(menuFont);
             //Controls
@@ -83,7 +84,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = "Controls",
                 Color = Color.Silver,
-                Position = new Point(-(int)(screenWidth * 0.202f), screenHeight / 2 + 160)
+                Position = new Point(-(int)(screenWidth * 0.194f), (int)(screenHeight * 0.52f) + (int)(0.147f * screenHeight))
             };
             controls.changeFont(menuFont);
             //Exit
@@ -91,7 +92,7 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = "Exit",
                 Color = Color.Silver,
-                Position = new Point(-(int)(screenWidth * 0.202f), screenHeight / 2 + 310)
+                Position = new Point(-(int)(screenWidth * 0.194f), (int)(screenHeight * 0.52f) + (int)(0.147f * 2 * screenHeight))
             };
             exit.changeFont(menuFont);
 

@@ -39,6 +39,7 @@ namespace TGC.Group.Model.GameStates
 
             var screenHeight = D3DDevice.Instance.Device.Viewport.Height;
             var screenWidth = D3DDevice.Instance.Device.Viewport.Width;
+            Size maxSize = new Size(1920, 1017);
 
             drawer2D = new Drawer2D();
 
@@ -67,7 +68,7 @@ namespace TGC.Group.Model.GameStates
             flechaIzq = new CustomSprite
             {
                 Bitmap = new CustomBitmap(imgDir + "left-arrow.png", D3DDevice.Instance.Device),
-                Scaling = TGCVector2.One * 0.25f,
+                Scaling = TGCVector2.One * 0.25f * (screenHeight / (float)maxSize.Height),
                 Position = new TGCVector2(screenWidth * 0.236f, screenHeight * 0.4f)
             };
 
@@ -75,7 +76,7 @@ namespace TGC.Group.Model.GameStates
             flechaDer = new CustomSprite
             {
                 Bitmap = new CustomBitmap(imgDir + "right-arrow.png", D3DDevice.Instance.Device),
-                Scaling = TGCVector2.One * 0.25f,
+                Scaling = TGCVector2.One * 0.25f * (screenHeight / (float)maxSize.Height),
                 Position = new TGCVector2(screenWidth * 0.7f, screenHeight * 0.4f)
             };
 
@@ -83,7 +84,7 @@ namespace TGC.Group.Model.GameStates
             flechaArriba = new CustomSprite
             {
                 Bitmap = new CustomBitmap(imgDir + "up-arrow.png", D3DDevice.Instance.Device),
-                Scaling = TGCVector2.One * 0.25f,
+                Scaling = TGCVector2.One * 0.25f * (screenHeight / (float)maxSize.Height),
                 Position = new TGCVector2(screenWidth * 0.464f, screenHeight * 0.05f)
             };
 
@@ -92,18 +93,18 @@ namespace TGC.Group.Model.GameStates
             {
                 Text = selected.Name,
                 Color = Color.Gold,
-                Position = new Point(0, (int)(screenHeight * 0.7f)),
+                Position = new Point(0, (int)(screenHeight * 0.72f)),
             };
-            vehicleName.changeFont(UtilMethods.createFont("Twisted Stallions", 45));
+            vehicleName.changeFont(UtilMethods.createFont("Twisted Stallions", (int)(45 * (screenHeight / (float)maxSize.Height))));
 
             //Select Vehicle
             select = new TgcText2D
             {
                 Text = "SELECT VEHICLE",
                 Color = Color.DarkOrange,
-                Position = new Point(0, (int)(screenHeight * 0.78f)),
+                Position = new Point(0, (int)(screenHeight * 0.80f)),
             };
-            select.changeFont(UtilMethods.createFont("Twisted Stallions",75));
+            select.changeFont(UtilMethods.createFont("Twisted Stallions", (int)(75 * (screenHeight / (float)maxSize.Height))));
         }
 
         public void Update()
