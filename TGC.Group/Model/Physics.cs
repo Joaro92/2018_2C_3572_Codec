@@ -432,7 +432,7 @@ namespace TGC.Group.Physics
             }
 
             // Bullets collisions
-            var overlappedPairs = world.Broadphase.OverlappingPairCache.OverlappingPairArray;
+            var overlappedPairs = broadphase.OverlappingPairCache.OverlappingPairArray;
             if (overlappedPairs.Count == 0) return;
 
             RigidBody obj0, obj1;

@@ -1,4 +1,5 @@
 using Microsoft.DirectX.DirectInput;
+using System.Collections.Generic;
 using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
@@ -17,8 +18,10 @@ namespace TGC.Group.Model.World
     public class NivelUno : PhysicsGame
     {
         private readonly TGCVector3 initialPos = new TGCVector3(144f, 7.5f, 0f);
+        private List<Colisionable> objetos = new List<Colisionable>();
 
         private Effect toonFX;
+        private string posX, posY, posZ;
 
         public NivelUno(Vehiculo vehiculoP1, GameModel gameModel)
         {
@@ -38,6 +41,8 @@ namespace TGC.Group.Model.World
 
             //Cargar Shader personalizado
             toonFX = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShading.fx");
+
+            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(144f, 13.5f, 20f)));
 
             // Spawneamos algunos items
             SpawnItems();
@@ -111,12 +116,18 @@ namespace TGC.Group.Model.World
 
         public override void Render(GameModel gameModel)
         {
+            // Información Útil
+            posX = (player1.RigidBody.WorldTransform.Origin.X.ToString().Length >= 5) ? player1.RigidBody.WorldTransform.Origin.X.ToString().Substring(0, 5) : player1.RigidBody.WorldTransform.Origin.X.ToString();
+            posY = (player1.RigidBody.WorldTransform.Origin.Y.ToString().Length >= 5) ? player1.RigidBody.WorldTransform.Origin.Y.ToString().Substring(0, 5) : player1.RigidBody.WorldTransform.Origin.Y.ToString();
+            posZ = (player1.RigidBody.WorldTransform.Origin.Z.ToString().Length >= 5) ? player1.RigidBody.WorldTransform.Origin.Z.ToString().Substring(0, 5) : player1.RigidBody.WorldTransform.Origin.Z.ToString();
+
+            gameModel.DrawText.drawText("Resolución: " + D3DDevice.Instance.Device.Viewport.Width + "x" + D3DDevice.Instance.Device.Viewport.Height, 3, 15, Color.Black);
+            gameModel.DrawText.drawText("Mouse X: " + gameModel.Input.Xpos() + " + Y: " + gameModel.Input.Ypos(), 3, 30, Color.Black);
+            gameModel.DrawText.drawText("Posición P1: X=" + posX + " Y=" + posY + " Z=" + posZ, 3, 45, Color.Black);
+            // ----------------
+
             player1.Render();
-
-            gameModel.DrawText.drawText(D3DDevice.Instance.Device.Viewport.Width + " + " + D3DDevice.Instance.Device.Viewport.Height, 5, 30, Color.Black);
-            gameModel.DrawText.drawText(gameModel.Input.Xpos() + " + " + gameModel.Input.Ypos(), 5, 45, Color.Black);
             escenario.Render();
-
             skyBox.Render();
 
             bullets.ForEach(bullet => bullet.Render());
@@ -124,6 +135,12 @@ namespace TGC.Group.Model.World
             {
                 if (item.IsPresent)
                     item.Mesh.Render();
+            }
+
+            foreach (Colisionable obj in objetos)
+            {
+                obj.Mesh.Transform = new TGCMatrix(obj.RigidBody.InterpolationWorldTransform);
+                obj.Mesh.Render();
             }
         }
 

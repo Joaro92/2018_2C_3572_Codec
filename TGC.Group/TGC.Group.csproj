@@ -114,6 +114,7 @@
     <Compile Include="Model\Interfaces\IGameState.cs" />
     <Compile Include="Model\GameStates\MenuInicial.cs" />
     <Compile Include="Model\World\Bullets\Power.cs" />
+    <Compile Include="Model\World\Colisionables.cs" />
     <Compile Include="Model\World\Items\PowerItem.cs" />
     <Compile Include="Model\World\Items\HealthItem.cs" />
     <Compile Include="Model\World\Items\EnergyItem.cs" />

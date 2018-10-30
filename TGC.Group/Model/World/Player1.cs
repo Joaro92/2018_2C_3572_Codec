@@ -124,6 +124,7 @@ namespace TGC.Group.Model.World
             compound.AddChildShape(localTransform, chassisShape);
             //Creates a rigid body
             this.rigidBody = createChassisRigidBodyFromShape(compound, position);
+            
 
             //Adds the vehicle chassis to the world
             world.AddRigidBody(this.rigidBody);
