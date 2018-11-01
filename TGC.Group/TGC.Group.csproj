@@ -166,30 +166,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Shaders\TgcKeyFrameMeshShader.fx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\TgcMeshPhongShader.fx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\TgcMeshPointLightShader.fx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\TgcMeshShader.fx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\TgcMeshSpotLightShader.fx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\TgcSkeletalMeshPointLightShader.fx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\TgcSkeletalMeshShader.fx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Shaders\Varios.fx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -222,9 +198,8 @@
     <Content Include="Media\Vehicles\chassis-pickup-small-TgcScene.xml" />
     <Content Include="Media\Vehicles\chassis-pickup-TgcScene.xml" />
     <Content Include="Media\Vehicles\chassis-station-TgcScene.xml" />
+    <Content Include="Shaders\Explosion.fx" />
     <Content Include="Shaders\ToonShading.fx" />
-    <Content Include="Shaders\ToonShadingVehicle.fx" />
-    <Content Include="Shaders\ToonShadingScene.fx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

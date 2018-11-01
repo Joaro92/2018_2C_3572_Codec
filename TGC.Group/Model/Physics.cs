@@ -1,11 +1,14 @@
 ﻿using BulletSharp;
 using BulletSharp.Math;
 using Microsoft.DirectX.Direct3D;
+using System;
 using System.Collections.Generic;
 using TGC.Core.BoundingVolumes;
 using TGC.Core.Collision;
 using TGC.Core.Mathematica;
+using TGC.Core.Particle;
 using TGC.Core.SceneLoader;
+using TGC.Core.Shaders;
 using TGC.Core.Terrain;
 using TGC.Examples.Camara;
 using TGC.Group.Model;
@@ -290,9 +293,17 @@ namespace TGC.Group.Physics
         protected List<Bullet> bullets;
         protected List<Enemy> enemies;
 
+        private Random randomGenerator = new Random();
+        protected Effect toonFX;
+        protected Effect explosionFX;
+        protected ParticleEmitter emitter, emitter2;
+        protected TgcMesh explosionMesh;
+
+        protected float rnd;
         protected bool inflictDmg = true;
         protected float bulletFlag = 0;
         protected int neg = 1;
+        protected int neg2 = 1;
         protected float time;
 
         public PhysicsGame()
@@ -304,7 +315,7 @@ namespace TGC.Group.Physics
             constraintSolver = new SequentialImpulseConstraintSolver();
             //broadphase = new DbvtBroadphase();
             broadphase = new AxisSweep3(new Vector3(-250, -12, -15), new Vector3(250, 70, 600));
-            
+
             world = new DiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfiguration)
             {
                 Gravity = new TGCVector3(0, -9.8f, 0).ToBsVector
@@ -313,6 +324,8 @@ namespace TGC.Group.Physics
             items = new List<Item>();
             bullets = new List<Bullet>();
             enemies = new List<Enemy>();
+
+            InitializeShadersAndEffects();
         }
 
         public abstract void Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara);
@@ -514,6 +527,35 @@ namespace TGC.Group.Physics
             }
         }
 
+        protected void InitializeShadersAndEffects()
+        {
+            // Toon Shader
+            toonFX = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShading.fx");
+
+            // Emisor de Particulas
+            var smokeParticlePath = Game.Default.MediaDirectory + "Images\\smoke.png";
+            emitter = new ParticleEmitter(smokeParticlePath, 10);
+            emitter.MinSizeParticle = 1.7f;
+            emitter.MaxSizeParticle = 2.65f;
+            emitter.ParticleTimeToLive = 0.34f;
+            emitter.CreationFrecuency = 0.15f;
+            emitter.Dispersion = 100;
+
+            emitter2 = new ParticleEmitter(smokeParticlePath, 10);
+            emitter2.MinSizeParticle = 1.6f;
+            emitter2.MaxSizeParticle = 2.4f;
+            emitter2.ParticleTimeToLive = 0.37f;
+            emitter2.CreationFrecuency = 0.20f;
+            emitter2.Dispersion = 100;
+
+            // Efecto de Explosión
+            explosionFX = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "Explosion.fx");
+
+            var loader = new TgcSceneLoader();
+            explosionMesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + "Scenarios\\ball-TgcScene.xml").Meshes[0];
+            explosionMesh.Effect = explosionFX;
+            explosionMesh.Technique = "Explosion1";
+        }
     }
 
     class BulletContactCallback : ContactResultCallback

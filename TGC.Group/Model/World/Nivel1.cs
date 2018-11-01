@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
-using TGC.Core.Shaders;
 using TGC.Examples.Camara;
 using TGC.Group.Model.Items;
 using TGC.Group.Model.Vehicles;
@@ -11,7 +10,6 @@ using TGC.Group.Model.World.Weapons;
 using TGC.Group.Physics;
 using TGC.Group.Utils;
 using Button = TGC.Group.Model.Input.Button;
-using Effect = Microsoft.DirectX.Direct3D.Effect;
 
 namespace TGC.Group.Model.World
 {
@@ -20,13 +18,12 @@ namespace TGC.Group.Model.World
         private readonly TGCVector3 initialPos = new TGCVector3(144f, 7.5f, 0f);
         private List<Colisionable> objetos = new List<Colisionable>();
 
-        private Effect toonFX;
         private string posX, posY, posZ;
+        private string dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
 
         public NivelUno(Vehiculo vehiculoP1, GameModel gameModel)
         {
             // Cargamos el escenario y lo agregamos al mundo
-            var dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
             escenario = new Scenario(world, dir + "scene-level1final-TgcScene.xml");
             
             // Creamos a nuestro jugador y lo agregamos al mundo
@@ -39,26 +36,14 @@ namespace TGC.Group.Model.World
             // Crear SkyBox
             skyBox = Skybox.InitSkybox();
 
-            //Cargar Shader personalizado
-            toonFX = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShading.fx");
-
+            // Spawneamos algunos obstaculos dinámicos
             objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(144f, 13.5f, 20f)));
 
             // Spawneamos algunos items
             SpawnItems();
 
-            player1.Mesh.Effect = toonFX;
-            player1.Mesh.Technique = "ToonShadingWithBorder";
-
-            foreach (var block in escenario.TgcScene.Meshes)
-            {
-                if (block.Name.Contains("Arbol") || block.Name.Contains("Palmera") || char.IsLower(block.Name[0]) || block.Name.Equals("Roca") || block.Name.Equals("ParedCastillo") || block.Name.Equals("PilarEgipcio"))
-                {
-                    block.D3dMesh.ComputeNormals();
-                    block.Effect = toonFX;
-                    block.Technique = "ToonShading";
-                }
-            }
+            // Inicializar los shaders en todo el escenario
+            ApplyShadersToWorld();
         }
 
         public override void Update(GameModel gameModel, TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
@@ -162,8 +147,31 @@ namespace TGC.Group.Model.World
             items.Add(new PowerItem(new TGCVector3(-72f, 4f, 240f)));
             items.Add(new Health(new TGCVector3(216f, 10f, 264f)));
             items.Add(new Energy(new TGCVector3(-120f, 10f, 240f)));
-            
-            foreach(var item in items)
+           
+        }
+
+        private void ApplyShadersToWorld()
+        {
+            foreach (var obj in objetos)
+            {
+                obj.Mesh.Effect = toonFX;
+                obj.Mesh.Technique = "ToonShadingWithBorder";
+            }
+
+            player1.Mesh.Effect = toonFX;
+            player1.Mesh.Technique = "ToonShadingWithBorder";
+
+            foreach (var block in escenario.TgcScene.Meshes)
+            {
+                if (block.Name.Contains("Arbol") || block.Name.Contains("Palmera") || char.IsLower(block.Name[0]) || block.Name.Equals("Roca") || block.Name.Equals("ParedCastillo") || block.Name.Equals("PilarEgipcio"))
+                {
+                    block.D3dMesh.ComputeNormals();
+                    block.Effect = toonFX;
+                    block.Technique = "ToonShading";
+                }
+            }
+
+            foreach (var item in items)
             {
                 item.Mesh.Effect = toonFX;
                 item.Mesh.Technique = "ToonShadingWithBorder";

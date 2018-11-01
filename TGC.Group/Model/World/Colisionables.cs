@@ -22,7 +22,7 @@ namespace TGC.Group.Model.World
             this.mesh = loader.loadSceneFromFile(xmlPath).Meshes[0];
             this.mesh.AutoTransform = false;
 
-            this.rigidBody = CreateRigidBodyFromTgcMesh(mesh, position, 5);
+            this.rigidBody = CreateRigidBodyFromTgcMesh(mesh, position, 2);
             world.AddRigidBody(this.rigidBody);
         }
 
