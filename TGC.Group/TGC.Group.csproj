@@ -114,6 +114,8 @@
     <Compile Include="Model\Interfaces\IGameState.cs" />
     <Compile Include="Model\GameStates\MenuInicial.cs" />
     <Compile Include="Model\World\Bullets\Power.cs" />
+    <Compile Include="Model\World\Characters\Character.cs" />
+    <Compile Include="Model\World\Characters\IA\IA.cs" />
     <Compile Include="Model\World\Colisionables.cs" />
     <Compile Include="Model\World\Items\PowerItem.cs" />
     <Compile Include="Model\World\Items\HealthItem.cs" />
@@ -123,7 +125,7 @@
     <Compile Include="Model\SoundManager.cs" />
     <Compile Include="Model\Vehicles\Vehiculo.cs" />
     <Compile Include="Model\World\Bullets\Bullet.cs" />
-    <Compile Include="Model\World\Enemy.cs" />
+    <Compile Include="Model\World\Characters\Enemy.cs" />
     <Compile Include="Model\World\Bullets\Machinegun.cs" />
     <Compile Include="Model\TGCUtils\CustomBitmap.cs" />
     <Compile Include="Model\TGCUtils\CustomSprite.cs" />
@@ -133,7 +135,7 @@
     <Compile Include="Model\World\Nivel1.cs" />
     <Compile Include="Model\Physics.cs" />
     <Compile Include="Model\GameModel.cs" />
-    <Compile Include="Model\World\Player1.cs" />
+    <Compile Include="Model\World\Characters\Player1.cs" />
     <Compile Include="Model\World\Skybox.cs" />
     <Compile Include="Model\World\Weapons\Power.cs" />
     <Compile Include="Model\World\Weapon.cs" />

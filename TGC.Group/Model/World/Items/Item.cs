@@ -2,7 +2,7 @@
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Sound;
-using TGC.Group.Model.World;
+using TGC.Group.Model.World.Characters;
 
 namespace TGC.Group.Model.Items
 {
@@ -11,19 +11,22 @@ namespace TGC.Group.Model.Items
         public string Name { get; protected set; }
         public TgcMesh Mesh { get; protected set; }
         public TGCVector3 Position { get; }
-        protected Tgc3dSound sound { get; set; }
         protected float respawnTime;
         protected float timer;
         public bool IsPresent { get; protected set; }
 
-        public Item(TGCVector3 pos, string name)
+        protected Tgc3dSound sound { get; set; }
+        public readonly string SoundPath;
+
+        public Item(TGCVector3 pos, string name, string soundPath)
         {
             Name = name;
             Position = pos;
+            SoundPath = soundPath;
             this.spawn();
         }
 
-        public virtual void Dissapear(Device dsDevice)
+        public void Dissapear(Device dsDevice)
         {
             if (IsPresent)
             {
@@ -31,11 +34,15 @@ namespace TGC.Group.Model.Items
                 Mesh.Dispose();
                 timer = respawnTime;
             }
+
+            sound = new Tgc3dSound(SoundPath, Position, dsDevice);
+            sound.MinDistance = 150f;
+            sound.play(false);
         } 
 
-        public void Update(GameModel gameModel, float time)
+        public void Update(float elapsedTime, float time)
         {
-            Mesh.RotateY(FastMath.PI_HALF * gameModel.ElapsedTime);
+            Mesh.RotateY(FastMath.PI_HALF * elapsedTime);
             Mesh.Position = new TGCVector3(Position.X, Position.Y + FastMath.Sin(time * FastMath.PI_HALF) * DesplazamientoY, Position.Z);
         }
 
@@ -52,7 +59,7 @@ namespace TGC.Group.Model.Items
             IsPresent = true;
         }
 
-        public abstract void Effect(Player1 player1);
+        public abstract void Effect(Character character);
 
         public abstract float DesplazamientoY { get; }
 

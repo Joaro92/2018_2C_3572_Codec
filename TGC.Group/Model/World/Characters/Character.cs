@@ -1,32 +1,29 @@
 ﻿using BulletSharp;
 using BulletSharp.Math;
-using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
-using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Sound;
 using TGC.Group.Model.Vehicles;
+using TGC.Group.Model.World.Characters;
 using TGC.Group.Model.World.Weapons;
 using TGC.Group.Utils;
 using static TGC.Group.Utils.WheelContactInfo;
 using Button = TGC.Group.Model.Input.Button;
 using Dpad = TGC.Group.Model.Input.Dpad;
-using Effect = Microsoft.DirectX.Direct3D.Effect;
 
-namespace TGC.Group.Model.World
+namespace TGC.Group.Model.World.Characters
 {
-    public class Player1
+    public abstract class Character
     {
-        private Vehiculo vehiculo;
-        private TgcMesh mesh;
-        private RigidBody rigidBody;
-        private RaycastVehicle vehicle;
-        private TgcMesh wheel;
-        private int worldID;
+        protected Vehiculo vehiculo;
+        protected TgcMesh mesh;
+        protected RigidBody rigidBody;
+        protected RaycastVehicle vehicle;
+        protected TgcMesh wheel;
+        protected int worldID;
 
         // Variables de Control
         public bool jumped = false;
@@ -38,9 +35,9 @@ namespace TGC.Group.Model.World
         public float hitPoints;
         public float specialPoints;
         public bool turbo = false;
-        private bool canJump = false;
-        private bool onTheFloor = false;
-        private bool falling = false;
+        protected bool canJump = false;
+        protected bool onTheFloor = false;
+        protected bool falling = false;
 
         // Atributos constantes
         public readonly float maxSpecialPoints = 100f;
@@ -67,26 +64,30 @@ namespace TGC.Group.Model.World
         protected readonly float dampingCompression;
         protected readonly float dampingRelaxation;
 
-        private readonly float meshRealHeight = 0.4f;
-        private readonly float suspensionLength = 0.9f;
+        protected readonly float meshRealHeight = 0.4f;
+        protected readonly float suspensionLength = 0.9f;
 
         public TgcStaticSound turboSound;
-        
+
         // Armas
         public List<Weapon> Weapons { get; } = new List<Weapon>();
         public Weapon SelectedWeapon { get; set; } = null;
 
-        public Player1(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position, GameModel gameModel)
+        public Character(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position, float orientation, GameModel gameModel)
         {
             //Cargar sonido
             turboSound = new TgcStaticSound();
-            turboSound.loadSound(Game.Default.MediaDirectory + "Sounds\\FX\\turbo.wav", gameModel.DirectSound.DsDevice);
+            turboSound.loadSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "turbo.wav", gameModel.DirectSound.DsDevice);
 
             this.vehiculo = vehiculo;
 
             var loader = new TgcSceneLoader();
             this.mesh = loader.loadSceneFromFile(vehiculo.ChassisXmlPath).Meshes[0];
             this.wheel = loader.loadSceneFromFile(vehiculo.WheelsXmlPath).Meshes[0];
+
+            //this.mesh.Rotation = new TGCVector3(0f, orientation, 0f);
+            //this.wheel.Rotation = new TGCVector3(0f, orientation, 0f); 
+            //ARREGLAR ESTO PARA QUE ROTE EL VEHICULO EN Y "orientation" GRADOS
 
             Vehiculo.ChangeTextureColor(this.mesh, vehiculo.Color);
 
@@ -112,19 +113,19 @@ namespace TGC.Group.Model.World
 
             //The btBoxShape is centered at the origin
             CollisionShape chassisShape = new BoxShape(meshAxisRadius.X, meshRealHeight, meshAxisRadius.Z);
-            
-		    //A compound shape is used so we can easily shift the center of gravity of our vehicle to its bottom
-		    //This is needed to make our vehicle more stable
-		    CompoundShape compound = new CompoundShape();
-            
+
+            //A compound shape is used so we can easily shift the center of gravity of our vehicle to its bottom
+            //This is needed to make our vehicle more stable
+            CompoundShape compound = new CompoundShape();
+
             //The center of gravity of the compound shape is the origin. When we add a rigidbody to the compound shape
             //it's center of gravity does not change. This way we can add the chassis rigidbody one unit above our center of gravity
             //keeping it under our chassis, and not in the middle of it
             var localTransform = Matrix.Translation(0, (meshAxisRadius.Y * 2) - (meshRealHeight / 2f), 0);
             compound.AddChildShape(localTransform, chassisShape);
             //Creates a rigid body
-            this.rigidBody = createChassisRigidBodyFromShape(compound, position);
-            
+            this.rigidBody = CreateChassisRigidBodyFromShape(compound, position);
+
 
             //Adds the vehicle chassis to the world
             world.AddRigidBody(this.rigidBody);
@@ -143,8 +144,8 @@ namespace TGC.Group.Model.World
             //Adds the vehicle to the world
             world.AddAction(vehicle);
 
-		    //Adds the wheels to the vehicle
-		    addWheels(meshAxisRadius, vehicle, tuning, wheelRadius);
+            //Adds the wheels to the vehicle
+            AddWheels(meshAxisRadius, vehicle, tuning, wheelRadius);
 
             //Inicializo puntos
             hitPoints = maxHitPoints;
@@ -163,14 +164,14 @@ namespace TGC.Group.Model.World
             else
             {
                 Weapons.Add(newWeapon);
-                if(SelectedWeapon == null)
+                if (SelectedWeapon == null)
                     SelectedWeapon = newWeapon;
             }
         }
 
         public void ReassignWeapon()
         {
-            if(SelectedWeapon.Ammo == 0)
+            if (SelectedWeapon.Ammo == 0)
             {
                 var wastedWeapon = SelectedWeapon;
                 if (Weapons.Count > 1)
@@ -209,147 +210,6 @@ namespace TGC.Group.Model.World
             yawPitchRoll = Quat.ToEulerAngles(RigidBody.Orientation);
         }
 
-        public void Respawn(bool inflictDmg, TGCVector3 initialPos)
-        {
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-            transformationMatrix.Origin = initialPos.ToBsVector;
-
-            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-            RigidBody.LinearVelocity = Vector3.Zero;
-            RigidBody.AngularVelocity = Vector3.Zero;
-
-            if (inflictDmg) hitPoints -= 30;
-            canJump = onTheFloor = falling = false;
-        }
-
-        public void Straighten()
-        {
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-            transformationMatrix.Origin = RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
-
-            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-            RigidBody.LinearVelocity = Vector3.Zero;
-            RigidBody.AngularVelocity = Vector3.Zero;
-            flippedTime = 0;
-            canJump = onTheFloor = falling = false;
-        }
-
-        public void ReactToInputs(GameModel gameModel)
-        {
-            var Input = gameModel.Input;
-
-            var moving = false;
-            var rotating = false;
-
-            var rightStick = Input.JoystickLeftStick();
-            float grades = 0;
-            if (FastMath.Abs(rightStick) > 1800)
-            {
-                grades = ((FastMath.Abs(rightStick) - 1800f) / 30000f) * (FastMath.Abs(rightStick) / rightStick);
-            }
-
-            // Adelante
-            if (Input.keyDown(Key.W) || Input.keyDown(Key.UpArrow) || Input.buttonDown(Button.X))
-            {
-                Accelerate();
-                moving = true;
-            }
-
-            // Atras
-            if (Input.keyDown(Key.S) || Input.keyDown(Key.DownArrow) || Input.buttonDown(Button.TRIANGLE))
-            {
-                Reverse();
-                moving = true;
-            }
-
-            if (grades != 0)
-            {
-                vehicle.SetSteeringValue(steeringAngle * grades, 2);
-                vehicle.SetSteeringValue(steeringAngle * grades, 3);
-                rotating = true;
-            }
-
-            // Derecha
-            if (Input.keyDown(Key.D) || Input.keyDown(Key.RightArrow) || Input.buttonDown(Dpad.RIGHT))
-            {
-                TurnRight();
-                rotating = true;
-            }
-
-            // Izquierda
-            if (Input.keyDown(Key.A) || Input.keyDown(Key.LeftArrow) || Input.buttonDown(Dpad.LEFT))
-            {
-                TurnLeft();
-                rotating = true;
-            }
-
-            if (!rotating)
-            {
-                ResetSteering();
-            }
-            if (!moving)
-            {
-                ResetEngineForce();
-            }
-
-          
-
-            // Turbo
-            if (specialPoints >= costTurbo && (Input.keyDown(Key.LeftShift) || Input.JoystickButtonPressedDouble(0, gameModel.ElapsedTime)))
-            {
-                TurboOn();
-                if (!turboSound.SoundBuffer.Status.Playing)
-                {
-                    turboSound.play(true); // 26.532
-                }
-                if (turboSound.SoundBuffer.PlayPosition > 25208)
-                {
-                    turboSound.SoundBuffer.SetCurrentPosition(18036);
-                }
-            }
-            else
-            {
-                TurboOff();
-                turboSound.stop();
-                turboSound.SoundBuffer.SetCurrentPosition(0);
-            }
-
-            // Frenar
-            if (Input.keyDown(Key.LeftControl) || Input.buttonDown(Button.SQUARE))
-            {
-                Brake();
-            }
-            else
-            {
-                ResetBrake();
-            }
-
-            // Chequea y actualiza el status del Salto
-            CheckJumpStatus(gameModel);
-
-            // Saltar
-            if (Input.keyPressed(Key.Space) || Input.buttonPressed(Button.CIRCLE))
-            {
-                if (specialPoints > 12 && canJump && onTheFloor)
-                {
-                    rigidBody.ApplyCentralImpulse(new Vector3(0, jumpImpulse, 0));
-                    specialPoints -= 12;
-                    canJump = false;
-                    onTheFloor = false;
-                }
-            }
-
-            // Cambiar de arma especial
-            if (Input.keyPressed(Key.Tab) || Input.buttonPressed(Button.R1))
-            {
-                if (Weapons.Count != 0)
-                {
-                    var arrayWeapons = Weapons.ToArray();
-                    SelectedWeapon = arrayWeapons.getNextOption(SelectedWeapon);
-                }
-            }
-        }
-
         public void Render()
         {
             // Renderizar la malla del auto, en este caso solo el Chasis
@@ -357,7 +217,7 @@ namespace TGC.Group.Model.World
             Mesh.Render();
 
             TGCMatrix wheelTransform;
-            
+
             // Como las ruedas no son cuerpos rigidos (aún) se procede a realizar las transformaciones de las ruedas para renderizar
             wheelTransform = TGCMatrix.RotationY(vehicle.GetSteeringValue(0)) * TGCMatrix.RotationTGCQuaternion(new TGCQuaternion(RigidBody.Orientation.X, RigidBody.Orientation.Y, RigidBody.Orientation.Z, RigidBody.Orientation.W)) * TGCMatrix.Translation(new TGCVector3(vehicle.GetWheelInfo(0).WorldTransform.Origin));
             wheel.Transform = wheelTransform;
@@ -375,7 +235,7 @@ namespace TGC.Group.Model.World
             wheel.Transform = wheelTransform;
             wheel.Render();
         }
-        
+
         public void Dispose()
         {
             mesh.Dispose();
@@ -399,10 +259,26 @@ namespace TGC.Group.Model.World
             get { return vehicle; }
         }
 
+        public void TryStraighten(float elapsedTime)
+        {
+            //Si está lo suficientemente rotado en los ejes X o Z no se va a poder mover, por eso lo enderezamos
+            if (FastMath.Abs(this.yawPitchRoll.X) > 1.39f || FastMath.Abs(this.yawPitchRoll.Z) > 1.39f)
+            {
+                this.flippedTime += elapsedTime;
+                if (this.flippedTime > 3)
+                {
+                    this.Straighten();
+                }
+            }
+            else
+            {
+                this.flippedTime = 0;
+            }
+        }
 
         // ------- Métodos Privados -------
 
-        private RigidBody createChassisRigidBodyFromShape(CollisionShape compound, TGCVector3 position)
+        protected RigidBody CreateChassisRigidBodyFromShape(CollisionShape compound, TGCVector3 position)
         {
             //since it is dynamic, we calculate its local inertia
             var localInertia = compound.CalculateLocalInertia(mass);
@@ -416,7 +292,7 @@ namespace TGC.Group.Model.World
             return rigidBody;
         }
 
-        private void addWheels(Vector3 halfExtents, RaycastVehicle vehicle, VehicleTuning tuning, float wheelRadius)
+        protected void AddWheels(Vector3 halfExtents, RaycastVehicle vehicle, VehicleTuning tuning, float wheelRadius)
         {
             //The direction of the raycast, the btRaycastVehicle uses raycasts instead of simiulating the wheels with rigid bodies
             Vector3 wheelDirectionCS0 = new Vector3(0, -1, 0);
@@ -453,7 +329,7 @@ namespace TGC.Group.Model.World
             }
         }
 
-        private void CheckJumpStatus(GameModel gameModel)
+        protected void CheckJumpStatus(GameModel gameModel)
         {
             if (rigidBody.InterpolationLinearVelocity.Y < -0.88f)
             {
@@ -468,7 +344,7 @@ namespace TGC.Group.Model.World
                 {
                     falling = false;
                     onTheFloor = true;
-                    var sound = new Tgc3dSound(gameModel.MediaDir + "Sounds\\FX\\afterJump.wav", mesh.Transform.Origin, gameModel.DirectSound.DsDevice);
+                    var sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "afterJump.wav", mesh.Transform.Origin, gameModel.DirectSound.DsDevice);
                     sound.MinDistance = 150f;
                     sound.play(false);
                 }
@@ -480,7 +356,7 @@ namespace TGC.Group.Model.World
             }
         }
 
-        private void Accelerate()
+        protected void Accelerate()
         {
             //Pequeño impulso adicional cuando la velocidad es baja
             var x = currentSpeed;
@@ -494,37 +370,37 @@ namespace TGC.Group.Model.World
             vehicle.ApplyEngineForce(engineForce * f, 3);
         }
 
-        private void Reverse()
+        protected void Reverse()
         {
             vehicle.ApplyEngineForce(engineForce * -0.44f, 2);
             vehicle.ApplyEngineForce(engineForce * -0.44f, 3);
         }
 
-        private void TurnRight()
+        protected void TurnRight()
         {
             vehicle.SetSteeringValue(steeringAngle, 2);
             vehicle.SetSteeringValue(steeringAngle, 3);
         }
 
-        private void TurnLeft()
+        protected void TurnLeft()
         {
             vehicle.SetSteeringValue(-steeringAngle, 2);
             vehicle.SetSteeringValue(-steeringAngle, 3);
         }
 
-        private void ResetSteering()
+        protected void ResetSteering()
         {
             vehicle.SetSteeringValue(0, 2);
             vehicle.SetSteeringValue(0, 3);
         }
 
-        private void ResetEngineForce()
+        protected void ResetEngineForce()
         {
             vehicle.ApplyEngineForce(0, 2);
             vehicle.ApplyEngineForce(0, 3);
         }
 
-        private void TurboOn()
+        protected void TurboOn()
         {
             turbo = true;
             vehicle.ApplyEngineForce(engineForce * turboMultiplier, 2);
@@ -532,12 +408,12 @@ namespace TGC.Group.Model.World
             rigidBody.ApplyCentralImpulse(frontVector.ToBsVector * turboImpulse);
         }
 
-        private void TurboOff()
+        protected void TurboOff()
         {
             turbo = false;
         }
 
-        private void Brake()
+        protected void Brake()
         {
             vehicle.SetBrake(brakeForce, 0);
             vehicle.SetBrake(brakeForce, 1);
@@ -545,12 +421,25 @@ namespace TGC.Group.Model.World
             vehicle.SetBrake(brakeForce * 0.66f, 3);
         }
 
-        private void ResetBrake()
+        protected void ResetBrake()
         {
             vehicle.SetBrake(1.05f, 0);
             vehicle.SetBrake(1.05f, 1);
             vehicle.SetBrake(1.05f, 2);
             vehicle.SetBrake(1.05f, 3);
         }
+
+        protected void Straighten()
+        {
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
+            transformationMatrix.Origin = RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
+
+            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+            RigidBody.LinearVelocity = Vector3.Zero;
+            RigidBody.AngularVelocity = Vector3.Zero;
+            flippedTime = 0;
+            canJump = onTheFloor = falling = false;
+        }
+
     }
 }

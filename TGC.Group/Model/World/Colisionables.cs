@@ -1,10 +1,7 @@
 ﻿using BulletSharp;
-using BulletSharp.Math;
 using System;
-using System.Collections.Generic;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using TGC.Group.Physics;
 
 namespace TGC.Group.Model.World
 {

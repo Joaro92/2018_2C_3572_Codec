@@ -1,7 +1,5 @@
-﻿using Microsoft.DirectX.DirectSound;
-using TGC.Core.Mathematica;
-using TGC.Core.Sound;
-using TGC.Group.Model.World;
+﻿using TGC.Core.Mathematica;
+using TGC.Group.Model.World.Characters;
 
 namespace TGC.Group.Model.Items
 {
@@ -9,26 +7,17 @@ namespace TGC.Group.Model.Items
     {
         private readonly float healingRate = 0.5f;
 
-        public Health(TGCVector3 pos) : base(pos, "Heart")
+        public Health(TGCVector3 pos) : base(pos, "Heart", Game.Default.MediaDirectory + Game.Default.FXDirectory + "healthPickup.wav")
         {
             respawnTime = 10f;
         }
 
-        public override void Dissapear(Device dsDevice)
-        {
-            base.Dissapear(dsDevice);
-
-            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\healthPickup.wav", Position, dsDevice);
-            sound.MinDistance = 150f;
-            sound.play(false);
-        }
-
         public override float DesplazamientoY => 0.3f;
 
-        public override void Effect(Player1 player1)
+        public override void Effect(Character character)
         {
-            var hitPointsGained =  healingRate * player1.maxHitPoints;
-            player1.hitPoints = FastMath.Min(player1.maxHitPoints, player1.hitPoints + hitPointsGained);
+            var hitPointsGained =  healingRate * character.maxHitPoints;
+            character.hitPoints = FastMath.Min(character.maxHitPoints, character.hitPoints + hitPointsGained);
         }
     }
 }

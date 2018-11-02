@@ -1,7 +1,5 @@
-﻿using Microsoft.DirectX.DirectSound;
-using TGC.Core.Mathematica;
-using TGC.Core.Sound;
-using TGC.Group.Model.World;
+﻿using TGC.Core.Mathematica;
+using TGC.Group.Model.World.Characters;
 using TGC.Group.Model.World.Weapons;
 
 namespace TGC.Group.Model.Items
@@ -10,7 +8,7 @@ namespace TGC.Group.Model.Items
     {
         public Weapon Weapon { get; protected set; }
 
-        public WeaponItem(TGCVector3 pos, string name) : base(pos, name)
+        public WeaponItem(TGCVector3 pos, string name) : base(pos, name, Game.Default.MediaDirectory + Game.Default.FXDirectory + "weaponPickup.wav")
         {
             respawnTime = 20f;
         }
@@ -20,18 +18,9 @@ namespace TGC.Group.Model.Items
             base.Dispose();
         }
 
-        public override void Dissapear(Device dsDevice)
+        public override void Effect(Character character)
         {
-            base.Dissapear(dsDevice);
-
-            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\weaponPickup.wav", Position, dsDevice);
-            sound.MinDistance = 150f;
-            sound.play(false);
-        }
-
-        public override void Effect(Player1 player1)
-        {
-            player1.AddWeapon(Weapon);
+            character.AddWeapon(Weapon);
         }
 
         public override float DesplazamientoY => 0.2f;

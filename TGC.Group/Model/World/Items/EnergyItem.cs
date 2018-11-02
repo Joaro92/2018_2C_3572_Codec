@@ -1,7 +1,5 @@
-﻿using Microsoft.DirectX.DirectSound;
-using TGC.Core.Mathematica;
-using TGC.Core.Sound;
-using TGC.Group.Model.World;
+﻿using TGC.Core.Mathematica;
+using TGC.Group.Model.World.Characters;
 
 namespace TGC.Group.Model.Items
 {
@@ -9,27 +7,17 @@ namespace TGC.Group.Model.Items
     {
         private readonly float gainRate = 0.5f;
 
-        public Energy(TGCVector3 pos) : base(pos, "Energy")
+        public Energy(TGCVector3 pos) : base(pos, "Energy", Game.Default.MediaDirectory + Game.Default.FXDirectory + "specialPickup.wav")
         {
-            Name = "Energy";
             respawnTime = 5f;
-        }
-
-        public override void Dissapear(Device dsDevice)
-        {
-            base.Dissapear(dsDevice);
-
-            sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\specialPickup.wav", Position, dsDevice);
-            sound.MinDistance = 150f;
-            sound.play(false);
         }
 
         public override float DesplazamientoY => 0.10f;
 
-        public override void Effect(Player1 player1)
+        public override void Effect(Character character)
         {
-            var specialPointsGained = gainRate * player1.maxSpecialPoints;
-            player1.specialPoints = FastMath.Min(player1.maxSpecialPoints, player1.specialPoints + specialPointsGained);
+            var specialPointsGained = gainRate * character.maxSpecialPoints;
+            character.specialPoints = FastMath.Min(character.maxSpecialPoints, character.specialPoints + specialPointsGained);
         }
     }
 }

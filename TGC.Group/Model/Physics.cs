@@ -286,12 +286,13 @@ namespace TGC.Group.Physics
         protected SequentialImpulseConstraintSolver constraintSolver;
         protected BroadphaseInterface broadphase;
 
-        public Player1 player1;
-        protected Scenario escenario;
+        public Player1 player1 { get; protected set; }
+        public Enemy enemy { get; protected set; }
+        public Scenario escenario { get; protected set; }
+        public List<Item> items { get; protected set; }
         protected TgcSkyBox skyBox;
-        protected List<Item> items;
         protected List<Bullet> bullets;
-        protected List<Enemy> enemies;
+        //protected List<Enemy> enemies; por ahora solo hay uno
 
         private Random randomGenerator = new Random();
         protected Effect toonFX;
@@ -323,7 +324,7 @@ namespace TGC.Group.Physics
 
             items = new List<Item>();
             bullets = new List<Bullet>();
-            enemies = new List<Enemy>();
+            //enemies = new List<Enemy>();
 
             InitializeShadersAndEffects();
         }
@@ -350,10 +351,10 @@ namespace TGC.Group.Physics
 
         // ------- Métodos Privados -------
 
-        protected void UpdateControlVariables(GameModel gameModel)
+        protected void UpdateControlVariables(float elapsedTime)
         {
-            time += gameModel.ElapsedTime;
-            if (bulletFlag > 0) bulletFlag += gameModel.ElapsedTime;
+            time += elapsedTime;
+            if (bulletFlag > 0) bulletFlag += elapsedTime;
             if (bulletFlag > 0.25f) bulletFlag = 0;
         }
 
@@ -423,21 +424,29 @@ namespace TGC.Group.Physics
         protected void CollisionsHandler(GameModel gameModel)
         {
             // Items collisions
-            player1.RigidBody.GetAabb(out Vector3 min, out Vector3 max);
-            min.Y -= player1.meshAxisRadius.Y;
-            var player1AABB = new TgcBoundingAxisAlignBox(new TGCVector3(min), new TGCVector3(max));
+            player1.RigidBody.GetAabb(out Vector3 minP1, out Vector3 maxP1);
+            minP1.Y -= player1.meshAxisRadius.Y;
+            enemy.RigidBody.GetAabb(out Vector3 minE, out Vector3 maxE);
+            minE.Y -= enemy.meshAxisRadius.Y;
+
+            var player1AABB = new TgcBoundingAxisAlignBox(new TGCVector3(minP1), new TGCVector3(maxP1));
+            var enemyAABB = new TgcBoundingAxisAlignBox(new TGCVector3(minE), new TGCVector3(maxE));
 
             // Rotar items, desaparecerlos y hacer efecto si colisionan y contar el tiempo que falta para que vuelvan a aparecer los que no estan
             foreach (Item i in items)
             {
                 if (i.IsPresent)
                 {
-                    i.Update(gameModel, time);
+                    i.Update(gameModel.ElapsedTime, time);
 
                     if (TgcCollisionUtils.testAABBAABB(player1AABB, i.Mesh.BoundingBox))
                     {
                         i.Dissapear(gameModel.DirectSound.DsDevice);
                         i.Effect(player1);
+                    }
+                    if (TgcCollisionUtils.testAABBAABB(enemyAABB, i.Mesh.BoundingBox))
+                    {
+                        i.Effect(enemy);
                     }
                 }
                 else
@@ -445,6 +454,7 @@ namespace TGC.Group.Physics
             }
 
             // Bullets collisions
+            //FALTA HACER COLISIONES DE BALAS CON ENEMIGO
             var overlappedPairs = broadphase.OverlappingPairCache.OverlappingPairArray;
             if (overlappedPairs.Count == 0) return;
 

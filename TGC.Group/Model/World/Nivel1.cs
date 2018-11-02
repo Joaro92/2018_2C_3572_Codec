@@ -6,6 +6,7 @@ using TGC.Core.Mathematica;
 using TGC.Examples.Camara;
 using TGC.Group.Model.Items;
 using TGC.Group.Model.Vehicles;
+using TGC.Group.World;
 using TGC.Group.Model.World.Weapons;
 using TGC.Group.Physics;
 using TGC.Group.Utils;
@@ -15,7 +16,8 @@ namespace TGC.Group.Model.World
 {
     public class NivelUno : PhysicsGame
     {
-        private readonly TGCVector3 initialPos = new TGCVector3(144f, 7.5f, 0f);
+        private readonly TGCVector3 initialPosP1 = new TGCVector3(144f, 7.5f, 0f);
+        private readonly TGCVector3 initialPosEnemy = new TGCVector3(-192f, 7.5f, 576f);
         private List<Colisionable> objetos = new List<Colisionable>();
 
         private string posX, posY, posZ;
@@ -27,11 +29,16 @@ namespace TGC.Group.Model.World
             escenario = new Scenario(world, dir + "scene-level1final-TgcScene.xml");
             
             // Creamos a nuestro jugador y lo agregamos al mundo
-            player1 = new Player1(world, vehiculoP1, initialPos, gameModel); // mover a Partida
+            player1 = new Player1(world, vehiculoP1, initialPosP1, 0f, gameModel);
 
             // Le damos unas armas a nuestro jugador
             player1.AddWeapon(new Power());
             player1.SelectedWeapon.Ammo += 1;
+
+            // Creamos a un enemigo y lo ubicamos en el extremo opuesto del escenario 
+            enemy = new Enemy(world, initialPosEnemy, FastMath.PI, gameModel); 
+            //con el PI quiero rotarlo 180º para que este invertido pero no funciona ni con RotateY ni con Rotation
+            //ARREGLAR ESTO
 
             // Crear SkyBox
             skyBox = Skybox.InitSkybox();
@@ -52,33 +59,26 @@ namespace TGC.Group.Model.World
             world.StepSimulation(1 / 60f, 30);
 
             // Actualizar variables de control
-            UpdateControlVariables(gameModel);
+            UpdateControlVariables(gameModel.ElapsedTime);
 
             // Actualizar variables del jugador que requieren calculos complejos una sola vez
             player1.UpdateInternalValues();
+            enemy.UpdateInternalValues();
 
             // Si el jugador cayó a más de 100 unidades en Y, se lo hace respawnear
             if (player1.RigidBody.CenterOfMassPosition.Y < -100)
             {
-                player1.Respawn(inflictDmg, initialPos);
+                player1.Respawn(inflictDmg, initialPosP1);
             }
 
-            //Si está lo suficientemente rotado en los ejes X o Z no se va a poder mover, por eso lo enderezamos
-            if (FastMath.Abs(player1.yawPitchRoll.X) > 1.39f || FastMath.Abs(player1.yawPitchRoll.Z) > 1.39f)
-            {
-                player1.flippedTime += gameModel.ElapsedTime;
-                if (player1.flippedTime > 3)
-                {
-                    player1.Straighten();
-                }
-            }
-            else
-            {
-                player1.flippedTime = 0;
-            }
+            // Intenta enderezar si hace falta
+            player1.TryStraighten(gameModel.ElapsedTime);
+            enemy.TryStraighten(gameModel.ElapsedTime);
 
             // Manejar los inputs del teclado y joystick
             player1.ReactToInputs(gameModel);
+            // Accion del enemigo
+            enemy.TakeAction(this);
 
             // Disparar Machinegun
             if (gameModel.Input.keyDown(Key.E) || gameModel.Input.buttonDown(Button.R2))
@@ -112,6 +112,7 @@ namespace TGC.Group.Model.World
             // ----------------
 
             player1.Render();
+            enemy.Render();
             escenario.Render();
             skyBox.Render();
 
@@ -160,6 +161,9 @@ namespace TGC.Group.Model.World
 
             player1.Mesh.Effect = toonFX;
             player1.Mesh.Technique = "ToonShadingWithBorder";
+
+            enemy.Mesh.Effect = toonFX;
+            enemy.Mesh.Technique = "ToonShadingWithBorder";
 
             foreach (var block in escenario.TgcScene.Meshes)
             {

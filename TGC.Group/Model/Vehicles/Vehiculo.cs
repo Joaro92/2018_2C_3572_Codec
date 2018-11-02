@@ -1,4 +1,5 @@
-﻿using TGC.Core.Direct3D;
+﻿using System;
+using TGC.Core.Direct3D;
 using TGC.Core.SceneLoader;
 using TGC.Core.Textures;
 
@@ -63,6 +64,20 @@ namespace TGC.Group.Model.Vehicles
             var textureAux = TgcTexture.createTexture(D3DDevice.Instance.Device, newTexturePath.Split('\\')[5], newTexturePath);
             mesh.addDiffuseMap(textureAux);
             mesh.deleteDiffuseMap(index, diffuseMaps.Length - 1);
+        }
+
+        public static Vehiculo GetRandom()
+        {
+            var names = Game.Default.VehicleNames;
+            var colors = Game.Default.VehicleColors;
+
+            int randomNameIndex = new Random().Next() % names.Count;
+            string name = names[randomNameIndex];
+
+            int randomColorIndex = new Random().Next() % colors.Count;
+            string color = colors[randomColorIndex];
+
+            return new Vehiculo(name, color);
         }
     }
 }
