@@ -73,7 +73,7 @@ namespace TGC.Group.Model.World.Characters
         public List<Weapon> Weapons { get; } = new List<Weapon>();
         public Weapon SelectedWeapon { get; set; } = null;
 
-        public Character(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position, float orientation, GameModel gameModel)
+        public Character(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position, float rotation, GameModel gameModel)
         {
             //Cargar sonido
             turboSound = new TgcStaticSound();
@@ -84,10 +84,6 @@ namespace TGC.Group.Model.World.Characters
             var loader = new TgcSceneLoader();
             this.mesh = loader.loadSceneFromFile(vehiculo.ChassisXmlPath).Meshes[0];
             this.wheel = loader.loadSceneFromFile(vehiculo.WheelsXmlPath).Meshes[0];
-
-            //this.mesh.Rotation = new TGCVector3(0f, orientation, 0f);
-            //this.wheel.Rotation = new TGCVector3(0f, orientation, 0f); 
-            //ARREGLAR ESTO PARA QUE ROTE EL VEHICULO EN Y "orientation" GRADOS
 
             Vehiculo.ChangeTextureColor(this.mesh, vehiculo.Color);
 
@@ -124,7 +120,7 @@ namespace TGC.Group.Model.World.Characters
             var localTransform = Matrix.Translation(0, (meshAxisRadius.Y * 2) - (meshRealHeight / 2f), 0);
             compound.AddChildShape(localTransform, chassisShape);
             //Creates a rigid body
-            this.rigidBody = CreateChassisRigidBodyFromShape(compound, position);
+            this.rigidBody = CreateChassisRigidBodyFromShape(compound, position, rotation);
 
 
             //Adds the vehicle chassis to the world
@@ -278,12 +274,12 @@ namespace TGC.Group.Model.World.Characters
 
         // ------- Métodos Privados -------
 
-        protected RigidBody CreateChassisRigidBodyFromShape(CollisionShape compound, TGCVector3 position)
+        protected RigidBody CreateChassisRigidBodyFromShape(CollisionShape compound, TGCVector3 position, float rotation)
         {
             //since it is dynamic, we calculate its local inertia
             var localInertia = compound.CalculateLocalInertia(mass);
 
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI + rotation, 0, 0).ToBsMatrix;
             transformationMatrix.Origin = position.ToBsVector;
             DefaultMotionState motionState = new DefaultMotionState(transformationMatrix);
             var bodyInfo = new RigidBodyConstructionInfo(mass, motionState, compound, localInertia);

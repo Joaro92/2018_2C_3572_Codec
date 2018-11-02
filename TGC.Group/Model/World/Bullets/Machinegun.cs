@@ -34,7 +34,7 @@ namespace TGC.Group.World.Weapons
 
         public void fireFrom(Player1 player1, int opposite, Device dsDevice)
         {
-            rigidBody.WorldTransform = Matrix.Translation(opposite * player1.meshAxisRadius.X * 0.8f, 0.27f, -player1.meshAxisRadius.Z - player1.currentSpeed * 0.01f - 0.47f) * Matrix.RotationY(player1.yawPitchRoll.Y) * Matrix.Translation(player1.Mesh.Transform.Origin.ToBsVector);
+            rigidBody.WorldTransform = Matrix.Translation(opposite * player1.meshAxisRadius.X * 0.8f, 0.265f, -player1.meshAxisRadius.Z - player1.currentSpeed * 0.01f - 0.47f) * Matrix.RotationY(player1.yawPitchRoll.Y) * Matrix.Translation(player1.Mesh.Transform.Origin.ToBsVector);
             rigidBody.ApplyCentralImpulse(new Vector3(player1.frontVector.X, 0, player1.frontVector.Z) * (25 + (FastMath.Sqrt(FastMath.Abs(player1.currentSpeed)) / 2)));
 
             sound = new Tgc3dSound(Game.Default.MediaDirectory + "Sounds\\FX\\machinegun.wav", player1.Mesh.Transform.Origin, dsDevice);

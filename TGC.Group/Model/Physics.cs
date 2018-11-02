@@ -292,6 +292,7 @@ namespace TGC.Group.Physics
         public List<Item> items { get; protected set; }
         protected TgcSkyBox skyBox;
         protected List<Bullet> bullets;
+        protected List<Colisionable> objetos = new List<Colisionable>();
         //protected List<Enemy> enemies; por ahora solo hay uno
 
         private Random randomGenerator = new Random();
@@ -344,9 +345,11 @@ namespace TGC.Group.Physics
             player1.Dispose();
             escenario.Dispose();
             skyBox.Dispose();
+            enemy.Dispose();
 
             items.ForEach(item => item.Dispose());
             bullets.ForEach(bullet => bullet.Dispose());
+            objetos.ForEach(obj => obj.Dispose());
         }
 
         // ------- Métodos Privados -------

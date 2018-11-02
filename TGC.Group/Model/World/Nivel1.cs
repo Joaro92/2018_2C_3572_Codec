@@ -1,15 +1,14 @@
 using Microsoft.DirectX.DirectInput;
-using System.Collections.Generic;
 using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
 using TGC.Examples.Camara;
 using TGC.Group.Model.Items;
 using TGC.Group.Model.Vehicles;
-using TGC.Group.World;
 using TGC.Group.Model.World.Weapons;
 using TGC.Group.Physics;
 using TGC.Group.Utils;
+using TGC.Group.World;
 using Button = TGC.Group.Model.Input.Button;
 
 namespace TGC.Group.Model.World
@@ -18,7 +17,6 @@ namespace TGC.Group.Model.World
     {
         private readonly TGCVector3 initialPosP1 = new TGCVector3(144f, 7.5f, 0f);
         private readonly TGCVector3 initialPosEnemy = new TGCVector3(-192f, 7.5f, 576f);
-        private List<Colisionable> objetos = new List<Colisionable>();
 
         private string posX, posY, posZ;
         private string dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
@@ -36,15 +34,13 @@ namespace TGC.Group.Model.World
             player1.SelectedWeapon.Ammo += 1;
 
             // Creamos a un enemigo y lo ubicamos en el extremo opuesto del escenario 
-            enemy = new Enemy(world, initialPosEnemy, FastMath.PI, gameModel); 
-            //con el PI quiero rotarlo 180º para que este invertido pero no funciona ni con RotateY ni con Rotation
-            //ARREGLAR ESTO
+            enemy = new Enemy(world, new TGCVector3(144f, 7.5f, 22f), FastMath.PI, gameModel); 
 
             // Crear SkyBox
             skyBox = Skybox.InitSkybox();
 
             // Spawneamos algunos obstaculos dinámicos
-            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(144f, 13.5f, 20f)));
+            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(110f, 10f, 20f)));
 
             // Spawneamos algunos items
             SpawnItems();
