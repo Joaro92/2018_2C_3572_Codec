@@ -34,11 +34,13 @@ namespace TGC.Group.Model.Items
                 Mesh.Dispose();
                 timer = respawnTime;
             }
-
-            sound = new Tgc3dSound(SoundPath, Position, dsDevice);
-            sound.MinDistance = 150f;
-            sound.play(false);
-        } 
+            if (dsDevice != null)
+            {
+                sound = new Tgc3dSound(SoundPath, Position, dsDevice);
+                sound.MinDistance = 150f;
+                sound.play(false);
+            }
+        }
 
         public void Update(float elapsedTime, float time)
         {
@@ -49,7 +51,7 @@ namespace TGC.Group.Model.Items
         public void UpdateTimer(float elapsedTime)
         {
             timer -= elapsedTime;
-            if(timer <= 0)
+            if (timer <= 0)
                 this.spawn();
         }
 

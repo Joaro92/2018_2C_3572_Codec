@@ -4,6 +4,7 @@ using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Sound;
 using TGC.Group.Model.World;
+using TGC.Group.Model.World.Characters;
 
 namespace TGC.Group.World
 {
@@ -14,10 +15,16 @@ namespace TGC.Group.World
         protected Tgc3dSound sound;
         protected int id;
         protected float lifeTime;
-        
-        public Bullet() { }
+        protected readonly float damage;
 
-        public abstract void fireFrom(Player1 player1, Device dsDevice);
+        public Character origin { get; set; }
+        
+        public Bullet(float damage, Character origin) {
+            this.damage = damage;
+            this.origin = origin;
+        }
+
+        public abstract void fire(Device dsDevice);
 
         public void Render()
         {
@@ -47,6 +54,11 @@ namespace TGC.Group.World
         {
             get { return lifeTime; }
             set { lifeTime = value; }
+        }
+
+        public void DealDamage(Character c)
+        {
+            c.hitPoints -= damage;
         }
     }
 }

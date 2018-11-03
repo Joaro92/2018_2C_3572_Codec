@@ -72,21 +72,11 @@ namespace TGC.Group.Model.World
             enemy.TryStraighten(gameModel.ElapsedTime);
 
             // Manejar los inputs del teclado y joystick
-            player1.ReactToInputs(gameModel);
+            player1.ReactToInputs(gameModel, this);
             // Accion del enemigo
-            enemy.TakeAction(this);
+            enemy.TakeAction(gameModel, this);
 
-            // Disparar Machinegun
-            if (gameModel.Input.keyDown(Key.E) || gameModel.Input.buttonDown(Button.R2))
-            {
-                FireMachinegun(gameModel);
-            }
-
-            // Disparar arma especial
-            if (gameModel.Input.keyPressed(Key.R) || gameModel.Input.buttonPressed(Button.L2))
-            {
-                FireWeapon(gameModel, player1.SelectedWeapon);
-            }
+            
 
             // Metodo que se encarga de manejar las colisiones según corresponda
             CollisionsHandler(gameModel);

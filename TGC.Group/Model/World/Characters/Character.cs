@@ -1,18 +1,18 @@
 ﻿using BulletSharp;
 using BulletSharp.Math;
-using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
 using System.Globalization;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Sound;
 using TGC.Group.Model.Vehicles;
-using TGC.Group.Model.World.Characters;
 using TGC.Group.Model.World.Weapons;
+using TGC.Group.Physics;
 using TGC.Group.Utils;
+using TGC.Group.World;
+using TGC.Group.World.Bullets;
+using TGC.Group.World.Weapons;
 using static TGC.Group.Utils.WheelContactInfo;
-using Button = TGC.Group.Model.Input.Button;
-using Dpad = TGC.Group.Model.Input.Dpad;
 
 namespace TGC.Group.Model.World.Characters
 {
@@ -68,6 +68,10 @@ namespace TGC.Group.Model.World.Characters
         protected readonly float suspensionLength = 0.9f;
 
         public TgcStaticSound turboSound;
+
+        public readonly float FireFrecuencyMachineGun = 0.25f; 
+        protected int neg = 1;
+        public float timerMachineGun { get; set; }  
 
         // Armas
         public List<Weapon> Weapons { get; } = new List<Weapon>();
@@ -146,6 +150,7 @@ namespace TGC.Group.Model.World.Characters
             //Inicializo puntos
             hitPoints = maxHitPoints;
             specialPoints = maxSpecialPoints;
+            timerMachineGun = 0f;
         }
 
         // ------- Métodos Públicos -------
@@ -272,6 +277,122 @@ namespace TGC.Group.Model.World.Characters
             }
         }
 
+        public void Accelerate()
+        {
+            //Pequeño impulso adicional cuando la velocidad es baja
+            var x = currentSpeed;
+            float f;
+            if (x < 0)
+                f = 7;
+            else
+                f = -FastMath.Log(0.00001f * (x + 0.15f)) - 6.3f;
+
+            vehicle.ApplyEngineForce(engineForce * f, 2);
+            vehicle.ApplyEngineForce(engineForce * f, 3);
+        }
+
+        public void Reverse()
+        {
+            vehicle.ApplyEngineForce(engineForce * -0.44f, 2);
+            vehicle.ApplyEngineForce(engineForce * -0.44f, 3);
+        }
+
+        public void TurnRight()
+        {
+            vehicle.SetSteeringValue(steeringAngle, 2);
+            vehicle.SetSteeringValue(steeringAngle, 3);
+        }
+
+        public void TurnLeft()
+        {
+            vehicle.SetSteeringValue(-steeringAngle, 2);
+            vehicle.SetSteeringValue(-steeringAngle, 3);
+        }
+
+        public void ResetSteering()
+        {
+            vehicle.SetSteeringValue(0, 2);
+            vehicle.SetSteeringValue(0, 3);
+        }
+
+        public void ResetEngineForce()
+        {
+            vehicle.ApplyEngineForce(0, 2);
+            vehicle.ApplyEngineForce(0, 3);
+        }
+
+        public void TurboOn()
+        {
+            turbo = true;
+            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 2);
+            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 3);
+            rigidBody.ApplyCentralImpulse(frontVector.ToBsVector * turboImpulse);
+        }
+
+        public void TurboOff()
+        {
+            turbo = false;
+        }
+
+        public void Brake()
+        {
+            vehicle.SetBrake(brakeForce, 0);
+            vehicle.SetBrake(brakeForce, 1);
+            vehicle.SetBrake(brakeForce * 0.66f, 2);
+            vehicle.SetBrake(brakeForce * 0.66f, 3);
+        }
+
+        public void ResetBrake()
+        {
+            vehicle.SetBrake(1.05f, 0);
+            vehicle.SetBrake(1.05f, 1);
+            vehicle.SetBrake(1.05f, 2);
+            vehicle.SetBrake(1.05f, 3);
+        }
+
+        public void Straighten()
+        {
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
+            transformationMatrix.Origin = RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
+
+            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+            RigidBody.LinearVelocity = Vector3.Zero;
+            RigidBody.AngularVelocity = Vector3.Zero;
+            flippedTime = 0;
+            canJump = onTheFloor = falling = false;
+        }
+
+        public void FireMachinegun(GameModel gameModel, PhysicsGame nivel)
+        {
+            if (timerMachineGun == 0)
+            {
+                var b = new MachinegunBullet(nivel.world, this);
+                b.fire(neg, gameModel.DirectSound.DsDevice);
+                nivel.bullets.Add(b);
+
+                timerMachineGun += gameModel.ElapsedTime;
+                neg *= -1;
+            }
+        }
+
+        public void FireWeapon(GameModel gameModel, PhysicsGame nivel, Weapon SelectedWeapon)
+        {
+            if (SelectedWeapon != null)
+            {
+                Bullet b = null;
+                switch (SelectedWeapon.Name)
+                {
+                    case "Power Missile":
+                        b = new PowerMissile(nivel.world, this);
+                        break;
+                }
+                b.fire(gameModel.DirectSound.DsDevice);
+                SelectedWeapon.Ammo--;
+                nivel.bullets.Add(b);
+                this.ReassignWeapon();
+            }
+        }
+
         // ------- Métodos Privados -------
 
         protected RigidBody CreateChassisRigidBodyFromShape(CollisionShape compound, TGCVector3 position, float rotation)
@@ -351,91 +472,5 @@ namespace TGC.Group.Model.World.Characters
                 canJump = true;
             }
         }
-
-        protected void Accelerate()
-        {
-            //Pequeño impulso adicional cuando la velocidad es baja
-            var x = currentSpeed;
-            float f;
-            if (x < 0)
-                f = 7;
-            else
-                f = -FastMath.Log(0.00001f * (x + 0.15f)) - 6.3f;
-
-            vehicle.ApplyEngineForce(engineForce * f, 2);
-            vehicle.ApplyEngineForce(engineForce * f, 3);
-        }
-
-        protected void Reverse()
-        {
-            vehicle.ApplyEngineForce(engineForce * -0.44f, 2);
-            vehicle.ApplyEngineForce(engineForce * -0.44f, 3);
-        }
-
-        protected void TurnRight()
-        {
-            vehicle.SetSteeringValue(steeringAngle, 2);
-            vehicle.SetSteeringValue(steeringAngle, 3);
-        }
-
-        protected void TurnLeft()
-        {
-            vehicle.SetSteeringValue(-steeringAngle, 2);
-            vehicle.SetSteeringValue(-steeringAngle, 3);
-        }
-
-        protected void ResetSteering()
-        {
-            vehicle.SetSteeringValue(0, 2);
-            vehicle.SetSteeringValue(0, 3);
-        }
-
-        protected void ResetEngineForce()
-        {
-            vehicle.ApplyEngineForce(0, 2);
-            vehicle.ApplyEngineForce(0, 3);
-        }
-
-        protected void TurboOn()
-        {
-            turbo = true;
-            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 2);
-            vehicle.ApplyEngineForce(engineForce * turboMultiplier, 3);
-            rigidBody.ApplyCentralImpulse(frontVector.ToBsVector * turboImpulse);
-        }
-
-        protected void TurboOff()
-        {
-            turbo = false;
-        }
-
-        protected void Brake()
-        {
-            vehicle.SetBrake(brakeForce, 0);
-            vehicle.SetBrake(brakeForce, 1);
-            vehicle.SetBrake(brakeForce * 0.66f, 2);
-            vehicle.SetBrake(brakeForce * 0.66f, 3);
-        }
-
-        protected void ResetBrake()
-        {
-            vehicle.SetBrake(1.05f, 0);
-            vehicle.SetBrake(1.05f, 1);
-            vehicle.SetBrake(1.05f, 2);
-            vehicle.SetBrake(1.05f, 3);
-        }
-
-        protected void Straighten()
-        {
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-            transformationMatrix.Origin = RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
-
-            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-            RigidBody.LinearVelocity = Vector3.Zero;
-            RigidBody.AngularVelocity = Vector3.Zero;
-            flippedTime = 0;
-            canJump = onTheFloor = falling = false;
-        }
-
     }
 }

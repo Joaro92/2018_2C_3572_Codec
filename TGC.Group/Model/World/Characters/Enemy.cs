@@ -16,9 +16,9 @@ namespace TGC.Group.World
             ia = new IA();
         }
 
-        public void TakeAction(PhysicsGame nivel)
+        public void TakeAction(GameModel gameModel, PhysicsGame nivel)
         {
-            //ia.TakeAction(world);
+            ia.TakeAction(this,gameModel, nivel);
         }
 
     }

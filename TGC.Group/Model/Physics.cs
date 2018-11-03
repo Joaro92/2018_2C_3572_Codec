@@ -280,7 +280,7 @@ namespace TGC.Group.Physics
 
     public abstract class PhysicsGame
     {
-        protected DiscreteDynamicsWorld world;
+        public DiscreteDynamicsWorld world { get; protected set; }
         protected CollisionDispatcher dispatcher;
         protected DefaultCollisionConfiguration collisionConfiguration;
         protected SequentialImpulseConstraintSolver constraintSolver;
@@ -290,8 +290,8 @@ namespace TGC.Group.Physics
         public Enemy enemy { get; protected set; }
         public Scenario escenario { get; protected set; }
         public List<Item> items { get; protected set; }
+        public List<Bullet> bullets { get; protected set; }
         protected TgcSkyBox skyBox;
-        protected List<Bullet> bullets;
         protected List<Colisionable> objetos = new List<Colisionable>();
         //protected List<Enemy> enemies; por ahora solo hay uno
 
@@ -303,9 +303,6 @@ namespace TGC.Group.Physics
 
         protected float rnd;
         protected bool inflictDmg = true;
-        protected float bulletFlag = 0;
-        protected int neg = 1;
-        protected int neg2 = 1;
         protected float time;
 
         public PhysicsGame()
@@ -357,8 +354,10 @@ namespace TGC.Group.Physics
         protected void UpdateControlVariables(float elapsedTime)
         {
             time += elapsedTime;
-            if (bulletFlag > 0) bulletFlag += elapsedTime;
-            if (bulletFlag > 0.25f) bulletFlag = 0;
+            if (player1.timerMachineGun > 0) player1.timerMachineGun += elapsedTime;
+            if (player1.timerMachineGun > player1.FireFrecuencyMachineGun) player1.timerMachineGun = 0;
+            if (enemy.timerMachineGun > 0) enemy.timerMachineGun += elapsedTime;
+            if (enemy.timerMachineGun > enemy.FireFrecuencyMachineGun) enemy.timerMachineGun = 0;
         }
 
         protected void AdjustCameraPosition(TgcThirdPersonCamera camaraInterna, ModoCamara modoCamara)
@@ -450,14 +449,39 @@ namespace TGC.Group.Physics
                     if (TgcCollisionUtils.testAABBAABB(enemyAABB, i.Mesh.BoundingBox))
                     {
                         i.Effect(enemy);
+                        i.Dissapear(null);
                     }
                 }
                 else
                     i.UpdateTimer(gameModel.ElapsedTime);
             }
 
+            // Balas contra personajes
+
+            foreach (Bullet b in bullets)
+            {
+                b.RigidBody.GetAabb(out Vector3 minB, out Vector3 maxB);
+                var meshAxisRadius = b.Mesh.BoundingBox.calculateAxisRadius().ToBsVector;
+                minB.Y -= meshAxisRadius.Y;
+                var bulletAABB = new TgcBoundingAxisAlignBox(new TGCVector3(minB), new TGCVector3(maxB));
+
+                if (b.origin == enemy && TgcCollisionUtils.testAABBAABB(player1AABB, bulletAABB))
+                {
+                    b.DealDamage(player1);
+                    world.RemoveRigidBody(b.RigidBody);
+
+                }
+                if (b.origin == player1 && TgcCollisionUtils.testAABBAABB(enemyAABB, bulletAABB))
+                {
+                    b.DealDamage(enemy);
+                    world.RemoveRigidBody(b.RigidBody);
+                }
+
+            }
+
+            bullets = ObtainExistingBullets(gameModel);
+
             // Bullets collisions
-            //FALTA HACER COLISIONES DE BALAS CON ENEMIGO
             var overlappedPairs = broadphase.OverlappingPairCache.OverlappingPairArray;
             if (overlappedPairs.Count == 0) return;
 
@@ -509,36 +533,7 @@ namespace TGC.Group.Physics
             return bullets2;
         }
 
-        protected void FireMachinegun(GameModel gameModel)
-        {
-            if (bulletFlag == 0)
-            {
-                var b = new MachinegunBullet(world);
-                b.fireFrom(player1, neg, gameModel.DirectSound.DsDevice);
-                bullets.Add(b);
-
-                bulletFlag += gameModel.ElapsedTime;
-                neg *= -1;
-            }
-        }
-
-        protected void FireWeapon(GameModel gameModel, Weapon SelectedWeapon)
-        {
-            if (SelectedWeapon != null)
-            {
-                Bullet b = null;
-                switch (SelectedWeapon.Name)
-                {
-                    case "Power Missile":
-                        b = new PowerMissile(world);
-                        break;
-                }
-                b.fireFrom(player1, gameModel.DirectSound.DsDevice);
-                SelectedWeapon.Ammo--;
-                bullets.Add(b);
-                player1.ReassignWeapon();
-            }
-        }
+      
 
         protected void InitializeShadersAndEffects()
         {

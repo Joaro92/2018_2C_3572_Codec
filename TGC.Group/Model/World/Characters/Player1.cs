@@ -4,6 +4,7 @@ using Microsoft.DirectX.DirectInput;
 using TGC.Core.Mathematica;
 using TGC.Group.Model.Vehicles;
 using TGC.Group.Model.World.Characters;
+using TGC.Group.Physics;
 using TGC.Group.Utils;
 using Button = TGC.Group.Model.Input.Button;
 using Dpad = TGC.Group.Model.Input.Dpad;
@@ -32,7 +33,7 @@ namespace TGC.Group.Model.World
 
        
 
-        public void ReactToInputs(GameModel gameModel)
+        public void ReactToInputs(GameModel gameModel, PhysicsGame nivel)
         {
             var Input = gameModel.Input;
 
@@ -145,6 +146,18 @@ namespace TGC.Group.Model.World
                     var arrayWeapons = Weapons.ToArray();
                     SelectedWeapon = arrayWeapons.getNextOption(SelectedWeapon);
                 }
+            }
+
+            // Disparar Machinegun
+            if (Input.keyDown(Key.E) || Input.buttonDown(Button.R2))
+            {
+                FireMachinegun(gameModel, nivel);
+            }
+
+            // Disparar arma especial
+            if (Input.keyPressed(Key.R) || Input.buttonPressed(Button.L2))
+            {
+                FireWeapon(gameModel, nivel, SelectedWeapon);
             }
         }
     }
