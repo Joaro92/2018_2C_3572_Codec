@@ -18,6 +18,7 @@ namespace TGC.Group.Model.World
         private readonly TGCVector3 initialPosP1 = new TGCVector3(144f, 7.5f, 0f);
         private readonly TGCVector3 initialPosEnemy = new TGCVector3(-192f, 7.5f, 576f);
 
+        private bool showInfo = false;
         private string posX, posY, posZ;
         private string dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
 
@@ -88,6 +89,12 @@ namespace TGC.Group.Model.World
                 FireWeapon(gameModel, player1.SelectedWeapon);
             }
 
+            // Activar Información de Debug
+            if (gameModel.Input.keyPressed(Key.F5))
+            {
+                showInfo = !showInfo;
+            }
+
             // Metodo que se encarga de manejar las colisiones según corresponda
             CollisionsHandler(gameModel);
 
@@ -97,15 +104,8 @@ namespace TGC.Group.Model.World
 
         public override void Render(GameModel gameModel)
         {
-            // Información Útil
-            posX = (player1.RigidBody.WorldTransform.Origin.X.ToString().Length >= 5) ? player1.RigidBody.WorldTransform.Origin.X.ToString().Substring(0, 5) : player1.RigidBody.WorldTransform.Origin.X.ToString();
-            posY = (player1.RigidBody.WorldTransform.Origin.Y.ToString().Length >= 5) ? player1.RigidBody.WorldTransform.Origin.Y.ToString().Substring(0, 5) : player1.RigidBody.WorldTransform.Origin.Y.ToString();
-            posZ = (player1.RigidBody.WorldTransform.Origin.Z.ToString().Length >= 5) ? player1.RigidBody.WorldTransform.Origin.Z.ToString().Substring(0, 5) : player1.RigidBody.WorldTransform.Origin.Z.ToString();
-
-            gameModel.DrawText.drawText("Resolución: " + D3DDevice.Instance.Device.Viewport.Width + "x" + D3DDevice.Instance.Device.Viewport.Height, 3, 15, Color.Black);
-            gameModel.DrawText.drawText("Mouse X: " + gameModel.Input.Xpos() + " + Y: " + gameModel.Input.Ypos(), 3, 30, Color.Black);
-            gameModel.DrawText.drawText("Posición P1: X=" + posX + " Y=" + posY + " Z=" + posZ, 3, 45, Color.Black);
-            // ----------------
+            if (showInfo)
+                DisplayUsefulInfo(gameModel);
 
             player1.Render();
             enemy.Render();
@@ -176,6 +176,20 @@ namespace TGC.Group.Model.World
                 item.Mesh.Effect = toonFX;
                 item.Mesh.Technique = "ToonShadingWithBorder";
             }
+        }
+
+        private void DisplayUsefulInfo(GameModel gameModel)
+        {
+            // Información Útil
+            posX = (player1.RigidBody.WorldTransform.Origin.X.ToString().Length >= 5) ? player1.RigidBody.WorldTransform.Origin.X.ToString().Substring(0, 5) : player1.RigidBody.WorldTransform.Origin.X.ToString();
+            posY = (player1.RigidBody.WorldTransform.Origin.Y.ToString().Length >= 5) ? player1.RigidBody.WorldTransform.Origin.Y.ToString().Substring(0, 5) : player1.RigidBody.WorldTransform.Origin.Y.ToString();
+            posZ = (player1.RigidBody.WorldTransform.Origin.Z.ToString().Length >= 5) ? player1.RigidBody.WorldTransform.Origin.Z.ToString().Substring(0, 5) : player1.RigidBody.WorldTransform.Origin.Z.ToString();
+
+            gameModel.DrawText.drawText("Resolución: " + D3DDevice.Instance.Device.Viewport.Width + "x" + D3DDevice.Instance.Device.Viewport.Height, 3, 15, Color.Black);
+            gameModel.DrawText.drawText("Mouse X: " + gameModel.Input.Xpos() + " + Y: " + gameModel.Input.Ypos(), 3, 30, Color.Black);
+            gameModel.DrawText.drawText("Posición P1: X=" + posX + " Y=" + posY + " Z=" + posZ, 3, 45, Color.Black);
+            gameModel.DrawText.drawText("Balas: " + bullets.Count.ToString(), 3, 60, Color.Black);
+            gameModel.DrawText.drawText("Obstaculos: " + objetos.Count.ToString(), 3, 75, Color.Black);
         }
     }
 }

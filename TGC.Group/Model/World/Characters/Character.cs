@@ -38,6 +38,7 @@ namespace TGC.Group.Model.World.Characters
         protected bool canJump = false;
         protected bool onTheFloor = false;
         protected bool falling = false;
+        private float f;
 
         // Atributos constantes
         public readonly float maxSpecialPoints = 100f;
@@ -64,7 +65,7 @@ namespace TGC.Group.Model.World.Characters
         protected readonly float dampingCompression;
         protected readonly float dampingRelaxation;
 
-        protected readonly float meshRealHeight = 0.4f;
+        protected readonly float meshRealHeight = 0.52f;
         protected readonly float suspensionLength = 0.9f;
 
         public TgcStaticSound turboSound;
@@ -117,7 +118,7 @@ namespace TGC.Group.Model.World.Characters
             //The center of gravity of the compound shape is the origin. When we add a rigidbody to the compound shape
             //it's center of gravity does not change. This way we can add the chassis rigidbody one unit above our center of gravity
             //keeping it under our chassis, and not in the middle of it
-            var localTransform = Matrix.Translation(0, (meshAxisRadius.Y * 2) - (meshRealHeight / 2f), 0);
+            var localTransform = Matrix.Translation(0, (meshAxisRadius.Y * 1.75f) - (meshRealHeight / 2f), 0);
             compound.AddChildShape(localTransform, chassisShape);
             //Creates a rigid body
             this.rigidBody = CreateChassisRigidBodyFromShape(compound, position, rotation);
@@ -356,7 +357,7 @@ namespace TGC.Group.Model.World.Characters
         {
             //Pequeño impulso adicional cuando la velocidad es baja
             var x = currentSpeed;
-            float f;
+            //float f;
             if (x < 0)
                 f = 7;
             else

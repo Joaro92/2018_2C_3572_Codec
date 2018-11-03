@@ -458,8 +458,9 @@ namespace TGC.Group.Physics
 
             // Bullets collisions
             //FALTA HACER COLISIONES DE BALAS CON ENEMIGO
+
             var overlappedPairs = broadphase.OverlappingPairCache.OverlappingPairArray;
-            if (overlappedPairs.Count == 0) return;
+            //if (overlappedPairs.Count == 0) return;
 
             RigidBody obj0, obj1;
             BroadphaseNativeType shapeType;
@@ -495,6 +496,16 @@ namespace TGC.Group.Physics
 
             // Actualizar la lista de balas con aquellas que todavía siguen en el mundo después de las colisiones
             bullets = ObtainExistingBullets(gameModel);
+
+            // Limpiar del mundo aquellos objetos que se hayan caido del escenario
+            objetos.ForEach(obj =>
+            {
+                if (obj.RigidBody.CenterOfMassPosition.Y < -15)
+                    world.RemoveRigidBody(obj.RigidBody);
+            });
+
+            // Actualizar la lista de objetos colisionables que todavía siguen en el mundo
+            objetos = ObtainExistingObstacles(gameModel);
         }
 
         protected List<Bullet> ObtainExistingBullets(GameModel gameModel)
@@ -502,11 +513,33 @@ namespace TGC.Group.Physics
             List<Bullet> bullets2 = new List<Bullet>();
             bullets.ForEach(bullet =>
             {
-                if (bullet.RigidBody.IsInWorld) bullets2.Add(bullet);
+                bullet.LifeTime += gameModel.ElapsedTime;
+
+                if (bullet.RigidBody.IsInWorld)
+                {
+                    if (bullet.LifeTime > 10)
+                    {
+                        world.RemoveRigidBody(bullet.RigidBody);
+                        bullet.Dispose();
+                    }
+                    else bullets2.Add(bullet);
+                }
                 else bullet.Dispose(gameModel.DirectSound.DsDevice);
             });
 
             return bullets2;
+        }
+
+        protected List<Colisionable> ObtainExistingObstacles(GameModel gameModel)
+        {
+            List<Colisionable> objetos2 = new List<Colisionable>();
+            objetos.ForEach(obj =>
+            {
+                if (!obj.RigidBody.IsInWorld) obj.Dispose();
+                else objetos2.Add(obj);
+            });
+
+            return objetos2;
         }
 
         protected void FireMachinegun(GameModel gameModel)
