@@ -293,6 +293,7 @@ namespace TGC.Group.Physics
         public List<Bullet> bullets { get; protected set; }
         protected TgcSkyBox skyBox;
         protected List<Colisionable> objetos = new List<Colisionable>();
+        protected Vector3 impactPos = new Vector3(-10, -10, -10);
         //protected List<Enemy> enemies; por ahora solo hay uno
 
         private Random randomGenerator = new Random();
@@ -482,8 +483,9 @@ namespace TGC.Group.Physics
             bullets = ObtainExistingBullets(gameModel);
 
             // Bullets collisions
+
             var overlappedPairs = broadphase.OverlappingPairCache.OverlappingPairArray;
-            if (overlappedPairs.Count == 0) return;
+            //if (overlappedPairs.Count == 0) return;
 
             RigidBody obj0, obj1;
             BroadphaseNativeType shapeType;
@@ -496,7 +498,7 @@ namespace TGC.Group.Physics
                 if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
                 {
                     if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape || obj1.Equals(player1.RigidBody)) continue;
-                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape)
+                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape || obj1.CollisionShape.ShapeType == BroadphaseNativeType.ConvexTriangleMeshShape)
                     {
                         world.ContactTest(obj0, new BulletContactCallback(world, toRemove));
                     }
@@ -507,7 +509,7 @@ namespace TGC.Group.Physics
                 if (shapeType == BroadphaseNativeType.BoxShape)
                 {
                     if (obj0.Equals(player1.RigidBody)) continue;
-                    if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape)
+                    if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape || obj0.CollisionShape.ShapeType == BroadphaseNativeType.ConvexTriangleMeshShape)
                     {
                         world.ContactTest(obj1, new BulletContactCallback(world, toRemove));
                     }
@@ -519,6 +521,25 @@ namespace TGC.Group.Physics
 
             // Actualizar la lista de balas con aquellas que todavía siguen en el mundo después de las colisiones
             bullets = ObtainExistingBullets(gameModel);
+
+            if (impactPos != new Vector3(-10, -10, -10))
+            {
+                player1.CalculateImpactDistanceAndReact(impactPos);
+                enemy.CalculateImpactDistanceAndReact(impactPos);
+                objetos.ForEach(obj => obj.CalculateImpactDistanceAndReact(impactPos));
+
+                impactPos = new Vector3(-10, -10, -10);
+            }
+
+            // Limpiar del mundo aquellos objetos que se hayan caido del escenario
+            objetos.ForEach(obj =>
+            {
+                if (obj.RigidBody.CenterOfMassPosition.Y < -15)
+                    world.RemoveRigidBody(obj.RigidBody);
+            });
+
+            // Actualizar la lista de objetos colisionables que todavía siguen en el mundo
+            objetos = ObtainExistingObstacles(gameModel);
         }
 
         protected List<Bullet> ObtainExistingBullets(GameModel gameModel)
@@ -526,14 +547,39 @@ namespace TGC.Group.Physics
             List<Bullet> bullets2 = new List<Bullet>();
             bullets.ForEach(bullet =>
             {
-                if (bullet.RigidBody.IsInWorld) bullets2.Add(bullet);
-                else bullet.Dispose(gameModel.DirectSound.DsDevice);
+                bullet.LifeTime += gameModel.ElapsedTime;
+
+                if (bullet.RigidBody.IsInWorld)
+                {
+                    if (bullet.LifeTime > 10)
+                    {
+                        world.RemoveRigidBody(bullet.RigidBody);
+                        bullet.Dispose();
+                    }
+                    else bullets2.Add(bullet);
+                }
+                else
+                {
+                    if (bullet.Mesh.Name.Equals("power-rocket")) impactPos = bullet.RigidBody.CenterOfMassPosition;
+                    bullet.Dispose(gameModel.DirectSound.DsDevice);
+                }
             });
 
             return bullets2;
         }
 
-      
+
+        protected List<Colisionable> ObtainExistingObstacles(GameModel gameModel)
+        {
+            List<Colisionable> objetos2 = new List<Colisionable>();
+            objetos.ForEach(obj =>
+            {
+                if (!obj.RigidBody.IsInWorld) obj.Dispose();
+                else objetos2.Add(obj);
+            });
+
+            return objetos2;
+        }
 
         protected void InitializeShadersAndEffects()
         {

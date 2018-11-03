@@ -44,7 +44,7 @@ namespace TGC.Group.World.Weapons
         }
 
         public override void fire(Device dsDevice) { }
-        
+
         public override void Dispose(Device dsDevice)
         {
             sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "machinegunDestroy.wav", mesh.Transform.Origin, dsDevice);
@@ -53,5 +53,6 @@ namespace TGC.Group.World.Weapons
             mesh.Dispose();
             rigidBody.Dispose();
         }
+
     }
 }
