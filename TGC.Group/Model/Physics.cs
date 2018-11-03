@@ -293,6 +293,7 @@ namespace TGC.Group.Physics
         protected TgcSkyBox skyBox;
         protected List<Bullet> bullets;
         protected List<Colisionable> objetos = new List<Colisionable>();
+        protected Vector3 impactPos = new Vector3(-10, -10, -10);
         //protected List<Enemy> enemies; por ahora solo hay uno
 
         private Random randomGenerator = new Random();
@@ -473,7 +474,7 @@ namespace TGC.Group.Physics
                 if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)
                 {
                     if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape || obj1.Equals(player1.RigidBody)) continue;
-                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape)
+                    if (obj1.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape || obj1.CollisionShape.ShapeType == BroadphaseNativeType.ConvexTriangleMeshShape)
                     {
                         world.ContactTest(obj0, new BulletContactCallback(world, toRemove));
                     }
@@ -484,7 +485,7 @@ namespace TGC.Group.Physics
                 if (shapeType == BroadphaseNativeType.BoxShape)
                 {
                     if (obj0.Equals(player1.RigidBody)) continue;
-                    if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape)
+                    if (obj0.CollisionShape.ShapeType == BroadphaseNativeType.TriangleMeshShape || obj0.CollisionShape.ShapeType == BroadphaseNativeType.ConvexTriangleMeshShape)
                     {
                         world.ContactTest(obj1, new BulletContactCallback(world, toRemove));
                     }
@@ -496,6 +497,15 @@ namespace TGC.Group.Physics
 
             // Actualizar la lista de balas con aquellas que todavía siguen en el mundo después de las colisiones
             bullets = ObtainExistingBullets(gameModel);
+
+            if (impactPos != new Vector3(-10, -10, -10))
+            {
+                player1.CalculateImpactDistanceAndReact(impactPos);
+                enemy.CalculateImpactDistanceAndReact(impactPos);
+                objetos.ForEach(obj => obj.CalculateImpactDistanceAndReact(impactPos));
+
+                impactPos = new Vector3(-10, -10, -10);
+            }
 
             // Limpiar del mundo aquellos objetos que se hayan caido del escenario
             objetos.ForEach(obj =>
@@ -524,7 +534,11 @@ namespace TGC.Group.Physics
                     }
                     else bullets2.Add(bullet);
                 }
-                else bullet.Dispose(gameModel.DirectSound.DsDevice);
+                else
+                {
+                    if (bullet.Mesh.Name.Equals("power-rocket")) impactPos = bullet.RigidBody.CenterOfMassPosition;
+                    bullet.Dispose(gameModel.DirectSound.DsDevice);
+                }
             });
 
             return bullets2;

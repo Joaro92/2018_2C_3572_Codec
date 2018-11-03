@@ -41,7 +41,7 @@ namespace TGC.Group.Model.World
             skyBox = Skybox.InitSkybox();
 
             // Spawneamos algunos obstaculos dinámicos
-            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(110f, 10f, 20f)));
+            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(110f, 10f, 33f)));
 
             // Spawneamos algunos items
             SpawnItems();
@@ -60,7 +60,7 @@ namespace TGC.Group.Model.World
 
             // Actualizar variables del jugador que requieren calculos complejos una sola vez
             player1.UpdateInternalValues();
-            enemy.UpdateInternalValues();
+            //enemy.UpdateInternalValues();
 
             // Si el jugador cayó a más de 100 unidades en Y, se lo hace respawnear
             if (player1.RigidBody.CenterOfMassPosition.Y < -100)
@@ -190,6 +190,7 @@ namespace TGC.Group.Model.World
             gameModel.DrawText.drawText("Posición P1: X=" + posX + " Y=" + posY + " Z=" + posZ, 3, 45, Color.Black);
             gameModel.DrawText.drawText("Balas: " + bullets.Count.ToString(), 3, 60, Color.Black);
             gameModel.DrawText.drawText("Obstaculos: " + objetos.Count.ToString(), 3, 75, Color.Black);
+            gameModel.DrawText.drawText("Distancia Impacto P1: " + player1.distanceToExplosion.ToString(), 3, 90, Color.Black);
         }
     }
 }

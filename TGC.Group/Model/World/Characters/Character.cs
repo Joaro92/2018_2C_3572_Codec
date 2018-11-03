@@ -35,6 +35,7 @@ namespace TGC.Group.Model.World.Characters
         public float hitPoints;
         public float specialPoints;
         public bool turbo = false;
+        public float distanceToExplosion = -1f;
         protected bool canJump = false;
         protected bool onTheFloor = false;
         protected bool falling = false;
@@ -122,7 +123,6 @@ namespace TGC.Group.Model.World.Characters
             compound.AddChildShape(localTransform, chassisShape);
             //Creates a rigid body
             this.rigidBody = CreateChassisRigidBodyFromShape(compound, position, rotation);
-
 
             //Adds the vehicle chassis to the world
             world.AddRigidBody(this.rigidBody);
@@ -270,6 +270,18 @@ namespace TGC.Group.Model.World.Characters
             else
             {
                 this.flippedTime = 0;
+            }
+        }
+
+        public void CalculateImpactDistanceAndReact(Vector3 impactPos)
+        {
+            distanceToExplosion = (impactPos - rigidBody.CenterOfMassPosition).Length;
+
+            if (distanceToExplosion < 25)
+            {
+                var forceVector = rigidBody.CenterOfMassPosition - new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z);
+                forceVector.Normalize();
+                rigidBody.ApplyImpulse(forceVector * 23, new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z));
             }
         }
 

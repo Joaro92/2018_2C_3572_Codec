@@ -1,4 +1,5 @@
 ﻿using BulletSharp;
+using BulletSharp.Math;
 using System;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
@@ -9,6 +10,7 @@ namespace TGC.Group.Model.World
     {
         private TgcMesh mesh;
         private RigidBody rigidBody;
+        private float distanceToExplosion = -1f;
 
         /// <summary>
         ///  Se crea el escenario a partir del TgcScene y se crean todos los cuerpos rigidos estáticos por cada mesh
@@ -20,7 +22,20 @@ namespace TGC.Group.Model.World
             this.mesh.AutoTransform = false;
 
             this.rigidBody = CreateRigidBodyFromTgcMesh(mesh, position, 2);
+            this.rigidBody.ActivationState = ActivationState.DisableDeactivation;
             world.AddRigidBody(this.rigidBody);
+        }
+
+        public void CalculateImpactDistanceAndReact(Vector3 impactPos)
+        {
+            distanceToExplosion = (impactPos - rigidBody.CenterOfMassPosition).Length;
+
+            if (distanceToExplosion < 25)
+            {
+                var forceVector = rigidBody.CenterOfMassPosition - new Vector3(impactPos.X, impactPos.Y - 3, impactPos.Z);
+                forceVector.Normalize();
+                rigidBody.ApplyImpulse(forceVector * 1.75f, new Vector3(impactPos.X, impactPos.Y - 3, impactPos.Z));
+            }
         }
 
         public RigidBody RigidBody
