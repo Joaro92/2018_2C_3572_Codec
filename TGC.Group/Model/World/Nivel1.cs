@@ -9,7 +9,6 @@ using TGC.Group.Model.World.Weapons;
 using TGC.Group.Physics;
 using TGC.Group.Utils;
 using TGC.Group.World;
-using Button = TGC.Group.Model.Input.Button;
 
 namespace TGC.Group.Model.World
 {
@@ -35,7 +34,7 @@ namespace TGC.Group.Model.World
             player1.SelectedWeapon.Ammo += 1;
 
             // Creamos a un enemigo y lo ubicamos en el extremo opuesto del escenario 
-            enemy = new Enemy(world, new TGCVector3(144f, 7.5f, 22f), FastMath.PI, gameModel); 
+            enemy = new Enemy(world, /*initialPostEnemy */ new TGCVector3(144f, 7.5f, 22f), FastMath.PI, gameModel); 
 
             // Crear SkyBox
             skyBox = Skybox.InitSkybox();
@@ -65,7 +64,12 @@ namespace TGC.Group.Model.World
             // Si el jugador cayó a más de 100 unidades en Y, se lo hace respawnear
             if (player1.RigidBody.CenterOfMassPosition.Y < -100)
             {
-                player1.Respawn(inflictDmg, initialPosP1);
+                player1.Respawn(inflictDmg, initialPosP1, 0f);
+            }
+            // Si el enemigo cayó a más de 100 unidades en Y, se lo hace respawnear
+            if (enemy.RigidBody.CenterOfMassPosition.Y < -100)
+            {
+                enemy.Respawn(inflictDmg, /*initialPostEnemy */ new TGCVector3(144f, 7.5f, 22f), FastMath.PI);
             }
 
             // Intenta enderezar si hace falta

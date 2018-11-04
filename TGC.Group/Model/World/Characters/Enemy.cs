@@ -9,7 +9,7 @@ namespace TGC.Group.World
 {
     public class Enemy : Character
     {
-        public IA ia { get; set; }
+        private IA ia;
 
         public Enemy(DiscreteDynamicsWorld world, TGCVector3 position, float orientation, GameModel gameModel) : base(world, Vehiculo.GetRandom(), position, orientation, gameModel)
         {

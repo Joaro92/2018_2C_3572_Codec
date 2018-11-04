@@ -18,18 +18,6 @@ namespace TGC.Group.Model.World
 
         }
 
-        public void Respawn(bool inflictDmg, TGCVector3 initialPos)
-        {
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-            transformationMatrix.Origin = initialPos.ToBsVector;
-
-            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-            RigidBody.LinearVelocity = Vector3.Zero;
-            RigidBody.AngularVelocity = Vector3.Zero;
-
-            if (inflictDmg) hitPoints -= 30;
-            canJump = onTheFloor = falling = false;
-        }
 
        
 

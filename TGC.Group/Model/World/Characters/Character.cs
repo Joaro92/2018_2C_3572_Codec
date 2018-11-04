@@ -39,15 +39,18 @@ namespace TGC.Group.Model.World.Characters
         protected bool canJump = false;
         protected bool onTheFloor = false;
         protected bool falling = false;
-        private float f;
+        protected int neg = 1;
+        public float timerMachineGun;
 
         // Atributos constantes
         public readonly float maxSpecialPoints = 100f;
         public readonly float costTurbo = 6f; //por segundo
         public readonly float specialPointsGain = 1f; //por segundo
         public readonly float turboMultiplier = 20f;
-        public readonly float jumpImpulse = 1800;
+        public readonly float jumpImpulse = 1800f;
         protected readonly float mass = 200f;
+        public readonly float FireFrecuencyMachineGun = 0.25f;
+        public readonly float damageByFalling = 30f;
 
         // Atributos importantes
         public readonly Vector3 meshAxisRadius;
@@ -70,10 +73,6 @@ namespace TGC.Group.Model.World.Characters
         protected readonly float suspensionLength = 0.9f;
 
         public TgcStaticSound turboSound;
-
-        public readonly float FireFrecuencyMachineGun = 0.25f; 
-        protected int neg = 1;
-        public float timerMachineGun { get; set; }  
 
         // Armas
         public List<Weapon> Weapons { get; } = new List<Weapon>();
@@ -360,6 +359,19 @@ namespace TGC.Group.Model.World.Characters
             RigidBody.LinearVelocity = Vector3.Zero;
             RigidBody.AngularVelocity = Vector3.Zero;
             flippedTime = 0;
+            canJump = onTheFloor = falling = false;
+        }
+
+        public void Respawn(bool inflictDmg, TGCVector3 initialPos, float rotation)
+        {
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI + rotation, 0, 0).ToBsMatrix;
+            transformationMatrix.Origin = initialPos.ToBsVector;
+
+            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+            RigidBody.LinearVelocity = Vector3.Zero;
+            RigidBody.AngularVelocity = Vector3.Zero;
+
+            if (inflictDmg) hitPoints -= damageByFalling;
             canJump = onTheFloor = falling = false;
         }
 

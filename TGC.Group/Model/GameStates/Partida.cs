@@ -39,10 +39,16 @@ namespace TGC.Group.Model.GameStates
         private bool paused = false;
         private TgcText2D pauseMsg;
         private bool endMatch = false;
+        private TgcText2D gameOverMsg;
+        private bool gameOverWin = false;
+        private bool gameOverLose = false;
+        private bool toStartMenu = false;
 
         private readonly int matchInitialTime = 15; //en minutos
         private float matchTime; //en segundos
         private readonly string levelSong = "Twisted Metal Small Brawl - Now Slaying.mp3";
+        private readonly string youLoseSong = "Game Over.mp3";
+        private readonly string youWinSong = "FFVII Victory Fanfare.mp3";
 
         public Partida(GameModel gameModel, Vehiculo vehiculoP1)
         {
@@ -57,7 +63,7 @@ namespace TGC.Group.Model.GameStates
 
             //Configuramos el player para que sea el Listener
             gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
-            
+
             // Inicializo el HUD
             hud = new HUD(world.player1, matchTime);
 
@@ -80,12 +86,14 @@ namespace TGC.Group.Model.GameStates
 
             // Font para mensaje de pausa
             var pauseFont = UtilMethods.createFont("Minecraft", 100);
+            // Font para mensaje de fin de juego
+            var gameOverFont = UtilMethods.createFont("Twisted Stallions", 200);
 
             //Leo las dimensiones de la ventana
             var screenHeight = D3DDevice.Instance.Device.Viewport.Height;
             var screenWidth = D3DDevice.Instance.Device.Viewport.Width;
 
-            //Play
+            //Pause
             pauseMsg = new TgcText2D
             {
                 Text = "PAUSE",
@@ -93,16 +101,39 @@ namespace TGC.Group.Model.GameStates
                 Position = new Point(0, (int)(screenHeight * 0.46f)),
             };
             pauseMsg.changeFont(pauseFont);
+
+            //GameOver
+            gameOverMsg = new TgcText2D
+            {
+                Position = new Point(0, (int)(screenHeight * 0.4f)),
+            };
+            gameOverMsg.changeFont(gameOverFont);
         }
 
         public void Update()
         {
             // Manejar los inputs del teclado y joystick
             ManageInputs(gameModel);
+            var sm = gameModel.SoundManager;
 
             // Condiciones de fin de partida (ademas de presionar ESC)
-            if (world.player1.hitPoints <= 0 || matchTime <= 0)
-                endMatch = true;
+            if (!endMatch)
+            {
+                if (world.player1.hitPoints <= 0 || matchTime <= 0)
+                {
+                    endMatch = true;
+                    gameOverLose = true;
+                    sm.LoadMp3(youLoseSong);
+                    sm.Mp3Player.play(false);
+                }
+                else if (world.enemy.hitPoints <= 0)
+                {
+                    endMatch = true;
+                    gameOverWin = true;
+                    sm.LoadMp3(youWinSong);
+                    sm.Mp3Player.play(false);
+                }
+            }
 
             // Si pausado o match terminado no computo nada mas
             if (paused || endMatch)
@@ -120,7 +151,7 @@ namespace TGC.Group.Model.GameStates
             var angular = sma(world.player1.RigidBody.InterpolationAngularVelocity.Y) * 0.055f;
 
             camaraInterna.RotationY = world.player1.yawPitchRoll.Y + anguloCamara + halfsPI + grades - angular + (mirarHaciaAtras ? FastMath.PI : 0);
- 
+
             // Actualizar el Vector UP si se dibuja
             if (drawUpVector)
             {
@@ -143,7 +174,16 @@ namespace TGC.Group.Model.GameStates
             }
             if (p1.specialPoints < p1.maxSpecialPoints)
             {
-               p1.specialPoints = FastMath.Min(p1.maxSpecialPoints, p1.specialPoints + p1.specialPointsGain * gameModel.ElapsedTime);
+                p1.specialPoints = FastMath.Min(p1.maxSpecialPoints, p1.specialPoints + p1.specialPointsGain * gameModel.ElapsedTime);
+            }
+            var e = world.enemy;
+            if (e.turbo)
+            {
+                e.specialPoints = FastMath.Max(0f, e.specialPoints - e.costTurbo * gameModel.ElapsedTime);
+            }
+            if (e.specialPoints < e.maxSpecialPoints)
+            {
+                e.specialPoints = FastMath.Min(p1.maxSpecialPoints, e.specialPoints + e.specialPointsGain * gameModel.ElapsedTime);
             }
 
             // Actualizar el tiempo
@@ -155,6 +195,20 @@ namespace TGC.Group.Model.GameStates
 
         public void Render()
         {
+            // Si derrota muestro el mensaje
+            if (gameOverLose)
+            {
+                gameOverMsg.Text = "YOU LOSE!";
+                gameOverMsg.Color = Color.Red;
+                gameOverMsg.render();
+            }
+            // Si victoria muestro el mensaje
+            if (gameOverWin)
+            {
+                gameOverMsg.Text = "YOU WIN!";
+                gameOverMsg.Color = Color.Green;
+                gameOverMsg.render();
+            }
             // Si pausado muestro el mensaje
             if (paused)
             {
@@ -165,7 +219,10 @@ namespace TGC.Group.Model.GameStates
             world.Render(gameModel);
 
             // Renderizar el HUD
-            hud.Render(gameModel);
+            if (!endMatch)
+            {
+                hud.Render(gameModel);
+            }
 
             // Renderizar el Vector UP
             if (drawUpVector)
@@ -173,8 +230,8 @@ namespace TGC.Group.Model.GameStates
                 directionArrow.Render();
             }
 
-            // Acción cuando se termina la partida 
-            if (endMatch)
+            // Acción para volver al menu inicial 
+            if (toStartMenu)
             {
                 gameModel.GameState = new MenuInicial(gameModel);
                 this.Dispose();
@@ -194,7 +251,8 @@ namespace TGC.Group.Model.GameStates
         private static Func<double, float> SMA(int p)
         {
             Queue<double> s = new Queue<double>(p);
-            return (x) => {
+            return (x) =>
+            {
                 if (s.Count >= p)
                 {
                     s.Dequeue();
@@ -209,6 +267,14 @@ namespace TGC.Group.Model.GameStates
             var Input = gameModel.Input;
             var sm = gameModel.SoundManager;
 
+            if (endMatch)
+            {
+                if (Input.keyPressed(Key.Return) || Input.buttonPressed(Button.START))
+                {
+                    toStartMenu = true;
+                }
+                return;
+            }
             // Si pausado me fijo si quitaron la pausa
             if (paused)
             {
@@ -262,7 +328,6 @@ namespace TGC.Group.Model.GameStates
             }
             else mirarHaciaAtras = false;
 
-
             if (gameModel.Input.keyPressed(Key.Return) || Input.buttonPressed(Button.START))
             {
                 paused = true;
@@ -272,9 +337,9 @@ namespace TGC.Group.Model.GameStates
             if (gameModel.Input.keyPressed(Key.Escape))
             {
                 endMatch = true;
+                toStartMenu = true;
             }
         }
     }
 }
 
-            
