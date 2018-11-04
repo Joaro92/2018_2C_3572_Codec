@@ -5,14 +5,13 @@ using System.Drawing;
 using TGC.Core.Geometry;
 using TGC.Core.Mathematica;
 using TGC.Core.Sound;
-using TGC.Group.Model.World;
 using TGC.Group.Model.World.Characters;
 
 namespace TGC.Group.World.Weapons
 {
     class MachinegunBullet : Bullet
     {
-        public MachinegunBullet(DiscreteDynamicsWorld world, Character origin) : base(5f, origin)
+        public MachinegunBullet(DiscreteDynamicsWorld world, Character origin) : base(3f, origin)
         {
             var boxRadius = new TGCVector3(0.093f, 0.093f, 0.836f);
             var tgcBox = TGCBox.fromSize(boxRadius, Color.FromArgb(255, 255, 249, 56));
@@ -35,10 +34,10 @@ namespace TGC.Group.World.Weapons
 
         public void fire(int opposite, Device dsDevice)
         {
-            rigidBody.WorldTransform = Matrix.Translation(opposite * origin.meshAxisRadius.X * 0.8f, 0.265f, -origin.meshAxisRadius.Z - origin.currentSpeed * 0.01f - 0.47f) * Matrix.RotationY(origin.yawPitchRoll.Y) * Matrix.Translation(origin.Mesh.Transform.Origin.ToBsVector);
-            rigidBody.ApplyCentralImpulse(new Vector3(origin.frontVector.X, 0, origin.frontVector.Z) * (25 + (FastMath.Sqrt(FastMath.Abs(origin.currentSpeed)) / 2)));
+            rigidBody.WorldTransform = Matrix.Translation(opposite * shooter.meshAxisRadius.X * 0.8f, 0.265f, -shooter.meshAxisRadius.Z - shooter.currentSpeed * 0.01f - 0.47f) * Matrix.RotationY(shooter.yawPitchRoll.Y) * Matrix.Translation(shooter.Mesh.Transform.Origin.ToBsVector);
+            rigidBody.ApplyCentralImpulse(new Vector3(shooter.frontVector.X, 0, shooter.frontVector.Z) * (25 + (FastMath.Sqrt(FastMath.Abs(shooter.currentSpeed)) / 2)));
 
-            sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "machinegun.wav", origin.Mesh.Transform.Origin, dsDevice);
+            sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "machinegun.wav", shooter.Mesh.Transform.Origin, dsDevice);
             sound.MinDistance = 150f;
             sound.play(false);
         }

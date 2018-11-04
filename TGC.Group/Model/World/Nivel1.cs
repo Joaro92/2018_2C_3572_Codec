@@ -15,7 +15,7 @@ namespace TGC.Group.Model.World
     public class NivelUno : PhysicsGame
     {
         private readonly TGCVector3 initialPosP1 = new TGCVector3(144f, 7.5f, 0f);
-        private readonly TGCVector3 initialPosEnemy = new TGCVector3(-192f, 7.5f, 576f);
+        private readonly TGCVector3 initialPosEnemy = new TGCVector3(-192f, 7.5f, 576f); //new TGCVector3(144f, 7.5f, 22f);
 
         private bool showInfo = false;
         private string posX, posY, posZ;
@@ -34,7 +34,7 @@ namespace TGC.Group.Model.World
             player1.SelectedWeapon.Ammo += 1;
 
             // Creamos a un enemigo y lo ubicamos en el extremo opuesto del escenario 
-            enemy = new Enemy(world, /*initialPostEnemy */ new TGCVector3(144f, 7.5f, 22f), FastMath.PI, gameModel); 
+            enemy = new Enemy(world, initialPosEnemy, FastMath.PI, gameModel); 
 
             // Crear SkyBox
             skyBox = Skybox.InitSkybox();
@@ -69,7 +69,7 @@ namespace TGC.Group.Model.World
             // Si el enemigo cayó a más de 100 unidades en Y, se lo hace respawnear
             if (enemy.RigidBody.CenterOfMassPosition.Y < -100)
             {
-                enemy.Respawn(inflictDmg, /*initialPostEnemy */ new TGCVector3(144f, 7.5f, 22f), FastMath.PI);
+                enemy.Respawn(inflictDmg, initialPosEnemy, FastMath.PI);
             }
 
             // Intenta enderezar si hace falta

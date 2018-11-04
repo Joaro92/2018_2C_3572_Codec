@@ -43,6 +43,7 @@ namespace TGC.Group.Model.GameStates
         private bool gameOverWin = false;
         private bool gameOverLose = false;
         private bool toStartMenu = false;
+        //private TgcText2D enemyHP;
 
         private readonly int matchInitialTime = 15; //en minutos
         private float matchTime; //en segundos
@@ -62,7 +63,7 @@ namespace TGC.Group.Model.GameStates
             world = new NivelUno(vehiculoP1, gameModel);
 
             //Configuramos el player para que sea el Listener
-            gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
+            //gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
 
             // Inicializo el HUD
             hud = new HUD(world.player1, matchTime);
@@ -88,6 +89,8 @@ namespace TGC.Group.Model.GameStates
             var pauseFont = UtilMethods.createFont("Minecraft", 100);
             // Font para mensaje de fin de juego
             var gameOverFont = UtilMethods.createFont("Twisted Stallions", 200);
+            // Font para vida enemigo
+            //var enemyHPFont = UtilMethods.createFont("Minecraft", 40);
 
             //Leo las dimensiones de la ventana
             var screenHeight = D3DDevice.Instance.Device.Viewport.Height;
@@ -102,6 +105,13 @@ namespace TGC.Group.Model.GameStates
             };
             pauseMsg.changeFont(pauseFont);
 
+            ////Enemy HP
+            //enemyHP = new TgcText2D
+            //{
+            //    Color = Color.White,
+            //};
+            //enemyHP.changeFont(enemyHPFont);
+
             //GameOver
             gameOverMsg = new TgcText2D
             {
@@ -112,6 +122,9 @@ namespace TGC.Group.Model.GameStates
 
         public void Update()
         {
+            // Update listener
+            //gameModel.DirectSound.UpdateListener3d();
+
             // Manejar los inputs del teclado y joystick
             ManageInputs(gameModel);
             var sm = gameModel.SoundManager;
@@ -222,6 +235,13 @@ namespace TGC.Group.Model.GameStates
             if (!endMatch)
             {
                 hud.Render(gameModel);
+
+               /* enemyHP.Text = world.enemy.hitPoints.ToString();
+                var x = world.enemy.Mesh.Transform.Origin.X;
+                var y = world.enemy.Mesh.Transform.Origin.Y;
+                var z = world.enemy.Mesh.Transform.Origin.Z;
+                enemyHP.Position = // usar matriz de proyeccion NO SE COMO ES
+                enemyHP.render();*/
             }
 
             // Renderizar el Vector UP
@@ -243,6 +263,9 @@ namespace TGC.Group.Model.GameStates
             world.Dispose();
             directionArrow.Dispose();
             hud.Dispose();
+            pauseMsg.Dispose();
+            gameOverMsg.Dispose();
+            //enemyHP.Dispose();
         }
 
 

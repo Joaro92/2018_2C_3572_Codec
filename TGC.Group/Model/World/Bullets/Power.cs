@@ -11,7 +11,7 @@ namespace TGC.Group.World.Bullets
 {
     class PowerMissile : Bullet
     {
-        public PowerMissile(DiscreteDynamicsWorld world, Character origin) : base(20f, origin)
+        public PowerMissile(DiscreteDynamicsWorld world, Character origin) : base(15f, origin)
         {
             var loader = new TgcSceneLoader();
             var xmlPath = Game.Default.MediaDirectory + Game.Default.ItemsDirectory + "power-missile-TgcScene.xml";
@@ -36,10 +36,10 @@ namespace TGC.Group.World.Bullets
 
         public override void fire(Device dsDevice)
         {
-            rigidBody.WorldTransform = Matrix.Translation(0, 0.5f, -origin.meshAxisRadius.Z - origin.currentSpeed * 0.01f - 1.8f) * Matrix.RotationY(origin.yawPitchRoll.Y) * Matrix.Translation(origin.Mesh.Transform.Origin.ToBsVector);
-            rigidBody.ApplyCentralImpulse(new Vector3(origin.frontVector.X, 0, origin.frontVector.Z) * (30 + (FastMath.Sqrt(FastMath.Abs(origin.currentSpeed)) / 2)));
+            rigidBody.WorldTransform = Matrix.Translation(0, 0.5f, -shooter.meshAxisRadius.Z - shooter.currentSpeed * 0.01f - 1.8f) * Matrix.RotationY(shooter.yawPitchRoll.Y) * Matrix.Translation(shooter.Mesh.Transform.Origin.ToBsVector);
+            rigidBody.ApplyCentralImpulse(new Vector3(shooter.frontVector.X, 0, shooter.frontVector.Z) * (30 + (FastMath.Sqrt(FastMath.Abs(shooter.currentSpeed)) / 2)));
 
-            sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "power.wav", origin.Mesh.Transform.Origin, dsDevice);
+            sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "power.wav", shooter.Mesh.Transform.Origin, dsDevice);
             sound.MinDistance = 150f;
             sound.play(false);
         }

@@ -466,13 +466,13 @@ namespace TGC.Group.Physics
                 minB.Y -= meshAxisRadius.Y;
                 var bulletAABB = new TgcBoundingAxisAlignBox(new TGCVector3(minB), new TGCVector3(maxB));
 
-                if (b.origin == enemy && TgcCollisionUtils.testAABBAABB(player1AABB, bulletAABB))
+                if (b.shooter == enemy && TgcCollisionUtils.testAABBAABB(player1AABB, bulletAABB))
                 {
                     b.DealDamage(player1);
                     world.RemoveRigidBody(b.RigidBody);
 
                 }
-                if (b.origin == player1 && TgcCollisionUtils.testAABBAABB(enemyAABB, bulletAABB))
+                if (b.shooter == player1 && TgcCollisionUtils.testAABBAABB(enemyAABB, bulletAABB))
                 {
                     b.DealDamage(enemy);
                     world.RemoveRigidBody(b.RigidBody);

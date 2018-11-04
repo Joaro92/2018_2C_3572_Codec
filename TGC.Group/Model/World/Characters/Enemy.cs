@@ -18,7 +18,11 @@ namespace TGC.Group.World
 
         public void TakeAction(GameModel gameModel, PhysicsGame nivel)
         {
+            // Chequea y actualiza el status del Salto
+            CheckJumpStatus(gameModel);
+
             ia.TakeAction(this,gameModel, nivel);
+
         }
 
     }

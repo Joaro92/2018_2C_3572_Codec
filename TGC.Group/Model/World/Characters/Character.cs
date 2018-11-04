@@ -45,6 +45,7 @@ namespace TGC.Group.Model.World.Characters
         // Atributos constantes
         public readonly float maxSpecialPoints = 100f;
         public readonly float costTurbo = 6f; //por segundo
+        public readonly float costJump = 12f;
         public readonly float specialPointsGain = 1f; //por segundo
         public readonly float turboMultiplier = 20f;
         public readonly float jumpImpulse = 1800f;
@@ -277,6 +278,33 @@ namespace TGC.Group.Model.World.Characters
             }
         }
 
+        public void CalculateImpactDistanceAndReact(Vector3 impactPos)
+        {
+            distanceToExplosion = (impactPos - rigidBody.CenterOfMassPosition).Length;
+
+            if (distanceToExplosion < 25)
+            {
+                var forceVector = rigidBody.CenterOfMassPosition - new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z);
+                forceVector.Normalize();
+                rigidBody.ApplyImpulse(forceVector * 23, new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z));
+            }
+
+        }
+
+        public void Respawn(bool inflictDmg, TGCVector3 initialPos, float rotation)
+        {
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI + rotation, 0, 0).ToBsMatrix;
+            transformationMatrix.Origin = initialPos.ToBsVector;
+
+            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+            RigidBody.LinearVelocity = Vector3.Zero;
+            RigidBody.AngularVelocity = Vector3.Zero;
+
+            if (inflictDmg) hitPoints -= damageByFalling;
+            canJump = onTheFloor = falling = false;
+        }
+
+        // Moves
         public void Accelerate()
         {
             //Pequeño impulso adicional cuando la velocidad es baja
@@ -309,29 +337,12 @@ namespace TGC.Group.Model.World.Characters
             vehicle.SetSteeringValue(-steeringAngle, 3);
         }
 
-        public void ResetSteering()
-        {
-            vehicle.SetSteeringValue(0, 2);
-            vehicle.SetSteeringValue(0, 3);
-        }
-
-        public void ResetEngineForce()
-        {
-            vehicle.ApplyEngineForce(0, 2);
-            vehicle.ApplyEngineForce(0, 3);
-        }
-
         public void TurboOn()
         {
             turbo = true;
             vehicle.ApplyEngineForce(engineForce * turboMultiplier, 2);
             vehicle.ApplyEngineForce(engineForce * turboMultiplier, 3);
             rigidBody.ApplyCentralImpulse(frontVector.ToBsVector * turboImpulse);
-        }
-
-        public void TurboOff()
-        {
-            turbo = false;
         }
 
         public void Brake()
@@ -342,37 +353,15 @@ namespace TGC.Group.Model.World.Characters
             vehicle.SetBrake(brakeForce * 0.66f, 3);
         }
 
-        public void ResetBrake()
+        public void Jump()
         {
-            vehicle.SetBrake(1.05f, 0);
-            vehicle.SetBrake(1.05f, 1);
-            vehicle.SetBrake(1.05f, 2);
-            vehicle.SetBrake(1.05f, 3);
-        }
-
-        public void Straighten()
-        {
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
-            transformationMatrix.Origin = RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
-
-            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-            RigidBody.LinearVelocity = Vector3.Zero;
-            RigidBody.AngularVelocity = Vector3.Zero;
-            flippedTime = 0;
-            canJump = onTheFloor = falling = false;
-        }
-
-        public void Respawn(bool inflictDmg, TGCVector3 initialPos, float rotation)
-        {
-            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI + rotation, 0, 0).ToBsMatrix;
-            transformationMatrix.Origin = initialPos.ToBsVector;
-
-            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
-            RigidBody.LinearVelocity = Vector3.Zero;
-            RigidBody.AngularVelocity = Vector3.Zero;
-
-            if (inflictDmg) hitPoints -= damageByFalling;
-            canJump = onTheFloor = falling = false;
+            if (specialPoints > costJump && canJump && onTheFloor)
+            {
+                rigidBody.ApplyCentralImpulse(new Vector3(0, jumpImpulse, 0));
+                specialPoints -= costJump;
+                canJump = false;
+                onTheFloor = false;
+            }
         }
 
         public void FireMachinegun(GameModel gameModel, PhysicsGame nivel)
@@ -404,19 +393,6 @@ namespace TGC.Group.Model.World.Characters
                 nivel.bullets.Add(b);
                 this.ReassignWeapon();
             }
-        }
-
-        public void CalculateImpactDistanceAndReact(Vector3 impactPos)
-        {
-            distanceToExplosion = (impactPos - rigidBody.CenterOfMassPosition).Length;
-
-            if (distanceToExplosion < 25)
-            {
-                var forceVector = rigidBody.CenterOfMassPosition - new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z);
-                forceVector.Normalize();
-                rigidBody.ApplyImpulse(forceVector * 23, new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z));
-            }
-
         }
 
         // ------- Métodos Privados -------
@@ -499,5 +475,41 @@ namespace TGC.Group.Model.World.Characters
             }
         }
 
+        protected void TurboOff()
+        {
+            turbo = false;
+        }
+
+        protected void ResetSteering()
+        {
+            vehicle.SetSteeringValue(0, 2);
+            vehicle.SetSteeringValue(0, 3);
+        }
+
+        protected void ResetEngineForce()
+        {
+            vehicle.ApplyEngineForce(0, 2);
+            vehicle.ApplyEngineForce(0, 3);
+        }
+
+        protected void ResetBrake()
+        {
+            vehicle.SetBrake(1.05f, 0);
+            vehicle.SetBrake(1.05f, 1);
+            vehicle.SetBrake(1.05f, 2);
+            vehicle.SetBrake(1.05f, 3);
+        }
+
+        protected void Straighten()
+        {
+            var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
+            transformationMatrix.Origin = RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);
+
+            RigidBody.MotionState = new DefaultMotionState(transformationMatrix);
+            RigidBody.LinearVelocity = Vector3.Zero;
+            RigidBody.AngularVelocity = Vector3.Zero;
+            flippedTime = 0;
+            canJump = onTheFloor = falling = false;
+        }
     }
 }

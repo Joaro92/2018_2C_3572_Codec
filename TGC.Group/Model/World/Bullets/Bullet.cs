@@ -17,11 +17,11 @@ namespace TGC.Group.World
         protected float lifeTime;
         protected readonly float damage;
 
-        public Character origin { get; set; }
+        public Character shooter { get; set; }
         
-        public Bullet(float damage, Character origin) {
+        public Bullet(float damage, Character shooter) {
             this.damage = damage;
-            this.origin = origin;
+            this.shooter = shooter;
         }
 
         public abstract void fire(Device dsDevice);

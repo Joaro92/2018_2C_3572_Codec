@@ -13,13 +13,15 @@ namespace TGC.Group.Model.World
 {
     public class Player1 : Character
     {
+
+
         public Player1(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position, float orientation, GameModel gameModel) : base(world, vehiculo, position, orientation, gameModel)
         {
 
         }
 
 
-       
+
 
         public void ReactToInputs(GameModel gameModel, PhysicsGame nivel)
         {
@@ -79,7 +81,7 @@ namespace TGC.Group.Model.World
                 ResetEngineForce();
             }
 
-          
+
 
             // Turbo
             if (specialPoints >= costTurbo && (Input.keyDown(Key.LeftShift) || Input.JoystickButtonPressedDouble(0, gameModel.ElapsedTime)))
@@ -117,13 +119,7 @@ namespace TGC.Group.Model.World
             // Saltar
             if (Input.keyPressed(Key.Space) || Input.buttonPressed(Button.CIRCLE))
             {
-                if (specialPoints > 12 && canJump && onTheFloor)
-                {
-                    rigidBody.ApplyCentralImpulse(new Vector3(0, jumpImpulse, 0));
-                    specialPoints -= 12;
-                    canJump = false;
-                    onTheFloor = false;
-                }
+                this.Jump();
             }
 
             // Cambiar de arma especial

@@ -10,6 +10,12 @@ namespace TGC.Group.World
 
         public void TakeAction(Enemy e, GameModel gameModel, PhysicsGame nivel)
         {
+
+            if(timer >= 2f && timer < 2.2f)
+            {
+                e.Jump();
+            }
+
             if(timer >= 5f){
                 e.FireMachinegun(gameModel, nivel);
             }
