@@ -288,6 +288,8 @@ namespace TGC.Group.Physics
 
         public Player1 player1 { get; protected set; }
         public Enemy enemy { get; protected set; }
+        public readonly TGCVector3 initialPosP1 = new TGCVector3(144f, 7.5f, 0f);
+        public readonly TGCVector3 initialPosEnemy = new TGCVector3(-192f, 7.5f, 576f); //new TGCVector3(144f, 7.5f, 22f);
         public Scenario escenario { get; protected set; }
         public List<Item> items { get; protected set; }
         public List<Bullet> bullets { get; protected set; }
@@ -304,7 +306,7 @@ namespace TGC.Group.Physics
 
         protected float rnd;
         protected bool inflictDmg = true;
-        protected float time;
+        public float time { get; protected set; }
 
         public PhysicsGame()
         {
