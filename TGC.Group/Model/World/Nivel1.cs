@@ -54,6 +54,9 @@ namespace TGC.Group.Model.World
             // Determinar que la simulación del mundo físico se va a procesar 60 veces por segundo
             world.StepSimulation(1 / 60f, 30);
 
+            // Actualizar parametros del Shader
+            explosionFX.SetValue("time", time);
+
             // Actualizar variables de control
             UpdateControlVariables(gameModel.ElapsedTime);
 
@@ -81,8 +84,6 @@ namespace TGC.Group.Model.World
             // Accion del enemigo
             enemy.TakeAction(gameModel, this);
 
-            
-
             // Activar Información de Debug
             if (gameModel.Input.keyPressed(Key.F5))
             {
@@ -107,6 +108,8 @@ namespace TGC.Group.Model.World
             skyBox.Render();
 
             bullets.ForEach(bullet => bullet.Render());
+            explosions.ForEach(ex => ex.Render(gameModel.ElapsedTime));
+
             foreach (Item item in items)
             {
                 if (item.IsPresent)

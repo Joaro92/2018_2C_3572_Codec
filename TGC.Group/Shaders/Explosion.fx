@@ -20,12 +20,11 @@ sampler2D diffuseMap = sampler_state
     MIPFILTER = LINEAR;
 };
 
-float screen_dx = 0;
-float screen_dy = 0;
 float time = 0;
+float time2 = 0;
 
 /**************************************************************************************/
-/* RenderScene */
+/* Explosion */
 /**************************************************************************************/
 
 //Input del Vertex Shader
@@ -44,7 +43,7 @@ struct VS_OUTPUT
     float3 Normal : TEXCOORD2;
 };
 
-//Vertex Shader
+
 VS_OUTPUT VertexShaderFunction(VS_INPUT Input, float3 Normal : NORMAL)
 {
     VS_OUTPUT output;
@@ -61,9 +60,9 @@ VS_OUTPUT VertexShaderFunction(VS_INPUT Input, float3 Normal : NORMAL)
     Input.Position.x += Normal.x * freqx * amp * f;
     Input.Position.y += Normal.y * freqy * amp * f;
 
-    Input.Position.x *= max(sin(time * 2.2), 0);
-    Input.Position.y *= max(sin(time * 2.2), 0);
-    Input.Position.z *= max(sin(time * 2.2), 0);
+    Input.Position.x *= max(sin(time2 * 2.2), 0);
+    Input.Position.y *= max(sin(time2 * 2.2), 0);
+    Input.Position.z *= max(sin(time2 * 2.2), 0);
 
     output.Position = mul(Input.Position, matWorldViewProj);
     float3 normal = normalize(mul(Normal, matWorld));
@@ -74,21 +73,72 @@ VS_OUTPUT VertexShaderFunction(VS_INPUT Input, float3 Normal : NORMAL)
     return output;
 }
 
-//Pixel Shader
 float4 ps_main(VS_OUTPUT Input) : COLOR0
 {
-    float4 color = tex2D(diffuseMap, Input.Texcoord);
-    color.w = 0.1;
+    return tex2D(diffuseMap, Input.Texcoord);
+}
 
-    return color;
+
+/**************************************************************************************/
+/* Ring */
+/**************************************************************************************/
+
+//Output del Vertex Shader
+struct VS_OUTPUT2
+{
+    float4 Position : POSITION0;
+    float2 Texcoord : TEXCOORD0;
+    float Min : TEXCOORD1;
+};
+
+
+VS_OUTPUT2 vs_ring(VS_INPUT Input, float3 Normal : NORMAL)
+{
+    VS_OUTPUT2 output;
+
+    Input.Position.x *= min(max(sin(time2 * 2.2) * 1.11, 0.28), 1.03);
+    Input.Position.y *= min(max(sin(time2 * 2.2) * 1.11, 0.28), 1.03);
+    Input.Position.z *= min(max(sin(time2 * 2.2) * 1.11, 0.28), 1.03);
+
+    output.Position = mul(Input.Position, matWorldViewProj);
+    float3 normal = normalize(mul(Normal, matWorld));
+    output.Min = max(sin(time2 * 2.2) * 1.11, 0.28);
+    output.Texcoord = Input.Texcoord;
+    //output.View = normalize(float4(EyePosition, 1.0) - worldPosition);
+ 
+    return output;
+}
+
+float4 ps_main2(VS_OUTPUT2 Input) : COLOR0
+{
+    //Input.Texcoord.y = y / screen_dy;
+    float4 asd = tex2D(diffuseMap, Input.Texcoord);
+    asd.a *= min((max(sin(time2 * 4.4), 0) + 0.1), 1);
+
+    if (max(sin(time2 * 4.4), 0) < 0.01)
+        discard;
+    if (Input.Min < 0.281)
+        discard;
+
+    return asd;
 }
 
 // ------------------------------------------------------------------
-technique Explosion1
+
+technique Explosion
 {
     pass Pass_0
     {
         VertexShader = compile vs_3_0 VertexShaderFunction();
         PixelShader = compile ps_3_0 ps_main();
+    }
+}
+
+technique Ring
+{
+    pass Pass_0
+    {
+        VertexShader = compile vs_3_0 vs_ring();
+        PixelShader = compile ps_3_0 ps_main2();
     }
 }

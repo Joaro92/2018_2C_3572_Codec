@@ -117,6 +117,7 @@
     <Compile Include="Model\World\Characters\Character.cs" />
     <Compile Include="Model\World\Characters\IA\IA.cs" />
     <Compile Include="Model\World\Colisionables.cs" />
+    <Compile Include="Model\World\Explosion.cs" />
     <Compile Include="Model\World\Items\PowerItem.cs" />
     <Compile Include="Model\World\Items\HealthItem.cs" />
     <Compile Include="Model\World\Items\EnergyItem.cs" />

@@ -293,16 +293,11 @@ namespace TGC.Group.Physics
         public List<Bullet> bullets { get; protected set; }
         protected TgcSkyBox skyBox;
         protected List<Colisionable> objetos = new List<Colisionable>();
+        protected List<Explosion> explosions = new List<Explosion>();
         protected Vector3 impactPos = new Vector3(-10, -10, -10);
+        protected Effect toonFX, explosionFX;
         //protected List<Enemy> enemies; por ahora solo hay uno
 
-        private Random randomGenerator = new Random();
-        protected Effect toonFX;
-        protected Effect explosionFX;
-        protected ParticleEmitter emitter, emitter2;
-        protected TgcMesh explosionMesh;
-
-        protected float rnd;
         protected bool inflictDmg = true;
         protected float time;
 
@@ -348,6 +343,10 @@ namespace TGC.Group.Physics
             items.ForEach(item => item.Dispose());
             bullets.ForEach(bullet => bullet.Dispose());
             objetos.ForEach(obj => obj.Dispose());
+            explosions.ForEach(ex => ex.Dispose());
+
+            explosionFX.Dispose();
+            toonFX.Dispose();
         }
 
         // ------- Métodos Privados -------
@@ -560,14 +559,17 @@ namespace TGC.Group.Physics
                 }
                 else
                 {
-                    if (bullet.Mesh.Name.Equals("power-rocket")) impactPos = bullet.RigidBody.CenterOfMassPosition;
+                    if (bullet.Mesh.Name.Equals("power-rocket"))
+                    {
+                        impactPos = bullet.RigidBody.CenterOfMassPosition;
+                        explosions.Add(new Explosion(impactPos, explosionFX));
+                    }
                     bullet.Dispose(gameModel.DirectSound.DsDevice);
                 }
             });
 
             return bullets2;
         }
-
 
         protected List<Colisionable> ObtainExistingObstacles(GameModel gameModel)
         {
@@ -586,29 +588,8 @@ namespace TGC.Group.Physics
             // Toon Shader
             toonFX = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "ToonShading.fx");
 
-            // Emisor de Particulas
-            var smokeParticlePath = Game.Default.MediaDirectory + "Images\\smoke.png";
-            emitter = new ParticleEmitter(smokeParticlePath, 10);
-            emitter.MinSizeParticle = 1.7f;
-            emitter.MaxSizeParticle = 2.65f;
-            emitter.ParticleTimeToLive = 0.34f;
-            emitter.CreationFrecuency = 0.15f;
-            emitter.Dispersion = 100;
-
-            emitter2 = new ParticleEmitter(smokeParticlePath, 10);
-            emitter2.MinSizeParticle = 1.6f;
-            emitter2.MaxSizeParticle = 2.4f;
-            emitter2.ParticleTimeToLive = 0.37f;
-            emitter2.CreationFrecuency = 0.20f;
-            emitter2.Dispersion = 100;
-
-            // Efecto de Explosión
+            // Explosion Shader
             explosionFX = TgcShaders.loadEffect(Game.Default.ShadersDirectory + "Explosion.fx");
-
-            var loader = new TgcSceneLoader();
-            explosionMesh = loader.loadSceneFromFile(Game.Default.MediaDirectory + "Scenarios\\ball-TgcScene.xml").Meshes[0];
-            explosionMesh.Effect = explosionFX;
-            explosionMesh.Technique = "Explosion1";
         }
     }
 
