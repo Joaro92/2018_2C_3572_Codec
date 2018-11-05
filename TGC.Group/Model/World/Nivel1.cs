@@ -14,9 +14,6 @@ namespace TGC.Group.Model.World
 {
     public class NivelUno : PhysicsGame
     {
-        private readonly TGCVector3 initialPosP1 = new TGCVector3(144f, 7.5f, 0f);
-        private readonly TGCVector3 initialPosEnemy = new TGCVector3(-192f, 7.5f, 576f); //new TGCVector3(144f, 7.5f, 22f);
-
         private bool showInfo = false;
         private string posX, posY, posZ;
         private string dir = Game.Default.MediaDirectory + Game.Default.ScenariosDirectory;
@@ -72,7 +69,7 @@ namespace TGC.Group.Model.World
             // Si el enemigo cayó a más de 100 unidades en Y, se lo hace respawnear
             if (enemy.RigidBody.CenterOfMassPosition.Y < -100)
             {
-                enemy.Respawn(inflictDmg, initialPosEnemy, FastMath.PI);
+                enemy.Respawn(false, initialPosEnemy, FastMath.PI);
             }
 
             // Intenta enderezar si hace falta

@@ -115,6 +115,7 @@
     <Compile Include="Model\GameStates\MenuInicial.cs" />
     <Compile Include="Model\World\Bullets\Power.cs" />
     <Compile Include="Model\World\Characters\Character.cs" />
+    <Compile Include="Model\World\Characters\IA\Action.cs" />
     <Compile Include="Model\World\Characters\IA\IA.cs" />
     <Compile Include="Model\World\Colisionables.cs" />
     <Compile Include="Model\World\Explosion.cs" />

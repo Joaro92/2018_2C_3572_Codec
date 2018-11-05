@@ -395,6 +395,31 @@ namespace TGC.Group.Model.World.Characters
             }
         }
 
+        public void TurboOff()
+        {
+            turbo = false;
+        }
+
+        public void ResetSteering()
+        {
+            vehicle.SetSteeringValue(0, 2);
+            vehicle.SetSteeringValue(0, 3);
+        }
+
+        public void ResetEngineForce()
+        {
+            vehicle.ApplyEngineForce(0, 2);
+            vehicle.ApplyEngineForce(0, 3);
+        }
+
+        public void ResetBrake()
+        {
+            vehicle.SetBrake(1.05f, 0);
+            vehicle.SetBrake(1.05f, 1);
+            vehicle.SetBrake(1.05f, 2);
+            vehicle.SetBrake(1.05f, 3);
+        }
+
         // ------- Métodos Privados -------
 
         protected RigidBody CreateChassisRigidBodyFromShape(CollisionShape compound, TGCVector3 position, float rotation)
@@ -473,31 +498,6 @@ namespace TGC.Group.Model.World.Characters
             {
                 canJump = true;
             }
-        }
-
-        protected void TurboOff()
-        {
-            turbo = false;
-        }
-
-        protected void ResetSteering()
-        {
-            vehicle.SetSteeringValue(0, 2);
-            vehicle.SetSteeringValue(0, 3);
-        }
-
-        protected void ResetEngineForce()
-        {
-            vehicle.ApplyEngineForce(0, 2);
-            vehicle.ApplyEngineForce(0, 3);
-        }
-
-        protected void ResetBrake()
-        {
-            vehicle.SetBrake(1.05f, 0);
-            vehicle.SetBrake(1.05f, 1);
-            vehicle.SetBrake(1.05f, 2);
-            vehicle.SetBrake(1.05f, 3);
         }
 
         protected void Straighten()
