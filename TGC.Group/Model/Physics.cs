@@ -1,12 +1,10 @@
 ﻿using BulletSharp;
 using BulletSharp.Math;
 using Microsoft.DirectX.Direct3D;
-using System;
 using System.Collections.Generic;
 using TGC.Core.BoundingVolumes;
 using TGC.Core.Collision;
 using TGC.Core.Mathematica;
-using TGC.Core.Particle;
 using TGC.Core.SceneLoader;
 using TGC.Core.Shaders;
 using TGC.Core.Terrain;
@@ -14,11 +12,10 @@ using TGC.Examples.Camara;
 using TGC.Group.Model;
 using TGC.Group.Model.Items;
 using TGC.Group.Model.World;
-using TGC.Group.Model.World.Weapons;
+using TGC.Group.Model.World.Characters;
 using TGC.Group.Utils;
-using TGC.Group.World;
-using TGC.Group.World.Bullets;
-using TGC.Group.World.Weapons;
+using TGC.Group.World.Characters;
+using TGC.Group.World.Weapons.Bullets;
 
 namespace TGC.Group.Physics
 {

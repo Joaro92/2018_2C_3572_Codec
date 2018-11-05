@@ -4,8 +4,9 @@ using TGC.Group.Model;
 using TGC.Group.Model.Vehicles;
 using TGC.Group.Model.World.Characters;
 using TGC.Group.Physics;
+using TGC.Group.World.Characters.ArtificialIntelligence;
 
-namespace TGC.Group.World
+namespace TGC.Group.World.Characters
 {
     public class Enemy : Character
     {
@@ -20,6 +21,15 @@ namespace TGC.Group.World
         {
             // Chequea y actualiza el status del Salto
             CheckJumpStatus(gameModel);
+
+            //reseteo todo
+            ResetBrake();
+            ResetSteering();
+            ResetEngineForce();
+            TurboOff();
+
+            ia.ShootMachineGun = false;
+            ia.ShootSpecialWeapon = false;
 
             ia.TakeAction(this,gameModel, nivel);
 

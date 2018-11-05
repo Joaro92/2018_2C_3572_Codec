@@ -5,10 +5,11 @@ using TGC.Core.Mathematica;
 using TGC.Examples.Camara;
 using TGC.Group.Model.Items;
 using TGC.Group.Model.Vehicles;
+using TGC.Group.Model.World.Characters;
 using TGC.Group.Model.World.Weapons;
 using TGC.Group.Physics;
 using TGC.Group.Utils;
-using TGC.Group.World;
+using TGC.Group.World.Characters;
 
 namespace TGC.Group.Model.World
 {

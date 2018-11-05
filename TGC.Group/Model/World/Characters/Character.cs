@@ -9,9 +9,7 @@ using TGC.Group.Model.Vehicles;
 using TGC.Group.Model.World.Weapons;
 using TGC.Group.Physics;
 using TGC.Group.Utils;
-using TGC.Group.World;
-using TGC.Group.World.Bullets;
-using TGC.Group.World.Weapons;
+using TGC.Group.World.Weapons.Bullets;
 using static TGC.Group.Utils.WheelContactInfo;
 
 namespace TGC.Group.Model.World.Characters

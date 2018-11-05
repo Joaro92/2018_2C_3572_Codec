@@ -1,4 +1,5 @@
 ﻿using BulletSharp.Math;
+using System;
 using System.Drawing;
 using System.Drawing.Text;
 using TGC.Core.Mathematica;
@@ -9,6 +10,8 @@ namespace TGC.Group.Utils
     public enum MenuOption { PLAY, CONTROLS, EXIT };
 
     public enum ModoCamara { NORMAL, CERCA, LEJOS };
+
+    public enum Orientation { SUR, ESTE, NORTE, OESTE, SURESTE, SUROESTE, NORESTE, NOROESTE };
 
     public static class WheelContactInfo
     {
@@ -91,6 +94,45 @@ namespace TGC.Group.Utils
             pfc.AddFontFile(Game.Default.MediaDirectory + Game.Default.FontsDirectory + fontName + ".ttf");
             FontFamily family = pfc.Families[0];
             return new Font(family, size);
+        }
+
+        public static Orientation GetOrientation(float rotation)
+        {
+            var roundSin = Math.Round(FastMath.Sin(rotation));
+            var roundCos = Math.Round(FastMath.Cos(rotation));
+            if (roundSin == 0 && roundCos == 1)
+            {
+                return Orientation.SUR;
+            }
+            if (roundSin == 0 && roundCos == -1)
+            {
+                return Orientation.NORTE;
+            }
+            if (roundSin == 1 && roundCos == 0)
+            {
+                return Orientation.OESTE;
+            }
+            if (roundSin == -1 && roundCos == 0)
+            {
+                return Orientation.ESTE;
+            }
+            if (roundSin == -1 && roundCos == -1)
+            {
+                return Orientation.NORESTE;
+            }
+            if (roundSin == 1 && roundCos == -1)
+            {
+                return Orientation.NOROESTE;
+            }
+            if (roundSin == -1 && roundCos == 1)
+            {
+                return Orientation.SURESTE;
+            }
+            if (roundSin == 1 && roundCos == 1)
+            {
+                return Orientation.SUROESTE;
+            }
+            return Orientation.SUR;
         }
     }
 

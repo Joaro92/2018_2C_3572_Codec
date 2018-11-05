@@ -6,7 +6,7 @@ using TGC.Core.SceneLoader;
 using TGC.Core.Text;
 using TGC.Examples.Camara;
 using TGC.Group.Model.TGCUtils;
-using TGC.Group.Model.World;
+using TGC.Group.Model.World.Characters;
 using TGC.Group.Utils;
 using Font = System.Drawing.Font;
 

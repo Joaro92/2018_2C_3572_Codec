@@ -1,7 +1,5 @@
 ﻿using BulletSharp;
-using System;
-using TGC.Core.Mathematica;
-using TGC.Core.SceneLoader;
+using TGC.Group.Model.World.Characters;
 
 namespace TGC.Group.Model.World.Weapons
 {

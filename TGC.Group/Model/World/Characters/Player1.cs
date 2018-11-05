@@ -1,27 +1,20 @@
 ﻿using BulletSharp;
-using BulletSharp.Math;
 using Microsoft.DirectX.DirectInput;
 using TGC.Core.Mathematica;
 using TGC.Group.Model.Vehicles;
-using TGC.Group.Model.World.Characters;
 using TGC.Group.Physics;
 using TGC.Group.Utils;
 using Button = TGC.Group.Model.Input.Button;
 using Dpad = TGC.Group.Model.Input.Dpad;
 
-namespace TGC.Group.Model.World
+namespace TGC.Group.Model.World.Characters
 {
     public class Player1 : Character
     {
-
-
         public Player1(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position, float orientation, GameModel gameModel) : base(world, vehiculo, position, orientation, gameModel)
         {
 
         }
-
-
-
 
         public void ReactToInputs(GameModel gameModel, PhysicsGame nivel)
         {

@@ -5,33 +5,40 @@ using TGC.Group.Model;
 using Action = TGC.Group.Model.World.Characters.IA.Action;
 using TGC.Group.Physics;
 
-namespace TGC.Group.World
+namespace TGC.Group.World.Characters.ArtificialIntelligence
 {
     public class IA
     {
-        //acciones configurables por X tiempo
-        private  List<Action> currentRoutine = new List<Action>(); // rutina (lista de acciones con su tiempo) que se lleva a cabo secuencialmente 
+
+        //acciones configurables por X tiempo que sobrescriben el currentMode
+        private List<Action> currentRoutine = new List<Action>(); // rutina (lista de acciones con su tiempo) que se lleva a cabo secuencialmente 
+
+        //modo de accionar (si no esta en rutina)
+        public IMode currentMode { get; set; }
 
         //parametros configurables
-        private float shootForXSeconds = 5f; //dispara X seg. si, X seg. no
-        private int minSpeed = 10;
-        private int maxSpeed = 30;
+        private readonly int minSpeed = 10;
+        private readonly int maxSpeed = 30;
+        private readonly float specialWeaponShootFrec = 1f;
 
         //parametros de control
-        private float timerToShoot = 0f;
+        public bool ShootMachineGun { get; set; } = false;
+        public bool ShootSpecialWeapon { get; set; } = false;
+        private float timerToShootSpecial = 0f;
         //private bool hayObstaculo = false;
         private int alternate = 0;
 
-        public enum Orientation { SUR, ESTE, NORTE, OESTE, SURESTE, SUROESTE, NORESTE, NOROESTE };
-
         public void TakeAction(Enemy e, GameModel gameModel, PhysicsGame nivel)
         {
-            //reseteo todo
-            e.ResetBrake();
-            e.ResetSteering();
-            e.ResetEngineForce();
+            //seteo el modo por defecto
+            if (currentMode == null)
+            {
+                //currentMode = new SeekPlayer(nivel);
+                currentMode = new SeekWeapon(nivel); //power weapon en base enemiga
+            }
 
-            if(currentRoutine.Count > 0)
+            //ejecuto la rutina actual si existiera
+            if (currentRoutine.Count > 0)
             {
                 var currentAction = currentRoutine.Find(a => a.t > 0f);
                 if (currentAction != null)
@@ -48,22 +55,8 @@ namespace TGC.Group.World
             var sp = e.currentSpeed;
             var t = nivel.time;
 
-            var myPos = new TGCVector3(e.RigidBody.CenterOfMassPosition);
-            var posP1 = new TGCVector3(nivel.player1.RigidBody.CenterOfMassPosition);
-
-            var deltaX = posP1.X - myPos.X;
-            var deltaZ = posP1.Z - myPos.Z;
-
-            var myRot = e.yawPitchRoll.Y;
-            var rotP1 = nivel.player1.yawPitchRoll.Y;
-            var myOr = GetOrientation(myRot);
-            var orP1 = GetOrientation(rotP1);
-
-            var chaseVector = posP1 - myPos;
-            var dist = TGCVector3.Length(chaseVector);
-            // no se usa pero se puede dejar de perseguirlo si ya estoy cerca, o si esta muy lejos hacer algo distinto como buscar items
-
-
+            //movimientos regulares
+            //rutina para esquivar obstaculos
             if (sp == 0 && t > 3f) //si no puedo avanzar (salvo al inicio) alterno entre 3 soluciones (deberia ser con hayObstaculo)
             {
                 currentRoutine.Add(new Action(() => { e.Reverse(); }, 0.5f));
@@ -95,136 +88,23 @@ namespace TGC.Group.World
                 e.Brake();
             }
 
-            //buscar player1 (chequeo el cuadrante del rival respecto a mi)
-            if (deltaX > 0f && deltaZ  < 0f) //posiciones iniciales
-            {
-                if(myOr == Orientation.SUR || myOr == Orientation.SUROESTE || myOr == Orientation.OESTE)
-                {
-                    e.TurnLeft();
-                }
-                else if (myOr == Orientation.NORTE || myOr == Orientation.NOROESTE)
-                {
-                    e.TurnRight();
-                }
-                else if(myOr == Orientation.ESTE || myOr == Orientation.NORESTE)
-                {
-                    e.TurnRight();
-                }
-                else // myOr == Orientation.SURESTE
-                {
-                    //no hago nada 
-                }
-            }
-            else if (deltaX > 0f && deltaZ >= 0f)
-            {
-                if (myOr == Orientation.SUR || myOr == Orientation.SUROESTE)
-                {
-                    e.TurnLeft();
-                }
-                else if (myOr == Orientation.NORTE || myOr == Orientation.NOROESTE || myOr == Orientation.OESTE)
-                {
-                    e.TurnRight();
-                }
-                else if (myOr == Orientation.ESTE || myOr == Orientation.SURESTE)
-                {
-                    e.TurnLeft();
-                }
-                else // myOr == Orientation.NORESTE
-                {
-                    //no hago nada
+            currentMode.Do(this); // hago lo correspondiente al modo actual
 
-                }
-            }
-            else if (deltaX <= 0f && deltaZ < 0f)
-            {
-                if (myOr == Orientation.SUR || myOr == Orientation.SURESTE || myOr == Orientation.ESTE)
-                {
-                    e.TurnRight();
-                }
-                else if (myOr == Orientation.NORTE || myOr == Orientation.NOROESTE)
-                {
-                    e.TurnLeft();
-                }
-                else if (myOr == Orientation.OESTE || myOr == Orientation.NORESTE)
-                {
-                    e.TurnLeft();
-                }
-                else // myOr == Orientation.SUROESTE
-                {
-                    //no hago nada 
-                }
-            }
-            else if (deltaX <= 0f && deltaZ >= 0f)
-            {
-                if (myOr == Orientation.SUR || myOr == Orientation.SUROESTE || myOr == Orientation.OESTE)
-                {
-                    e.TurnRight();
-                }
-                else if (myOr == Orientation.NORTE || myOr == Orientation.NORESTE)
-                {
-                    e.TurnLeft();
-                }
-                else if (myOr == Orientation.ESTE || myOr == Orientation.SURESTE)
-                {
-                    e.TurnLeft();
-                }
-                else // myOr == Orientation.NOROESTE
-                {
-                    //no hago nada
-                }
-            }
-
-            //disparar
-            if (timerToShoot >= shootForXSeconds)
-            {
+            //disparar armas si corresponde
+            if (ShootMachineGun)
                 e.FireMachinegun(gameModel, nivel);
-            }
-            if (timerToShoot >= shootForXSeconds * 2)
+            if (ShootSpecialWeapon)
             {
-                timerToShoot = 0f;
+                if (timerToShootSpecial >= specialWeaponShootFrec)
+                {
+                    e.FireWeapon(gameModel, nivel, e.SelectedWeapon);
+                    timerToShootSpecial = 0f;
+                }
+                else
+                {
+                    timerToShootSpecial += gameModel.ElapsedTime;
+                }
             }
-
-            timerToShoot += gameModel.ElapsedTime;
         }
-
-        public static Orientation GetOrientation(float rotation)
-        {
-            var roundSin = Math.Round(FastMath.Sin(rotation));
-            var roundCos = Math.Round(FastMath.Cos(rotation));
-            if (roundSin == 0 && roundCos == 1)
-            {
-                return Orientation.SUR;
-            }
-            if (roundSin == 0 && roundCos == -1)
-            {
-                return Orientation.NORTE;
-            }
-            if (roundSin == 1 && roundCos == 0)
-            {
-                return Orientation.OESTE;
-            }
-            if (roundSin == -1 && roundCos == 0)
-            {
-                return Orientation.ESTE;
-            }
-            if (roundSin == -1 && roundCos == -1)
-            {
-                return Orientation.NORESTE;
-            }
-            if (roundSin == 1 && roundCos == -1)
-            {
-                return Orientation.NOROESTE;
-            }
-            if (roundSin == -1 && roundCos == 1)
-            {
-                return Orientation.SURESTE;
-            }
-            if (roundSin == 1 && roundCos == 1)
-            {
-                return Orientation.SUROESTE;
-            }
-            return Orientation.SUR;
-        }
-
     }
 }

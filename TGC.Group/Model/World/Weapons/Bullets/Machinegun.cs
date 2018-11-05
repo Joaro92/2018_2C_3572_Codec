@@ -7,7 +7,7 @@ using TGC.Core.Mathematica;
 using TGC.Core.Sound;
 using TGC.Group.Model.World.Characters;
 
-namespace TGC.Group.World.Weapons
+namespace TGC.Group.World.Weapons.Bullets
 {
     class MachinegunBullet : Bullet
     {
