@@ -42,7 +42,7 @@ namespace TGC.Group.Model.World.Characters
 
         // Atributos constantes
         public readonly float maxSpecialPoints = 100f;
-        public readonly float costTurbo = 6f; //por segundo
+        public readonly float costTurbo = 15f; //por segundo
         public readonly float costJump = 12f;
         public readonly float specialPointsGain = 1f; //por segundo
         public readonly float turboMultiplier = 20f;

@@ -10,7 +10,7 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
         private readonly float maxDistanceToShoot = 100f;
         private readonly float minDistanceToSeekWeapons = 200f;
         private readonly float rateToSeekHealth = 0.2f;
-        private readonly float deltaError = 6f;
+        private readonly float deltaError = 4f;
 
         public SeekPlayer(PhysicsGame nivel) : base(nivel)
         {

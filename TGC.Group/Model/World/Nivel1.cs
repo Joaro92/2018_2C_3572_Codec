@@ -1,4 +1,5 @@
 using Microsoft.DirectX.DirectInput;
+using System;
 using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
@@ -38,7 +39,7 @@ namespace TGC.Group.Model.World
             skyBox = Skybox.InitSkybox();
 
             // Spawneamos algunos obstaculos dinámicos
-            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(110f, 10f, 33f)));
+            SpawnColisionables();
 
             // Spawneamos algunos items
             SpawnItems();
@@ -139,7 +140,25 @@ namespace TGC.Group.Model.World
             items.Add(new PowerItem(new TGCVector3(-72f, 4f, 240f)));
             items.Add(new Health(new TGCVector3(216f, 10f, 264f)));
             items.Add(new Energy(new TGCVector3(-120f, 10f, 240f)));
-           
+
+            //zonas dificiles
+            items.Add(new PowerItem(new TGCVector3(-216f, 10f, 24f)));
+            items.Add(new Health(new TGCVector3(192f, 4f, 564f)));
+            items.Add(new Energy(new TGCVector3(216f, 4f, 408f)));
+
+        }
+
+        private void SpawnColisionables()
+        {
+            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(110f, 10f, 33f)));
+
+            //zona tierra
+            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(0f, 8f, 456f)));
+            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(-72f, 8f, 432f)));
+            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(-132f, 8f, 456f)));
+
+            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(-48f, 10f, 108f)));
+            objetos.Add(new Colisionable(world, dir + "barrel-TgcScene.xml", new TGCVector3(-168f, 8f, 156f)));
         }
 
         private void ApplyShadersToWorld()
