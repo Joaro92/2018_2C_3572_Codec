@@ -63,7 +63,7 @@ namespace TGC.Group.Model.World
             ringMesh.AlphaBlendEnable = true;
         }
 
-        public void Render(float ElapsedTime)
+        public void Render(float ElapsedTime, float Rotation)
         {
             if (expired) return;
 
@@ -78,6 +78,7 @@ namespace TGC.Group.Model.World
             }
 
             explosionMesh.Render();
+            ringMesh.Rotation = new TGCVector3(0, Rotation, 0);
             ringMesh.Render();
             
             if (FastMath.Max(FastMath.Sin(time * 2.2f), 0) > 0.2f)

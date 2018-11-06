@@ -63,7 +63,7 @@ namespace TGC.Group.Model.GameStates
             world = new NivelUno(vehiculoP1, gameModel);
 
             //Configuramos el player para que sea el Listener
-            //gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
+            gameModel.DirectSound.ListenerTracking = world.player1.Mesh;
 
             // Inicializo el HUD
             hud = new HUD(world.player1, matchTime);

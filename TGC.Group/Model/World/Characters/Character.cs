@@ -276,19 +276,6 @@ namespace TGC.Group.Model.World.Characters
             }
         }
 
-        public void CalculateImpactDistanceAndReact(Vector3 impactPos)
-        {
-            distanceToExplosion = (impactPos - rigidBody.CenterOfMassPosition).Length;
-
-            if (distanceToExplosion < 25)
-            {
-                var forceVector = rigidBody.CenterOfMassPosition - new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z);
-                forceVector.Normalize();
-                rigidBody.ApplyImpulse(forceVector * 23, new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z));
-            }
-
-        }
-
         public virtual void Respawn(bool inflictDmg, TGCVector3 initialPos, float rotation)
         {
             var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI + rotation, 0, 0).ToBsMatrix;
@@ -486,8 +473,8 @@ namespace TGC.Group.Model.World.Characters
                 {
                     falling = false;
                     onTheFloor = true;
-                    var sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "afterJump.wav", mesh.Transform.Origin, gameModel.DirectSound.DsDevice);
-                    sound.MinDistance = 150f;
+                    var sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "afterJump.wav", this.mesh.Transform.Origin, gameModel.DirectSound.DsDevice);
+                    sound.MinDistance = 50f;
                     sound.play(false);
                 }
             }

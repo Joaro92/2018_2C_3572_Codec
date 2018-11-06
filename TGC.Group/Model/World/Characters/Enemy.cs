@@ -1,4 +1,5 @@
 ﻿using BulletSharp;
+using BulletSharp.Math;
 using TGC.Core.Mathematica;
 using TGC.Group.Model;
 using TGC.Group.Model.Vehicles;
@@ -15,6 +16,19 @@ namespace TGC.Group.World.Characters
         public Enemy(DiscreteDynamicsWorld world, TGCVector3 position, float orientation, GameModel gameModel) : base(world, Vehiculo.GetRandom(), position, orientation, gameModel)
         {
             ia = new IA();
+        }
+
+        public void CalculateImpactDistanceAndReact(Vector3 impactPos)
+        {
+            distanceToExplosion = (impactPos - rigidBody.CenterOfMassPosition).Length;
+
+            if (distanceToExplosion < 25)
+            {
+                var forceVector = rigidBody.CenterOfMassPosition - new Vector3(impactPos.X, impactPos.Y - 3, impactPos.Z);
+                forceVector.Normalize();
+                rigidBody.ApplyImpulse(forceVector * 23.33f, new Vector3(impactPos.X, impactPos.Y - 3, impactPos.Z));
+            }
+
         }
 
         public void TakeAction(GameModel gameModel, PhysicsGame nivel)

@@ -107,7 +107,7 @@ namespace TGC.Group.Model.World
             skyBox.Render();
 
             bullets.ForEach(bullet => bullet.Render());
-            explosions.ForEach(ex => ex.Render(gameModel.ElapsedTime));
+            explosions.ForEach(ex => ex.Render(gameModel.ElapsedTime, player1.yawPitchRoll.Y));
 
             foreach (Item item in items)
             {

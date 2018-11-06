@@ -38,7 +38,7 @@ namespace TGC.Group.World.Weapons.Bullets
             rigidBody.ApplyCentralImpulse(new Vector3(shooter.frontVector.X, 0, shooter.frontVector.Z) * (25 + (FastMath.Sqrt(FastMath.Abs(shooter.currentSpeed)) / 2)));
 
             sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "machinegun.wav", shooter.Mesh.Transform.Origin, dsDevice);
-            sound.MinDistance = 150f;
+            sound.MinDistance = 50f;
             sound.play(false);
         }
 
@@ -47,7 +47,7 @@ namespace TGC.Group.World.Weapons.Bullets
         public override void Dispose(Device dsDevice)
         {
             sound = new Tgc3dSound(Game.Default.MediaDirectory + Game.Default.FXDirectory + "machinegunDestroy.wav", mesh.Transform.Origin, dsDevice);
-            sound.MinDistance = 47f;
+            sound.MinDistance = 34f;
             sound.play(false);
             mesh.Dispose();
             rigidBody.Dispose();

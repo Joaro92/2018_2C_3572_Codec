@@ -1,4 +1,5 @@
 ﻿using BulletSharp;
+using BulletSharp.Math;
 using Microsoft.DirectX.DirectInput;
 using TGC.Core.Mathematica;
 using TGC.Group.Model.Vehicles;
@@ -13,6 +14,19 @@ namespace TGC.Group.Model.World.Characters
     {
         public Player1(DiscreteDynamicsWorld world, Vehiculo vehiculo, TGCVector3 position, float orientation, GameModel gameModel) : base(world, vehiculo, position, orientation, gameModel)
         {
+
+        }
+
+        public void CalculateImpactDistanceAndReact(Vector3 impactPos)
+        {
+            distanceToExplosion = (impactPos - rigidBody.CenterOfMassPosition).Length;
+
+            if (distanceToExplosion < 25)
+            {
+                var forceVector = rigidBody.CenterOfMassPosition - new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z);
+                forceVector.Normalize();
+                rigidBody.ApplyImpulse(forceVector * 22, new Vector3(impactPos.X + 0.2f, impactPos.Y - 4, impactPos.Z));
+            }
 
         }
 
