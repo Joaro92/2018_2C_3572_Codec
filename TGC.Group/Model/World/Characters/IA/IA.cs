@@ -25,17 +25,27 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
         public bool ShootMachineGun { get; set; } = false;
         public bool ShootSpecialWeapon { get; set; } = false;
         private float timerToShootSpecial = 0f;
+
+        private int alternate = 0; //control de maniobra de escape de atascamiento
+
         //private bool hayObstaculo = false;
-        private int alternate = 0;
-        public bool justAppeared { get; set; } = true;
+        public float timerJustAppeared { get; set; } = 2f; //tiempo que debe pasar para dejar de haber "just aparecido"
+        public bool justAppeared { get; set; } = true; //variable para saber si acabo de aparecer, si es asi no hago maniobra por atascamiento
 
         public void TakeAction(Enemy e, GameModel gameModel, PhysicsGame nivel)
         {
+            if (timerJustAppeared <= 0f)
+            {
+                justAppeared = false;
+            }
+            else
+                timerJustAppeared -= gameModel.ElapsedTime;
+
             //seteo el modo por defecto
             if (currentMode == null)
             {
                 //currentMode = new SeekPlayer(nivel);
-                currentMode = new SeekWeapon(nivel); //power weapon en base enemiga
+                currentMode = new SeekWeapon(nivel); //empieza buscando power weapon en base enemiga
             }
 
             //ejecuto la rutina actual si existiera
@@ -82,7 +92,6 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
             if (sp < minSpeed)
             {
                 e.Accelerate();
-                justAppeared = false;
             }
 
             if (sp > maxSpeed)

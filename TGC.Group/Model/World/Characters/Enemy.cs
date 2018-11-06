@@ -39,12 +39,14 @@ namespace TGC.Group.World.Characters
         {
             base.Respawn(inflictDmg, initialPos, rotation);
             ia.justAppeared = true;
+            ia.timerJustAppeared = 2f;
         }
 
         protected override void Straighten()
         {
             base.Straighten();
             ia.justAppeared = true;
+            ia.timerJustAppeared = 2f;
         }
     }
 }

@@ -10,6 +10,7 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
         private readonly float maxDistanceToShoot = 100f;
         private readonly float minDistanceToSeekWeapons = 200f;
         private readonly float rateToSeekHealth = 0.2f;
+        private readonly float deltaError = 6f;
 
         public SeekPlayer(PhysicsGame nivel) : base(nivel)
         {
@@ -19,7 +20,7 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
         {
             var e = nivel.enemy;
             var target = new TGCVector3(nivel.player1.RigidBody.CenterOfMassPosition);
-            var oriented = DoSearch(target,12f);
+            var oriented = DoSearch(target,deltaError);
             //medio largo de bloque de error para que se considere orientado aun cuando no esta perfectamente alineado y dispare mas seguido
 
             //si estoy suficientemente cerca
