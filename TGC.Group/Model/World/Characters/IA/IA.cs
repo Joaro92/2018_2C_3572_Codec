@@ -27,6 +27,7 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
         private float timerToShootSpecial = 0f;
         //private bool hayObstaculo = false;
         private int alternate = 0;
+        public bool justAppeared { get; set; } = true;
 
         public void TakeAction(Enemy e, GameModel gameModel, PhysicsGame nivel)
         {
@@ -57,23 +58,23 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
 
             //movimientos regulares
             //rutina para esquivar obstaculos
-            if (sp == 0 && t > 3f) //si no puedo avanzar (salvo al inicio) alterno entre 3 soluciones (deberia ser con hayObstaculo)
+            if (sp == 0 && !justAppeared) //si no tengo velocidad (salvo si recien aparece) alterno entre 3 soluciones (deberia ser con hayObstaculo)
             {
                 currentRoutine.Add(new Action(() => { e.Reverse(); }, 0.5f));
                 if (alternate == 0)
                 {
-                    currentRoutine.Add(new Action(() => { e.Accelerate(); e.TurnLeft(); }, 0.25f));
+                    currentRoutine.Add(new Action(() => { e.Accelerate(); }, 1f));
+                    currentRoutine.Add(new Action(() => { e.Jump(); }, 0.5f));
                     alternate = 1;
                 }
                 else if (alternate == 1)
                 {
-                    currentRoutine.Add(new Action(() => { e.Accelerate(); e.TurnRight(); }, 0.25f));
+                    currentRoutine.Add(new Action(() => { e.Accelerate(); e.TurnRight(); }, 0.5f));
                     alternate = 2;
                 }
                 else
                 {
-                    currentRoutine.Add(new Action(() => { e.Accelerate(); }, 1f));
-                    currentRoutine.Add(new Action(() => { e.Jump(); }, 0.5f));
+                    currentRoutine.Add(new Action(() => { e.Accelerate(); e.TurnLeft(); }, 0.5f));
                     alternate = 0;
                 }
             }
@@ -81,6 +82,7 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
             if (sp < minSpeed)
             {
                 e.Accelerate();
+                justAppeared = false;
             }
 
             if (sp > maxSpeed)

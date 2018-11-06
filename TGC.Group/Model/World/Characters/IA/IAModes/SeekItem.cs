@@ -14,7 +14,7 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
 
         public override void Do(IA ia)
         {
-            DoSearch(item.Mesh.Position);
+            DoSearch(item.Mesh.Position,0f); //error 0 porque quiero que vaya exactamente a la posicion
             if (!item.IsPresent)
             {
                 ia.currentMode = new SeekPlayer(nivel);

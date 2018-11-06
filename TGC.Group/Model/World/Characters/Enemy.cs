@@ -31,9 +31,20 @@ namespace TGC.Group.World.Characters
             ia.ShootMachineGun = false;
             ia.ShootSpecialWeapon = false;
 
-            ia.TakeAction(this,gameModel, nivel);
+            ia.TakeAction(this, gameModel, nivel);
 
         }
 
+        public override void Respawn(bool inflictDmg, TGCVector3 initialPos, float rotation)
+        {
+            base.Respawn(inflictDmg, initialPos, rotation);
+            ia.justAppeared = true;
+        }
+
+        protected override void Straighten()
+        {
+            base.Straighten();
+            ia.justAppeared = true;
+        }
     }
 }

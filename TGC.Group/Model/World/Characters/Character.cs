@@ -289,7 +289,7 @@ namespace TGC.Group.Model.World.Characters
 
         }
 
-        public void Respawn(bool inflictDmg, TGCVector3 initialPos, float rotation)
+        public virtual void Respawn(bool inflictDmg, TGCVector3 initialPos, float rotation)
         {
             var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI + rotation, 0, 0).ToBsMatrix;
             transformationMatrix.Origin = initialPos.ToBsVector;
@@ -498,7 +498,7 @@ namespace TGC.Group.Model.World.Characters
             }
         }
 
-        protected void Straighten()
+        protected virtual void Straighten()
         {
             var transformationMatrix = TGCMatrix.RotationYawPitchRoll(FastMath.PI, 0, 0).ToBsMatrix;
             transformationMatrix.Origin = RigidBody.WorldTransform.Origin + new Vector3(0, 10, 0);

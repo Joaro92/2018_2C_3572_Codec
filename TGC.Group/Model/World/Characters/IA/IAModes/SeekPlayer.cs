@@ -19,18 +19,22 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
         {
             var e = nivel.enemy;
             var target = new TGCVector3(nivel.player1.RigidBody.CenterOfMassPosition);
-            var oriented = DoSearch(target);
+            var oriented = DoSearch(target,12f);
+            //medio largo de bloque de error para que se considere orientado aun cuando no esta perfectamente alineado y dispare mas seguido
 
-            //orden para disparar si estoy suficientemente cerca
-            if (oriented && this.Distance(target) <= maxDistanceToShoot)
+            //si estoy suficientemente cerca
+            if (this.Distance(target) <= maxDistanceToShoot)
             {
-                if(e.SelectedWeapon != null)
+                if (oriented) //disparo si estoy orientado
                 {
-                    ia.ShootSpecialWeapon = true;
-                }
-                else
-                {
-                    ia.ShootMachineGun = true;
+                    if(e.SelectedWeapon != null)
+                    {
+                        ia.ShootSpecialWeapon = true;
+                    }
+                    else
+                    {
+                        ia.ShootMachineGun = true;
+                    }
                 }
             }
             else if(e.hitPoints <= e.maxHitPoints * rateToSeekHealth) //si no disparo y tengo poca vida voy a buscar salud
@@ -40,6 +44,13 @@ namespace TGC.Group.World.Characters.ArtificialIntelligence
             else if(e.SelectedWeapon == null && this.Distance(target) >= minDistanceToSeekWeapons) // si tengo vida y estoy lejos del player voy a buscar armas
             {
                 ia.currentMode = new SeekWeapon(nivel);
+            }
+            else //si no tengo que buscar armas ni vida y no estoy cerca pero estoy orientado prendo el turbo
+            {
+                //if (oriented)
+                //{
+                //    e.TurboOn();
+                //}
             }
         }
     }
