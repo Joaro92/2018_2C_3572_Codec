@@ -22,9 +22,9 @@ Rodriguez Joaquin, Legajo: 143.868-2  |  Damian Cohen, Legajo: 143.668-5
 <img src="https://github.com/Joaro92/2018_2C_3572_Codec/blob/master/.blob/Foto%20perfil.jpg" height="400"> | <img src="https://github.com/Joaro92/2018_2C_3572_Codec/blob/master/.blob/Foto%20Cohen.jpeg" height="400">
 
 ## ScreenShots ##
-![screenshot1](https://github.com/tgc-utn/tgc-group/blob/master/TGC.Group/Media/cajaMadera4.jpg)
-![screenshot2](https://github.com/tgc-utn/tgc-group/blob/master/TGC.Group/Media/cajaMadera4.jpg)
-![screenshot3](https://github.com/tgc-utn/tgc-group/blob/master/TGC.Group/Media/cajaMadera4.jpg)
+<img src="https://github.com/Joaro92/2018_2C_3572_Codec/blob/master/.blob/captura%201.jpg" height="360">
+<img src="https://github.com/Joaro92/2018_2C_3572_Codec/blob/master/.blob/captura%202.jpg" height="360">
+<img src="https://github.com/Joaro92/2018_2C_3572_Codec/blob/master/.blob/captura%203.jpg" height="360">
 
 ## Trailer ##
 [![Watch the video](http://i3.ytimg.com/vi/lb-4vTSlomU/hqdefault.jpg)](https://www.youtube.com/watch?v=lb-4vTSlomU)
