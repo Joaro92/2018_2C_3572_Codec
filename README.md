@@ -19,7 +19,7 @@ A√±o 2018 segundo cuatrimestre. Tema elegido: Twisted Metal / Derby de demolici√
 ## Integrantes ##
 Rodriguez Joaquin, Legajo: 143.868-2  |  Damian Cohen, Legajo: 143.668-5
 ------------------------------------- | -------------------------------------
-<img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/robotgc.png" height="400"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="400">
+<img src="https://github.com/Joaro92/2018_2C_3572_Codec/blob/master/.blob/Foto%20perfil.jpg" height="400"> | <img src="https://github.com/Joaro92/2018_2C_3572_Codec/blob/master/.blob/Foto%20Cohen.jpeg" height="400">
 
 ## ScreenShots ##
 ![screenshot1](https://github.com/tgc-utn/tgc-group/blob/master/TGC.Group/Media/cajaMadera4.jpg)
